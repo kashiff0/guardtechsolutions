@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 140" width="140" height="140" role="img" aria-label="Guard Tech Solutions">
+<rect width="140" height="140" rx="30" fill="#0E0E0E"/>
+<g transform="translate(-2,4) scale(1.0)">
+<path d="M72 9 C72 9 90 17.5 112 20.5 C116.5 21.1 118 23 118 27 L118 60 C118 92 100.5 110.5 72 120.5 C43.5 110.5 26 92 26 60 L26 27 C26 23 27.5 21.1 32 20.5 C54 17.5 72 9 72 9 Z" fill="#F5C518"/>
+<path d="M72 18 C72 18 88 25.5 108 28 C110.5 28.3 111.5 29.4 111.5 31.6 L111.5 60 C111.5 88 96 104.5 72 113.5 C48 104.5 32.5 88 32.5 60 L32.5 31.6 C32.5 29.4 33.5 28.3 36 28 C56 25.5 72 18 72 18 Z" fill="none" stroke="#0A0A0A" stroke-width="2.2" opacity="0.85"/>
+<g fill="#141414"><circle cx="72" cy="54" r="15"/><path d="M64.5 62 L79.5 62 L84 92 L60 92 Z"/></g>
+</g></svg>
