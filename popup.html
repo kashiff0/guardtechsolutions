@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GuardTech Outreach</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <span class="logo-icon">🛡️</span>
+        <div>
+          <div class="logo-title">GuardTech</div>
+          <div class="logo-sub">LinkedIn Outreach</div>
+        </div>
+      </div>
+    </header>
+
+    <div id="not-profile-page" class="notice hidden">
+      <p>Navigate to a LinkedIn profile page to use this extension.</p>
+    </div>
+
+    <div id="no-api-key" class="notice notice--warn hidden">
+      <p>Claude API key not configured.</p>
+      <button id="open-options" class="btn btn--secondary btn--sm">Open Settings</button>
+    </div>
+
+    <div id="main-content" class="hidden">
+      <div class="profile-card" id="profile-card">
+        <div class="profile-name" id="profile-name">Loading profile...</div>
+        <div class="profile-meta" id="profile-headline"></div>
+        <div class="profile-meta" id="profile-company"></div>
+        <div class="profile-meta" id="profile-mutual"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Campaign Goal</label>
+        <select id="campaign" class="form-select">
+          <option value="cold_outreach">Cold Outreach</option>
+          <option value="partnership">Partnership</option>
+          <option value="sales_demo">Sales Demo</option>
+          <option value="referral">Referral</option>
+          <option value="recruitment">Recruitment</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Message Type</label>
+          <select id="message-type" class="form-select">
+            <option value="connection">Connection Request</option>
+            <option value="message">Direct Message</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tone</label>
+          <select id="tone" class="form-select">
+            <option value="professional">Professional</option>
+            <option value="friendly">Friendly</option>
+            <option value="direct">Direct</option>
+          </select>
+        </div>
+      </div>
+
+      <button id="generate-btn" class="btn btn--primary">
+        <span id="generate-label">Generate Message</span>
+        <span id="generate-spinner" class="spinner hidden"></span>
+      </button>
+
+      <div id="output-section" class="hidden">
+        <div class="output-header">
+          <label class="form-label">Generated Message</label>
+          <span id="char-count" class="char-count">0 / 300</span>
+        </div>
+        <textarea id="message-output" class="message-textarea" rows="6" spellcheck="true"></textarea>
+
+        <div class="action-row">
+          <button id="copy-btn" class="btn btn--secondary btn--sm">Copy</button>
+          <button id="regenerate-btn" class="btn btn--secondary btn--sm">Regenerate</button>
+          <button id="inject-btn" class="btn btn--primary btn--sm">Inject into LinkedIn</button>
+        </div>
+
+        <div id="inject-status" class="inject-status hidden"></div>
+      </div>
+    </div>
+
+    <footer>
+      <button id="settings-link" class="link-btn">⚙ Settings</button>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
