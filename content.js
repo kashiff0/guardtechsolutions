@@ -16,28 +16,42 @@ function getText(selectors, root = document) {
   return null;
 }
 
+function extractNameFromTitle() {
+  const title = document.title;
+  // LinkedIn titles: "Name - Title | LinkedIn" or "Name | LinkedIn"
+  const match = title.match(/^([^|–\-]+?)(?:\s*[-–|]|\s+\|)/);
+  return match ? match[1].trim() : null;
+}
+
 function extractProfileData() {
   if (!isProfilePage()) return null;
 
   const name = getText([
     'h1.text-heading-xlarge',
+    '[class*="text-heading-xlarge"]',
     '.pv-text-details__left-panel h1',
+    '.scaffold-layout__main h1',
+    'main h1',
     'h1[class*="artdeco-entity-lockup__title"]',
     '.profile-info-subheader .full-name',
     'h1'
-  ]);
+  ]) || extractNameFromTitle();
 
   const headline = getText([
     '.text-body-medium.break-words',
-    '[data-generated-suggestion-target] .pv-text-details__left-panel .text-body-medium',
+    '[class*="text-body-medium"][class*="break-words"]',
     '.pv-text-details__left-panel .text-body-medium',
-    '.ph5 .mt2 .text-body-medium'
+    'main .ph5 .text-body-medium',
+    '.ph5 .mt2 .text-body-medium',
+    '[class*="top-card"] [class*="text-body-medium"]'
   ]);
 
   const location = getText([
     '.text-body-small.inline.t-black--light.break-words',
+    'span[class*="text-body-small"][class*="t-black--light"]',
     '.pv-text-details__left-panel .text-body-small',
-    '[data-field="location_pill"]'
+    '[data-field="location_pill"]',
+    'main .ph5 span[class*="t-black--light"]'
   ]);
 
   const company = getText([
@@ -50,6 +64,7 @@ function extractProfileData() {
 
   const about = getText([
     '#about ~ .pvs-list__outer-container .inline-show-more-text',
+    '#about ~ * .inline-show-more-text',
     '.pv-about-section .pv-about__summary-text',
     '[data-generated-suggestion-target] .pv-about__summary-text',
     '.pvs-list [data-view-name="profile-component-entity"] .inline-show-more-text'
@@ -57,6 +72,7 @@ function extractProfileData() {
 
   const mutualConnections = getText([
     '.ph5 .t-black--light a[href*="mutual"]',
+    'a[href*="mutual"][class*="t-black"]',
     '[data-field="mutual_connections_count"]',
     '.pv-highlights-section .pv-highlights-section__title',
     '.pvs-header__badge-text'
