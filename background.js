@@ -122,7 +122,8 @@ async function generateMessage(profile, campaign, messageType, tone, apiKey) {
     headers: {
       'Content-Type': 'application/json',
       'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01'
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
     },
     body: JSON.stringify({
       model: CLAUDE_MODEL,

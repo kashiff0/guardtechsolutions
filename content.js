@@ -128,10 +128,8 @@ function injectMessage(text) {
   const msgBox = findMessageBox();
   if (msgBox) {
     msgBox.focus();
-    msgBox.innerHTML = '';
+    document.execCommand('selectAll');
     document.execCommand('insertText', false, text);
-    msgBox.dispatchEvent(new Event('input', { bubbles: true }));
-    msgBox.dispatchEvent(new Event('change', { bubbles: true }));
     return { success: true, type: 'message' };
   }
 
