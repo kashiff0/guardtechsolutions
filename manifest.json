@@ -3,7 +3,7 @@
   "name": "GuardTech LinkedIn Outreach",
   "version": "1.0.0",
   "description": "AI-powered LinkedIn outreach automation using Claude for GuardTech Solutions campaigns",
-  "permissions": ["storage", "activeTab", "scripting"],
+  "permissions": ["storage", "activeTab", "scripting", "sidePanel"],
   "host_permissions": [
     "https://www.linkedin.com/*",
     "https://api.anthropic.com/*"
@@ -18,8 +18,10 @@
       "run_at": "document_idle"
     }
   ],
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
   "action": {
-    "default_popup": "popup.html",
     "default_title": "GuardTech Outreach",
     "default_icon": {
       "16": "icons/icon16.png",

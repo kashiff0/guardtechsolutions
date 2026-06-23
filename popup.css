@@ -9,6 +9,7 @@ body {
   font-size: 13px;
   background: #f3f4f6;
   color: #1f2937;
+  min-width: 300px;
   width: 360px;
   min-height: 200px;
 }

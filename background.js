@@ -2,6 +2,22 @@ const CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages';
 const CLAUDE_MODEL = 'claude-opus-4-8';
 const QUEUE_SERVER = 'http://127.0.0.1:7432';
 
+chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(() => {});
+
+chrome.tabs.onActivated.addListener(({ tabId }) => {
+  chrome.tabs.get(tabId, (tab) => {
+    if (!tab?.url) return;
+    const isLinkedIn = tab.url.startsWith('https://www.linkedin.com/');
+    chrome.sidePanel.setOptions({ tabId, enabled: isLinkedIn });
+  });
+});
+
+chrome.tabs.onUpdated.addListener((tabId, info, tab) => {
+  if (info.status !== 'complete' || !tab?.url) return;
+  const isLinkedIn = tab.url.startsWith('https://www.linkedin.com/');
+  chrome.sidePanel.setOptions({ tabId, enabled: isLinkedIn });
+});
+
 // Fetch the next lead from the local campaign orchestrator queue server
 async function fetchNextQueuedLead() {
   try {
