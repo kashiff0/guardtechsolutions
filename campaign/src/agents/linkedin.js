@@ -121,6 +121,28 @@ export function startQueueServer(port = 7432) {
     },
     'POST /generate/message': async (body) => {
       return await generateDirectMessage(body.leadId);
+    },
+
+    'POST /bulk-import': async (body) => {
+      const { leads = [], vertical, campaign_id = 'cold_outreach' } = body;
+      const { createLead } = await import('../db/leads.js');
+      const { getDb } = await import('../db/schema.js');
+      const db = getDb();
+
+      let imported = 0, duplicates = 0;
+      for (const lead of leads) {
+        if (!lead.first_name) continue;
+        const existing = lead.linkedin_url
+          ? db.prepare('SELECT id FROM leads WHERE linkedin_url = ? LIMIT 1').get(lead.linkedin_url)
+          : null;
+        if (existing) { duplicates++; continue; }
+        try {
+          createLead({ ...lead, vertical: vertical || 'restaurant', campaign_id, source: 'linkedin_search' });
+          imported++;
+        } catch {}
+      }
+      logger.info(`Bulk import: ${imported} imported, ${duplicates} duplicates`);
+      return { imported, duplicates };
     }
   };
 

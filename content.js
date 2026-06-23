@@ -2,6 +2,10 @@ function isProfilePage() {
   return /linkedin\.com\/in\/[^/]+/.test(window.location.href);
 }
 
+function isSearchResultsPage() {
+  return /linkedin\.com\/search\/results\/people/.test(window.location.href);
+}
+
 function getText(selectors, root = document) {
   for (const selector of selectors) {
     const el = root.querySelector(selector);
@@ -146,6 +150,55 @@ function injectMessage(text) {
   };
 }
 
+// ── Search Results Scraping ──────────────────────────────────────────────────
+
+function extractSearchResults() {
+  const cards = document.querySelectorAll('.entity-result, .search-result, [data-view-name="search-entity-result-universal-template"]');
+  const results = [];
+
+  cards.forEach(card => {
+    const nameEl = card.querySelector(
+      '.entity-result__title-text a span[aria-hidden="true"], ' +
+      '.app-aware-link span[aria-hidden="true"], ' +
+      'a.app-aware-link span:not(.visually-hidden)'
+    );
+    const name = nameEl?.textContent?.trim();
+    if (!name || name === 'LinkedIn Member') return;
+
+    const profileLinkEl = card.querySelector('a[href*="/in/"]');
+    const linkedinUrl = profileLinkEl?.href?.split('?')[0];
+
+    const headlineEl = card.querySelector(
+      '.entity-result__primary-subtitle, ' +
+      '.t-14.t-black.t-normal'
+    );
+    const headline = headlineEl?.textContent?.trim() || null;
+
+    const locationEl = card.querySelector(
+      '.entity-result__secondary-subtitle, ' +
+      '.t-14.t-black--light.t-normal'
+    );
+    const location = locationEl?.textContent?.trim() || null;
+
+    const nameParts = name.split(' ');
+    results.push({
+      first_name: nameParts[0],
+      last_name: nameParts.slice(1).join(' ') || null,
+      linkedin_name: name,
+      linkedin_url: linkedinUrl || null,
+      headline: headline,
+      location: location,
+      title: headline?.split(' at ')?.[0]?.trim() || null,
+      company: headline?.split(' at ')?.[1]?.trim() || null,
+      source: 'linkedin_search'
+    });
+  });
+
+  return results;
+}
+
+// ── Message Listener ─────────────────────────────────────────────────────────
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'getProfile') {
     const profile = extractProfileData();
@@ -156,6 +209,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'injectMessage') {
     const result = injectMessage(message.text);
     sendResponse(result);
+    return false;
+  }
+
+  if (message.action === 'getSearchResults') {
+    if (!isSearchResultsPage()) {
+      sendResponse({ success: false, error: 'Not on a LinkedIn people search page', results: [] });
+      return false;
+    }
+    const results = extractSearchResults();
+    sendResponse({ success: true, results, isSearchPage: true });
     return false;
   }
 });

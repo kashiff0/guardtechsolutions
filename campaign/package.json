@@ -5,9 +5,11 @@
   "scripts": {
     "auth": "node scripts/auth.js",
     "run": "node src/agents/orchestrator.js",
+    "watch": "node src/agents/orchestrator.js --watch",
     "email": "node src/agents/email.js",
     "linkedin": "node src/agents/linkedin.js",
     "enrich": "node src/agents/enrichment.js",
+    "discover": "node src/agents/discovery.js",
     "import": "node scripts/importLeads.js",
     "report": "node scripts/report.js"
   },

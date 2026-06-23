@@ -1,10 +1,8 @@
 let currentProfile = null;
 let activeTab = null;
 
-const CHAR_LIMITS = {
-  connection: 300,
-  message: 1000
-};
+const CHAR_LIMITS = { connection: 300, message: 1000 };
+const QUEUE_SERVER = 'http://127.0.0.1:7432';
 
 async function getActiveTab() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -15,12 +13,84 @@ function isLinkedInProfile(url) {
   return url && /linkedin\.com\/in\/[^/]+/.test(url);
 }
 
+function isLinkedInSearch(url) {
+  return url && /linkedin\.com\/search\/results\/people/.test(url);
+}
+
+async function queueToServer(endpoint, body) {
+  const { gtsLocalToken } = await chrome.storage.local.get('gtsLocalToken');
+  return fetch(`${QUEUE_SERVER}/${endpoint}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-GTS-Token': gtsLocalToken || '' },
+    body: JSON.stringify(body)
+  });
+}
+
+async function loadSearchResultsMode() {
+  show('search-results-content');
+  hide('main-content');
+  hide('not-profile-page');
+  hide('no-api-key');
+
+  try {
+    const response = await chrome.tabs.sendMessage(activeTab.id, { action: 'getSearchResults' });
+    const count = response?.results?.length || 0;
+    document.getElementById('search-count').textContent = `${count} profile${count !== 1 ? 's' : ''} visible`;
+    document.getElementById('queue-label').textContent = `Add ${count} to Queue`;
+    document.getElementById('queue-all-btn').dataset.results = JSON.stringify(response?.results || []);
+  } catch {
+    document.getElementById('search-count').textContent = 'Reload LinkedIn and try again';
+  }
+}
+
+async function queueSearchResults() {
+  const btn = document.getElementById('queue-all-btn');
+  const label = document.getElementById('queue-label');
+  const spinner = document.getElementById('queue-spinner');
+  const statusEl = document.getElementById('queue-status');
+
+  let results;
+  try { results = JSON.parse(btn.dataset.results || '[]'); } catch { results = []; }
+  if (!results.length) return;
+
+  const vertical = document.getElementById('search-vertical').value;
+  const campaign = document.getElementById('search-campaign').value;
+
+  btn.disabled = true;
+  label.textContent = 'Adding...';
+  spinner.classList.remove('hidden');
+  statusEl.classList.add('hidden');
+
+  try {
+    const res = await queueToServer('bulk-import', { leads: results, vertical, campaign_id: campaign });
+    const data = await res.json().catch(() => ({}));
+    statusEl.textContent = `✓ Added ${data.imported || results.length} leads to queue`;
+    statusEl.className = 'inject-status success';
+    statusEl.classList.remove('hidden');
+    label.textContent = 'Added!';
+  } catch {
+    statusEl.textContent = '✗ Queue server offline — run: npm run run --watch';
+    statusEl.className = 'inject-status error';
+    statusEl.classList.remove('hidden');
+    label.textContent = 'Add to Queue';
+  } finally {
+    btn.disabled = false;
+    spinner.classList.add('hidden');
+  }
+}
+
 async function loadProfile() {
   activeTab = await getActiveTab();
+
+  if (isLinkedInSearch(activeTab?.url)) {
+    await loadSearchResultsMode();
+    return;
+  }
 
   if (!isLinkedInProfile(activeTab?.url)) {
     show('not-profile-page');
     hide('main-content');
+    hide('search-results-content');
     hide('no-api-key');
     return;
   }
@@ -36,6 +106,7 @@ async function loadProfile() {
   show('main-content');
   hide('not-profile-page');
   hide('no-api-key');
+  hide('search-results-content');
 
   try {
     const response = await chrome.tabs.sendMessage(activeTab.id, { action: 'getProfile' });
@@ -184,6 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('regenerate-btn').addEventListener('click', generateMessage);
   document.getElementById('inject-btn').addEventListener('click', injectMessage);
   document.getElementById('copy-btn').addEventListener('click', copyToClipboard);
+  document.getElementById('queue-all-btn').addEventListener('click', queueSearchResults);
 
   document.getElementById('open-options').addEventListener('click', () => {
     chrome.runtime.openOptionsPage();

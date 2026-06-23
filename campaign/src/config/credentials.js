@@ -71,11 +71,16 @@ function loadAndValidate() {
     }),
     limits: Object.freeze({
       dailyEmail: parseInt(process.env.DAILY_EMAIL_LIMIT || '50'),
-      dailyLinkedin: parseInt(process.env.DAILY_LINKEDIN_LIMIT || '15')
+      dailyLinkedin: parseInt(process.env.DAILY_LINKEDIN_LIMIT || '15'),
+      discoveryPerRun: parseInt(process.env.DISCOVERY_LIMIT || '100')
     }),
     enrichment: Object.freeze({
       hunterApiKey: process.env.HUNTER_API_KEY || null,
       clearbitApiKey: process.env.CLEARBIT_API_KEY || null
+    }),
+    discovery: Object.freeze({
+      googlePlacesApiKey: process.env.GOOGLE_PLACES_API_KEY || null,
+      serpApiKey: process.env.SERP_API_KEY || null
     })
   });
 }

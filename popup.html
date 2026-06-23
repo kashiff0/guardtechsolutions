@@ -19,7 +19,46 @@
     </header>
 
     <div id="not-profile-page" class="notice hidden">
-      <p>Navigate to a LinkedIn profile page to use this extension.</p>
+      <p>Navigate to a LinkedIn profile page or <strong>People search results</strong> to use this extension.</p>
+    </div>
+
+    <!-- Search results bulk-import mode -->
+    <div id="search-results-content" class="hidden">
+      <div class="search-header">
+        <div class="search-count" id="search-count">0 profiles visible</div>
+        <div class="search-sub">Add these leads to the campaign queue</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Vertical</label>
+        <select id="search-vertical" class="form-select">
+          <option value="restaurant">Restaurant</option>
+          <option value="church">Church</option>
+          <option value="school">School</option>
+          <option value="property_manager">Property Manager</option>
+          <option value="healthcare">Healthcare</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Campaign</label>
+        <select id="search-campaign" class="form-select">
+          <option value="cold_outreach">Cold Outreach</option>
+          <option value="partnership">Partnership</option>
+          <option value="sales_demo">Sales Demo</option>
+        </select>
+      </div>
+
+      <button id="queue-all-btn" class="btn btn--primary">
+        <span id="queue-label">Add to Queue</span>
+        <span id="queue-spinner" class="spinner hidden"></span>
+      </button>
+
+      <div id="queue-status" class="inject-status hidden"></div>
+
+      <div class="search-tips">
+        Scroll LinkedIn to load more profiles, then click again to add the new ones.
+      </div>
     </div>
 
     <div id="no-api-key" class="notice notice--warn hidden">

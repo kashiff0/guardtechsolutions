@@ -302,6 +302,42 @@ footer {
   to { transform: rotate(360deg); }
 }
 
+/* Search results mode */
+.search-header {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+.search-count {
+  font-weight: 700;
+  font-size: 15px;
+  color: #1e3a5f;
+}
+
+.search-sub {
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.search-tips {
+  font-size: 11px;
+  color: #9ca3af;
+  text-align: center;
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+#search-results-content {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 /* Utility */
 .hidden {
   display: none !important;
