@@ -1,0 +1,36 @@
+# === CREDENTIALS — NEVER COMMIT ===
+.env
+.env.local
+.env.production
+campaign/data/*.db
+campaign/data/*.sqlite
+campaign/data/*.json
+campaign/.gmail-token.json
+campaign/auth-token.json
+**/credentials.json
+**/token.json
+**/service-account.json
+
+# === NODE ===
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.pnpm-debug.log*
+
+# === LOGS ===
+logs/
+*.log
+campaign/logs/
+
+# === OS ===
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/settings.json
+
+# === BUILD ===
+dist/
+build/
+.cache/

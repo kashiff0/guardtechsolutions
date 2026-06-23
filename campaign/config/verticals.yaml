@@ -1,0 +1,153 @@
+# GTS Vertical Configurations
+# Defines industry-specific context, tone, and pain points for each vertical.
+# Claude uses this to personalize every message.
+
+verticals:
+  restaurant:
+    id: restaurant
+    name: "Restaurants & Food Service"
+    tone: casual
+    tone_guidance: >
+      Warm and approachable. Owners are busy and practical — get to the point fast.
+      Avoid corporate buzzwords. Talk like a person, not a pitch deck.
+    decision_maker_titles:
+      - Owner
+      - General Manager
+      - Operations Manager
+      - Franchise Owner
+    pain_points:
+      - POS system breaches and payment card data theft
+      - Third-party delivery app account takeovers
+      - Employee insider theft via unsecured systems
+      - Ransomware targeting point-of-sale systems
+      - PCI-DSS compliance requirements for card processing
+    gts_value_prop: >
+      GuardTech helps restaurants protect payment data and customer information
+      without disrupting daily operations. We understand the pace of hospitality —
+      our solutions are lightweight, fast to deploy, and don't require IT staff on-site.
+    company_size_target: "1-50 locations"
+    example_opener: >
+      Running a restaurant means your POS system is handling payment data 24/7 —
+      that's exactly what attackers look for.
+
+  church:
+    id: church
+    name: "Churches & Religious Organizations"
+    tone: warm
+    tone_guidance: >
+      Respectful, community-focused, and relationship-first. Never salesy.
+      Acknowledge the mission-driven nature of their work. Lead with service, not product.
+      Reference protecting their congregation and donors.
+    decision_maker_titles:
+      - Senior Pastor
+      - Executive Pastor
+      - Church Administrator
+      - IT Director
+      - Operations Director
+    pain_points:
+      - Donation fraud and online giving platform security
+      - Member personal data exposure (health info, family details)
+      - Email phishing targeting staff and volunteers
+      - Ransomware hitting churches with limited IT resources
+      - Protecting children's ministry data
+    gts_value_prop: >
+      GuardTech helps churches protect their congregation's sensitive data and
+      donation systems. We offer nonprofit-friendly pricing and understand that
+      technology should serve the mission — not create new burdens.
+    company_size_target: "100-5000 members"
+    example_opener: >
+      Churches collect deeply personal information from their members —
+      addresses, family details, giving records. That's valuable data
+      that attackers increasingly target.
+
+  school:
+    id: school
+    name: "Schools & Educational Institutions"
+    tone: professional
+    tone_guidance: >
+      Formal but accessible. Decision-makers are often administrators with
+      competing priorities and strict budgets. Lead with compliance requirements
+      (FERPA, COPPA) and student data protection — these resonate most.
+      Reference board approval processes and budget cycles.
+    decision_maker_titles:
+      - Superintendent
+      - Principal
+      - IT Director
+      - Chief Information Officer
+      - Technology Coordinator
+      - Business Manager
+    pain_points:
+      - FERPA compliance for student records
+      - COPPA compliance for students under 13
+      - Ransomware attacks on school districts (major trend)
+      - Student data sold on dark web after breaches
+      - Remote learning creating new attack vectors
+      - Limited IT budgets and staff
+    gts_value_prop: >
+      GuardTech specializes in K-12 and higher education cybersecurity.
+      We help schools meet FERPA and COPPA requirements, protect student records,
+      and defend against ransomware — all within education budgets. We understand
+      procurement cycles and can work with E-Rate funding.
+    company_size_target: "50-5000 students"
+    example_opener: >
+      School districts are now the #2 most targeted sector for ransomware —
+      attackers know IT budgets are tight and data is sensitive.
+
+  property_manager:
+    id: property_manager
+    name: "Property Managers & Real Estate"
+    tone: professional
+    tone_guidance: >
+      Direct and ROI-focused. Property managers deal with tenant data,
+      payment processing, and often manage multiple properties. They respond well
+      to concrete risk scenarios and efficiency arguments. Keep it business-level.
+    decision_maker_titles:
+      - Property Manager
+      - Regional Manager
+      - Director of Operations
+      - Asset Manager
+      - Owner
+    pain_points:
+      - Tenant payment data breaches (ACH, credit card)
+      - Lease application fraud and identity theft
+      - Access control system vulnerabilities
+      - Vendor/contractor account compromise
+      - Multi-property network security sprawl
+    gts_value_prop: >
+      GuardTech helps property management companies protect tenant payment data,
+      secure access control systems, and maintain compliance across multiple
+      properties. We reduce the risk of payment fraud and data liability
+      without adding operational overhead.
+    company_size_target: "50-5000 units"
+    example_opener: >
+      Property managers process tenant payments and store personal information
+      across dozens of systems — each one a potential entry point for attackers.
+
+  healthcare:
+    id: healthcare
+    name: "Healthcare & Medical Practices"
+    tone: professional
+    tone_guidance: >
+      Compliance-forward and precise. HIPAA is the primary hook.
+      Decision-makers are risk-averse by nature — lead with liability and
+      regulatory exposure, then offer the solution. Never casual.
+    decision_maker_titles:
+      - Practice Manager
+      - Office Manager
+      - Chief Medical Officer
+      - IT Manager
+      - Compliance Officer
+    pain_points:
+      - HIPAA compliance and breach notification requirements
+      - EHR system vulnerabilities
+      - Ransomware targeting healthcare (highest ransom payments)
+      - Medical device security
+      - Staff phishing leading to PHI exposure
+    gts_value_prop: >
+      GuardTech provides HIPAA-compliant cybersecurity for medical practices.
+      We help you protect patient health information, pass audits, and respond
+      to incidents — with documentation that satisfies OCR investigations.
+    company_size_target: "5-500 employees"
+    example_opener: >
+      Healthcare practices face an average HIPAA breach fine of $100K+.
+      Most start with a phishing email that staff don't see coming.

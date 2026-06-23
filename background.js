@@ -1,5 +1,39 @@
 const CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages';
 const CLAUDE_MODEL = 'claude-opus-4-8';
+const QUEUE_SERVER = 'http://127.0.0.1:7432';
+
+// Fetch the next lead from the local campaign orchestrator queue server
+async function fetchNextQueuedLead() {
+  try {
+    const token = await getLocalToken();
+    const res = await fetch(`${QUEUE_SERVER}/next`, {
+      headers: { 'X-GTS-Token': token || '' }
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.empty ? null : data;
+  } catch {
+    return null;
+  }
+}
+
+async function reportToQueue(endpoint, body) {
+  try {
+    const token = await getLocalToken();
+    await fetch(`${QUEUE_SERVER}/${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-GTS-Token': token || '' },
+      body: JSON.stringify(body)
+    });
+  } catch {
+    // Queue server may not be running; continue without it
+  }
+}
+
+async function getLocalToken() {
+  const { gtsLocalToken } = await chrome.storage.local.get('gtsLocalToken');
+  return gtsLocalToken || '';
+}
 
 const CAMPAIGN_PROMPTS = {
   cold_outreach: {
@@ -115,11 +149,34 @@ async function generateMessage(profile, campaign, messageType, tone, apiKey) {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'generateMessage') {
     const { profile, campaign, messageType, tone, apiKey } = message;
-
     generateMessage(profile, campaign, messageType, tone, apiKey)
       .then(text => sendResponse({ success: true, message: text }))
       .catch(err => sendResponse({ success: false, error: err.message }));
+    return true;
+  }
 
+  if (message.action === 'getNextQueuedLead') {
+    fetchNextQueuedLead()
+      .then(lead => sendResponse({ lead }))
+      .catch(() => sendResponse({ lead: null }));
+    return true;
+  }
+
+  if (message.action === 'reportConnectionSent') {
+    reportToQueue('connection-sent', { leadId: message.leadId, message: message.text })
+      .then(() => sendResponse({ ok: true }));
+    return true;
+  }
+
+  if (message.action === 'reportConnectionAccepted') {
+    reportToQueue('connection-accepted', { leadId: message.leadId })
+      .then(() => sendResponse({ ok: true }));
+    return true;
+  }
+
+  if (message.action === 'reportMessageSent') {
+    reportToQueue('message-sent', { leadId: message.leadId, message: message.text })
+      .then(() => sendResponse({ ok: true }));
     return true;
   }
 });

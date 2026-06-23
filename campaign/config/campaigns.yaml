@@ -1,0 +1,102 @@
+# GTS Campaign Definitions
+# Each campaign defines the outreach sequence and timing.
+
+campaigns:
+  cold_outreach:
+    id: cold_outreach
+    name: "Cold Outreach"
+    description: "Introduce GuardTech to decision-makers with no prior contact"
+    sequence:
+      - step: 1
+        channel: linkedin
+        type: connection_request
+        delay_days: 0
+        char_limit: 300
+      - step: 2
+        channel: linkedin
+        type: direct_message
+        delay_days: 3
+        trigger: linkedin_accepted
+        char_limit: 1000
+      - step: 3
+        channel: email
+        type: email_intro
+        delay_days: 2
+        subject_template: "Quick question about {company}'s security posture"
+        char_limit: 500
+      - step: 4
+        channel: email
+        type: email_followup_1
+        delay_days: 4
+        subject_template: "Re: {company} — one specific thought"
+        char_limit: 400
+      - step: 5
+        channel: email
+        type: email_breakup
+        delay_days: 5
+        subject_template: "Last note — {first_name}"
+        char_limit: 300
+    max_touches: 5
+    cooldown_days: 90
+
+  partnership:
+    id: partnership
+    name: "Partnership / Referral Partner"
+    description: "Reach out to complementary businesses for referral partnerships"
+    sequence:
+      - step: 1
+        channel: linkedin
+        type: connection_request
+        delay_days: 0
+        char_limit: 300
+      - step: 2
+        channel: linkedin
+        type: direct_message
+        delay_days: 2
+        trigger: linkedin_accepted
+        char_limit: 1000
+      - step: 3
+        channel: email
+        type: email_intro
+        delay_days: 3
+        subject_template: "Partnership idea — GuardTech + {company}"
+        char_limit: 500
+      - step: 4
+        channel: email
+        type: email_followup_1
+        delay_days: 5
+        subject_template: "Following up on partnership"
+        char_limit: 300
+    max_touches: 4
+    cooldown_days: 60
+
+  sales_demo:
+    id: sales_demo
+    name: "Demo Request"
+    description: "Warm prospects who have shown interest or fit ideal profile"
+    sequence:
+      - step: 1
+        channel: email
+        type: email_intro
+        delay_days: 0
+        subject_template: "15-min security review for {company}?"
+        char_limit: 400
+      - step: 2
+        channel: linkedin
+        type: connection_request
+        delay_days: 2
+        char_limit: 300
+      - step: 3
+        channel: email
+        type: email_followup_1
+        delay_days: 3
+        subject_template: "Quick follow-up — {company} security"
+        char_limit: 300
+      - step: 4
+        channel: email
+        type: email_breakup
+        delay_days: 5
+        subject_template: "Last outreach — {first_name}"
+        char_limit: 200
+    max_touches: 4
+    cooldown_days: 45
