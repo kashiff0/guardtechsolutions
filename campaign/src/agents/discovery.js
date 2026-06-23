@@ -14,8 +14,7 @@
  */
 
 import { fileURLToPath } from 'url';
-import { getDb } from '../db/schema.js';
-import { createLead } from '../db/leads.js';
+import { createLead, findDuplicate } from '../db/leads.js';
 import { discoverViaGooglePlaces } from '../sources/googlePlaces.js';
 import { discoverViaWebSearch } from '../sources/webSearch.js';
 import { credentials } from '../config/credentials.js';
@@ -23,31 +22,12 @@ import { logger } from '../utils/logger.js';
 
 const VALID_VERTICALS = ['restaurant', 'church', 'school', 'property_manager', 'healthcare'];
 
-function isDuplicate(db, lead) {
-  if (lead.email) {
-    const byEmail = db.prepare('SELECT id FROM leads WHERE email = ? LIMIT 1').get(lead.email);
-    if (byEmail) return true;
-  }
-  if (lead.linkedin_url) {
-    const byLinkedIn = db.prepare('SELECT id FROM leads WHERE linkedin_url = ? LIMIT 1').get(lead.linkedin_url);
-    if (byLinkedIn) return true;
-  }
-  if (lead.first_name && lead.company) {
-    const byNameCompany = db.prepare(
-      'SELECT id FROM leads WHERE first_name = ? AND company = ? LIMIT 1'
-    ).get(lead.first_name, lead.company);
-    if (byNameCompany) return true;
-  }
-  return false;
-}
-
 async function runDiscoveryAgent({ vertical, location, limit, campaign = 'cold_outreach', source }) {
   if (!VALID_VERTICALS.includes(vertical)) {
     throw new Error(`Invalid vertical: ${vertical}. Valid: ${VALID_VERTICALS.join(', ')}`);
   }
   if (!location) throw new Error('--location is required (e.g. "Chicago, IL")');
 
-  const db = getDb();
   const maxLeads = limit || credentials.limits.discoveryPerRun;
 
   logger.info(`\n${'='.repeat(50)}`);
@@ -103,12 +83,12 @@ async function runDiscoveryAgent({ vertical, location, limit, campaign = 'cold_o
   let duplicates = 0;
 
   for (const lead of toImport) {
-    if (isDuplicate(db, lead)) {
+    if (await findDuplicate(lead)) {
       duplicates++;
       continue;
     }
     try {
-      createLead({ ...lead, campaign_id: campaign });
+      await createLead({ ...lead, campaign_id: campaign });
       imported++;
     } catch (err) {
       logger.error(`Import failed for ${lead.first_name}: ${err.message}`);

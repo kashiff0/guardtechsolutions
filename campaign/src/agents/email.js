@@ -47,12 +47,12 @@ function isReadyForNextEmail(lead, touchHistory, step) {
 
 async function processLead(lead) {
   const campaign = campaignsConfig[lead.campaign_id] || campaignsConfig.cold_outreach;
-  const touchHistory = getTouchHistory(lead.id);
+  const touchHistory = await getTouchHistory(lead.id);
   const emailStep = getSequenceStep(lead, touchHistory);
 
   if (emailStep >= EMAIL_SEQUENCE_TYPES.length) {
     logger.info(`Lead ${lead.id} (${lead.first_name}) — email sequence complete`);
-    updateLeadStatus(lead.id, LEAD_STATUS.CLOSED_LOST, { notes: 'Email sequence completed, no reply' });
+    await updateLeadStatus(lead.id, LEAD_STATUS.CLOSED_LOST, { notes: 'Email sequence completed, no reply' });
     return { skipped: true, reason: 'sequence_complete' };
   }
 
@@ -82,14 +82,14 @@ async function processLead(lead) {
     });
   } catch (err) {
     logger.error(`Claude generation failed for lead ${lead.id}: ${err.message}`);
-    recordTouch({ leadId: lead.id, channel: 'email', type: emailType, step: emailStep + 1, status: 'error', error: err.message });
+    await recordTouch({ leadId: lead.id, channel: 'email', type: emailType, step: emailStep + 1, status: 'error', error: err.message });
     return { error: err.message };
   }
 
   try {
     const result = await sendEmail({ to: lead.email, subject, body });
 
-    recordTouch({
+    await recordTouch({
       leadId: lead.id,
       channel: 'email',
       type: emailType,
@@ -100,7 +100,7 @@ async function processLead(lead) {
       status: 'sent'
     });
 
-    updateLeadStatus(lead.id, LEAD_STATUS.EMAIL_SEQUENCE, {
+    await updateLeadStatus(lead.id, LEAD_STATUS.EMAIL_SEQUENCE, {
       sequence_step: emailStep + 1,
       last_contacted_at: new Date().toISOString()
     });
@@ -110,14 +110,14 @@ async function processLead(lead) {
 
   } catch (err) {
     logger.error(`Send failed for ${lead.email}: ${err.message}`);
-    recordTouch({ leadId: lead.id, channel: 'email', type: emailType, step: emailStep + 1, status: 'error', error: err.message });
+    await recordTouch({ leadId: lead.id, channel: 'email', type: emailType, step: emailStep + 1, status: 'error', error: err.message });
     return { error: err.message };
   }
 }
 
 export async function runEmailAgent(limit = 50) {
   logger.info('=== Email Agent Starting ===');
-  const leads = getLeadsForEmail(limit);
+  const leads = await getLeadsForEmail(limit);
   logger.info(`Found ${leads.length} leads ready for email`);
 
   const results = { sent: 0, skipped: 0, errors: 0 };

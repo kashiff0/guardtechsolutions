@@ -13,6 +13,9 @@ import {
   getNextLinkedInProfile,
   getLeadsForLinkedIn,
   updateLeadStatus,
+  getLead,
+  createLead,
+  findDuplicate,
   LEAD_STATUS
 } from '../db/leads.js';
 import { recordTouch } from '../db/touches.js';
@@ -21,7 +24,7 @@ import { linkedinLimiter } from '../utils/rateLimiter.js';
 import { logger } from '../utils/logger.js';
 
 export async function getNextProfile() {
-  const lead = getNextLinkedInProfile();
+  const lead = await getNextLinkedInProfile();
   if (!lead) {
     logger.info('LinkedIn queue empty');
     return null;
@@ -30,8 +33,7 @@ export async function getNextProfile() {
 }
 
 export async function generateConnectionRequest(leadId) {
-  const { getLead } = await import('../db/leads.js');
-  const lead = getLead(leadId);
+  const lead = await getLead(leadId);
   if (!lead) throw new Error(`Lead ${leadId} not found`);
 
   const text = await generateLinkedInMessage({ lead, messageType: 'connection' });
@@ -39,17 +41,16 @@ export async function generateConnectionRequest(leadId) {
 }
 
 export async function generateDirectMessage(leadId) {
-  const { getLead } = await import('../db/leads.js');
-  const lead = getLead(leadId);
+  const lead = await getLead(leadId);
   if (!lead) throw new Error(`Lead ${leadId} not found`);
 
   const text = await generateLinkedInMessage({ lead, messageType: 'message' });
   return { text, charCount: text.length, limit: 1000, overLimit: text.length > 1000 };
 }
 
-export function markConnectionSent(leadId, messageText) {
-  updateLeadStatus(leadId, LEAD_STATUS.LINKEDIN_SENT);
-  recordTouch({
+export async function markConnectionSent(leadId, messageText) {
+  await updateLeadStatus(leadId, LEAD_STATUS.LINKEDIN_SENT);
+  await recordTouch({
     leadId,
     channel: 'linkedin',
     type: 'connection_request',
@@ -60,14 +61,14 @@ export function markConnectionSent(leadId, messageText) {
   logger.info(`LinkedIn connection request marked sent for lead ${leadId}`);
 }
 
-export function markConnectionAccepted(leadId) {
-  updateLeadStatus(leadId, LEAD_STATUS.LINKEDIN_ACCEPTED);
+export async function markConnectionAccepted(leadId) {
+  await updateLeadStatus(leadId, LEAD_STATUS.LINKEDIN_ACCEPTED);
   logger.info(`LinkedIn connection accepted for lead ${leadId}`);
 }
 
-export function markDirectMessageSent(leadId, messageText) {
-  updateLeadStatus(leadId, LEAD_STATUS.LINKEDIN_MESSAGED);
-  recordTouch({
+export async function markDirectMessageSent(leadId, messageText) {
+  await updateLeadStatus(leadId, LEAD_STATUS.LINKEDIN_MESSAGED);
+  await recordTouch({
     leadId,
     channel: 'linkedin',
     type: 'direct_message',
@@ -78,9 +79,9 @@ export function markDirectMessageSent(leadId, messageText) {
   logger.info(`LinkedIn direct message marked sent for lead ${leadId}`);
 }
 
-export function markLinkedInReplied(leadId) {
-  updateLeadStatus(leadId, LEAD_STATUS.REPLIED);
-  recordTouch({
+export async function markLinkedInReplied(leadId) {
+  await updateLeadStatus(leadId, LEAD_STATUS.REPLIED);
+  await recordTouch({
     leadId,
     channel: 'linkedin',
     type: 'reply_received',
@@ -98,22 +99,22 @@ export function startQueueServer(port = 7432) {
       return lead || { empty: true };
     },
     'GET /queue': async () => {
-      return getLeadsForLinkedIn(20);
+      return await getLeadsForLinkedIn(20);
     },
     'POST /connection-sent': async (body) => {
-      markConnectionSent(body.leadId, body.message);
+      await markConnectionSent(body.leadId, body.message);
       return { ok: true };
     },
     'POST /connection-accepted': async (body) => {
-      markConnectionAccepted(body.leadId);
+      await markConnectionAccepted(body.leadId);
       return { ok: true };
     },
     'POST /message-sent': async (body) => {
-      markDirectMessageSent(body.leadId, body.message);
+      await markDirectMessageSent(body.leadId, body.message);
       return { ok: true };
     },
     'POST /replied': async (body) => {
-      markLinkedInReplied(body.leadId);
+      await markLinkedInReplied(body.leadId);
       return { ok: true };
     },
     'POST /generate/connection': async (body) => {
@@ -125,19 +126,13 @@ export function startQueueServer(port = 7432) {
 
     'POST /bulk-import': async (body) => {
       const { leads = [], vertical, campaign_id = 'cold_outreach' } = body;
-      const { createLead } = await import('../db/leads.js');
-      const { getDb } = await import('../db/schema.js');
-      const db = getDb();
 
       let imported = 0, duplicates = 0;
       for (const lead of leads) {
         if (!lead.first_name) continue;
-        const existing = lead.linkedin_url
-          ? db.prepare('SELECT id FROM leads WHERE linkedin_url = ? LIMIT 1').get(lead.linkedin_url)
-          : null;
-        if (existing) { duplicates++; continue; }
+        if (await findDuplicate(lead)) { duplicates++; continue; }
         try {
-          createLead({ ...lead, vertical: vertical || 'restaurant', campaign_id, source: 'linkedin_search' });
+          await createLead({ ...lead, vertical: vertical || 'property_manager', campaign_id, source: 'linkedin_search' });
           imported++;
         } catch {}
       }

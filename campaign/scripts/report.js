@@ -2,10 +2,12 @@
  * Campaign Report Script
  * Prints a weekly summary of campaign performance.
  *
- * Usage: node scripts/report.js
+ * Usage: node scripts/report.js   (or: npm run report)
+ *
+ * Reads from Supabase and aggregates client-side — the dataset is small and
+ * Supabase's JS client has no GROUP BY, so we pull the rows and reduce here.
  */
-
-import { getDb } from '../src/db/schema.js';
+import { supabase } from '../src/db/schema.js';
 import { getStats } from '../src/db/leads.js';
 
 function formatTable(rows, cols) {
@@ -22,34 +24,48 @@ function formatTable(rows, cols) {
   return lines.join('\n');
 }
 
-function main() {
-  const db = getDb();
+// group an array of rows by a key fn into [{...}] with running tallies
+function tally(rows, keyFn, addFn) {
+  const map = new Map();
+  for (const r of rows) {
+    const k = keyFn(r);
+    if (!map.has(k)) map.set(k, addFn(r, null));
+    else map.set(k, addFn(r, map.get(k)));
+  }
+  return [...map.values()];
+}
 
+async function main() {
   console.log('\n' + '='.repeat(60));
   console.log('GTS Campaign Report — ' + new Date().toLocaleDateString());
   console.log('='.repeat(60) + '\n');
 
   // Lead status breakdown
-  const stats = getStats();
-  const total = stats.reduce((s, r) => s + r.count, 0);
+  const stats = await getStats();
+  const total = stats.reduce((s, r) => s + r.count, 0) || 1;
   console.log('📋 Lead Status Breakdown\n');
   console.log(formatTable(
     stats.map(s => ({ status: s.status, count: s.count, pct: Math.round(s.count / total * 100) + '%' })),
     [{ key: 'status', label: 'Status' }, { key: 'count', label: 'Count' }, { key: 'pct', label: '%' }]
   ));
 
-  // Email metrics (last 30 days)
-  const emailStats = db.prepare(`
-    SELECT
-      type,
-      COUNT(*) as sent,
-      SUM(CASE WHEN status = 'replied' THEN 1 ELSE 0 END) as replies,
-      SUM(CASE WHEN status = 'opened' THEN 1 ELSE 0 END) as opens
-    FROM touches
-    WHERE channel = 'email' AND sent_at > datetime('now', '-30 days')
-    GROUP BY type
-  `).all();
+  // Touch metrics (last 30 days), grouped by type within channel
+  const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const { data: touches = [] } = await supabase.from('touches')
+    .select('channel, type, status, sent_at').gt('sent_at', cutoff);
 
+  const touchRows = (channel) => tally(
+    (touches || []).filter(t => t.channel === channel),
+    t => t.type,
+    (t, acc) => ({
+      type: t.type,
+      sent: (acc?.sent || 0) + 1,
+      opens: (acc?.opens || 0) + (t.status === 'opened' ? 1 : 0),
+      replies: (acc?.replies || 0) + (t.status === 'replied' ? 1 : 0)
+    })
+  );
+
+  const emailStats = touchRows('email');
   if (emailStats.length) {
     console.log('\n📧 Email Performance (Last 30 Days)\n');
     console.log(formatTable(emailStats, [
@@ -60,17 +76,7 @@ function main() {
     ]));
   }
 
-  // LinkedIn metrics
-  const liMetrics = db.prepare(`
-    SELECT
-      type,
-      COUNT(*) as sent,
-      SUM(CASE WHEN status = 'replied' THEN 1 ELSE 0 END) as replies
-    FROM touches
-    WHERE channel = 'linkedin' AND sent_at > datetime('now', '-30 days')
-    GROUP BY type
-  `).all();
-
+  const liMetrics = touchRows('linkedin');
   if (liMetrics.length) {
     console.log('\n🔗 LinkedIn Performance (Last 30 Days)\n');
     console.log(formatTable(liMetrics, [
@@ -80,12 +86,19 @@ function main() {
     ]));
   }
 
-  // Vertical breakdown
-  const byVertical = db.prepare(`
-    SELECT vertical, COUNT(*) as count,
-           SUM(CASE WHEN status = 'qualified' OR status = 'meeting_booked' THEN 1 ELSE 0 END) as qualified
-    FROM leads GROUP BY vertical ORDER BY count DESC
-  `).all();
+  // Leads, used for vertical breakdown + hot leads
+  const { data: leads = [] } = await supabase.from('leads')
+    .select('first_name, last_name, company, title, status, score, vertical');
+
+  const byVertical = tally(
+    leads || [],
+    l => l.vertical || 'unknown',
+    (l, acc) => ({
+      vertical: l.vertical || 'unknown',
+      count: (acc?.count || 0) + 1,
+      qualified: (acc?.qualified || 0) + (['qualified', 'meeting_booked'].includes(l.status) ? 1 : 0)
+    })
+  ).sort((a, b) => b.count - a.count);
 
   console.log('\n🏢 Leads by Vertical\n');
   console.log(formatTable(byVertical, [
@@ -94,13 +107,16 @@ function main() {
     { key: 'qualified', label: 'Qualified' }
   ]));
 
-  // Hot leads
-  const hotLeads = db.prepare(`
-    SELECT first_name || ' ' || COALESCE(last_name, '') as name, company, title, status, score
-    FROM leads
-    WHERE status IN ('replied', 'qualified', 'meeting_booked')
-    ORDER BY score DESC LIMIT 10
-  `).all();
+  const hotLeads = (leads || [])
+    .filter(l => ['replied', 'qualified', 'meeting_booked'].includes(l.status))
+    .sort((a, b) => (b.score || 0) - (a.score || 0))
+    .slice(0, 10)
+    .map(l => ({
+      name: `${l.first_name || ''} ${l.last_name || ''}`.trim(),
+      company: l.company,
+      status: l.status,
+      score: l.score
+    }));
 
   if (hotLeads.length) {
     console.log('\n🔥 Hot Leads\n');
@@ -115,4 +131,4 @@ function main() {
   console.log('');
 }
 
-main();
+main().then(() => process.exit(0)).catch(err => { console.error(err.message); process.exit(1); });

@@ -9,11 +9,10 @@
  */
 
 import { fileURLToPath } from 'url';
-import { getLeadsForEnrichment, updateLeadStatus, getLead, LEAD_STATUS } from '../db/leads.js';
+import { getLeadsForEnrichment, updateLeadStatus, markEnriched, getLead, LEAD_STATUS } from '../db/leads.js';
 import { enrichLeadWithClaude } from '../skills/claude.js';
 import { credentials } from '../config/credentials.js';
 import { logger } from '../utils/logger.js';
-import { getDb } from '../db/schema.js';
 
 async function findEmailViaHunter(firstName, lastName, domain) {
   if (!credentials.enrichment.hunterApiKey || !domain) return null;
@@ -106,23 +105,18 @@ async function enrichLead(lead) {
     if (key === 'score' && val) updates[key] = val;
   }
 
+  await markEnriched(lead.id, updates);
   if (Object.keys(updates).length > 0) {
-    const db = getDb();
-    const fields = Object.keys(updates).map(k => `${k} = @${k}`).join(', ');
-    db.prepare(`UPDATE leads SET ${fields}, enriched = 1, updated_at = datetime('now') WHERE id = @id`)
-      .run({ ...updates, id: lead.id });
     logger.info(`Updated ${Object.keys(updates).join(', ')} for lead ${lead.id}`);
-  } else {
-    getDb().prepare(`UPDATE leads SET enriched = 1, updated_at = datetime('now') WHERE id = ?`).run(lead.id);
   }
 
-  updateLeadStatus(lead.id, LEAD_STATUS.ENRICHED);
+  await updateLeadStatus(lead.id, LEAD_STATUS.ENRICHED);
   return { id: lead.id, updates };
 }
 
 export async function runEnrichmentAgent(limit = 20) {
   logger.info('=== Enrichment Agent Starting ===');
-  const leads = getLeadsForEnrichment(limit);
+  const leads = await getLeadsForEnrichment(limit);
   logger.info(`Found ${leads.length} leads to enrich`);
 
   let enriched = 0, errors = 0;

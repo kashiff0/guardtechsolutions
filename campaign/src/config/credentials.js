@@ -18,6 +18,16 @@ const REQUIRED = [
     hint: 'Get from https://console.anthropic.com → API Keys'
   },
   {
+    key: 'SUPABASE_URL',
+    validate: v => v.startsWith('http'),
+    hint: 'Supabase → Project Settings → API → Project URL'
+  },
+  {
+    key: 'SUPABASE_SERVICE_ROLE_KEY',
+    validate: v => v.length > 20,
+    hint: 'Supabase → Project Settings → API → service_role secret (server-side only)'
+  },
+  {
     key: 'GMAIL_CLIENT_ID',
     validate: v => v.includes('.apps.googleusercontent.com'),
     hint: 'Google Cloud Console → APIs & Services → Credentials'
@@ -62,6 +72,10 @@ function loadAndValidate() {
 
   return Object.freeze({
     anthropicApiKey: process.env.ANTHROPIC_API_KEY,
+    supabase: Object.freeze({
+      url: process.env.SUPABASE_URL,
+      serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY
+    }),
     dryRun: process.env.DRY_RUN !== 'false',
     gmail: Object.freeze({
       clientId: process.env.GMAIL_CLIENT_ID,

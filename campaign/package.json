@@ -11,11 +11,13 @@
     "enrich": "node src/agents/enrichment.js",
     "discover": "node src/agents/discovery.js",
     "import": "node scripts/importLeads.js",
-    "report": "node scripts/report.js"
+    "report": "node scripts/report.js",
+    "migrate": "node scripts/migrateToSupabase.js",
+    "create-user": "node scripts/createUser.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.56.0",
-    "better-sqlite3": "^11.0.0",
+    "@supabase/supabase-js": "^2.45.0",
     "googleapis": "^144.0.0",
     "js-yaml": "^4.1.0",
     "node-cron": "^3.0.3",

@@ -15,13 +15,11 @@
 
 import { fileURLToPath } from 'url';
 import cron from 'node-cron';
-import { v4 as uuidv4 } from 'uuid';
-import { getDb } from '../db/schema.js';
-import { getStats } from '../db/leads.js';
+import { getStats, getLeadByEmail, updateLeadStatus, LEAD_STATUS } from '../db/leads.js';
 import { searchReplies } from '../skills/gmail.js';
 import { scoreAndQualifyLead } from '../skills/claude.js';
-import { updateLeadStatus, LEAD_STATUS } from '../db/leads.js';
-import { markTouchReplied } from '../db/touches.js';
+import { markTouchReplied, hasReplied } from '../db/touches.js';
+import { createRun, finishRun } from '../db/runs.js';
 import { runEnrichmentAgent } from './enrichment.js';
 import { runEmailAgent } from './email.js';
 import { startQueueServer } from './linkedin.js';
@@ -29,7 +27,6 @@ import { logger } from '../utils/logger.js';
 
 async function processReplies() {
   logger.info('Checking Gmail for replies...');
-  const db = getDb();
 
   let replies;
   try {
@@ -45,17 +42,10 @@ async function processReplies() {
     // Match reply to a lead by email address
     const emailFrom = reply.from.match(/<([^>]+)>/)?.[1] || reply.from;
 
-    const lead = db.prepare(`
-      SELECT * FROM leads WHERE email = ? LIMIT 1
-    `).get(emailFrom);
-
+    const lead = await getLeadByEmail(emailFrom);
     if (!lead) continue;
 
-    const existingReply = db.prepare(`
-      SELECT id FROM touches WHERE lead_id = ? AND status = 'replied' AND channel = 'email'
-    `).get(lead.id);
-
-    if (existingReply) continue;
+    if (await hasReplied(lead.id, 'email')) continue;
 
     logger.info(`Reply from ${lead.first_name} ${lead.last_name || ''} (${emailFrom}): "${reply.subject}"`);
 
@@ -66,12 +56,12 @@ async function processReplies() {
       qualification = { suggested_status: LEAD_STATUS.REPLIED, score_adjustment: 0, notes: 'Manual review needed' };
     }
 
-    markTouchReplied(lead.id, 'email');
+    await markTouchReplied(lead.id, 'email');
 
     const newScore = Math.min(100, Math.max(0, (lead.score || 50) + (qualification.score_adjustment || 0)));
-    updateLeadStatus(lead.id, qualification.suggested_status || LEAD_STATUS.REPLIED, {
+    await updateLeadStatus(lead.id, qualification.suggested_status || LEAD_STATUS.REPLIED, {
       score: newScore,
-      notes: [lead.notes, qualification.notes].filter(Boolean).join(' | ')
+      notes: qualification.notes || null
     });
 
     logger.info(`Lead ${lead.id} qualified — intent: ${qualification.intent}, status: ${qualification.suggested_status}`);
@@ -81,9 +71,9 @@ async function processReplies() {
   return { processed };
 }
 
-function logCampaignStats() {
-  const stats = getStats();
-  const total = stats.reduce((sum, s) => sum + s.count, 0);
+async function logCampaignStats() {
+  const stats = await getStats();
+  const total = stats.reduce((sum, s) => sum + s.count, 0) || 1;
   logger.info(`\n📊 Campaign Stats (${total} leads total):`);
   for (const { status, count } of stats) {
     const pct = Math.round((count / total) * 100);
@@ -92,11 +82,9 @@ function logCampaignStats() {
 }
 
 async function runOnce() {
-  const runId = uuidv4();
-  const db = getDb();
+  const runId = await createRun();
   const stats = { leadsProcessed: 0, emailsSent: 0, errors: 0 };
 
-  db.prepare(`INSERT INTO campaign_runs (id) VALUES (?)`).run(runId);
   logger.info(`\n${'='.repeat(50)}`);
   logger.info(`GTS Campaign Run: ${runId}`);
   logger.info(`${'='.repeat(50)}\n`);
@@ -116,13 +104,13 @@ async function runOnce() {
   stats.errors += emailResult.errors;
 
   // Log stats
-  logCampaignStats();
+  await logCampaignStats();
 
-  db.prepare(`
-    UPDATE campaign_runs
-    SET completed_at = datetime('now'), leads_processed = ?, emails_sent = ?, errors = ?
-    WHERE id = ?
-  `).run(stats.leadsProcessed, stats.emailsSent, stats.errors, runId);
+  await finishRun(runId, {
+    leadsProcessed: stats.leadsProcessed,
+    emailsSent: stats.emailsSent,
+    errors: stats.errors
+  });
 
   logger.info(`\nRun complete: ${JSON.stringify(stats)}`);
   return stats;

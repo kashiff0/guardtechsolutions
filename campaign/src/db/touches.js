@@ -1,64 +1,72 @@
-import { v4 as uuidv4 } from 'uuid';
-import { getDb } from './schema.js';
+/**
+ * Outreach touch history — Supabase (service role). All async.
+ */
+import { supabase } from './supabase.js';
 
-export function recordTouch({ leadId, channel, type, step, body, subject, messageId, status = 'sent', error }) {
-  const db = getDb();
-  const id = uuidv4();
-
-  db.prepare(`
-    INSERT INTO touches (id, lead_id, channel, type, sequence_step, body, subject, message_id, status, sent_at, error)
-    VALUES (@id, @lead_id, @channel, @type, @step, @body, @subject, @message_id, @status, @sent_at, @error)
-  `).run({
-    id,
+export async function recordTouch({ leadId, channel, type, step, body, subject, messageId, status = 'sent', error }) {
+  const { data, error: insErr } = await supabase.from('touches').insert({
     lead_id: leadId,
     channel,
     type,
-    step: step || null,
+    sequence_step: step || null,
     body: body || null,
     subject: subject || null,
     message_id: messageId || null,
     status,
-    sent_at: new Date().toISOString(),
     error: error || null
-  });
+  }).select('id').single();
+  if (insErr) throw new Error(`recordTouch: ${insErr.message}`);
 
-  db.prepare(`UPDATE leads SET last_contacted_at = datetime('now'), updated_at = datetime('now') WHERE id = ?`).run(leadId);
-
-  return id;
+  // bump last_contacted_at (updated_at maintained by the leads trigger)
+  await supabase.from('leads').update({ last_contacted_at: new Date().toISOString() }).eq('id', leadId);
+  return data.id;
 }
 
-export function markTouchReplied(leadId, channel) {
-  const db = getDb();
-  db.prepare(`
-    UPDATE touches SET replied_at = datetime('now'), status = 'replied'
-    WHERE lead_id = ? AND channel = ? AND replied_at IS NULL
-    ORDER BY sent_at DESC LIMIT 1
-  `).run(leadId, channel);
+export async function markTouchReplied(leadId, channel) {
+  // Supabase has no ORDER BY on UPDATE — select the newest un-replied touch, then update it.
+  const { data } = await supabase.from('touches').select('id')
+    .eq('lead_id', leadId).eq('channel', channel).is('replied_at', null)
+    .order('sent_at', { ascending: false }).limit(1);
+  if (!data?.length) return;
+  await supabase.from('touches')
+    .update({ replied_at: new Date().toISOString(), status: 'replied' })
+    .eq('id', data[0].id);
 }
 
-export function markTouchOpened(messageId) {
-  getDb().prepare(`
-    UPDATE touches SET opened_at = datetime('now'), status = 'opened'
-    WHERE message_id = ?
-  `).run(messageId);
+export async function markTouchOpened(messageId) {
+  await supabase.from('touches')
+    .update({ opened_at: new Date().toISOString(), status: 'opened' })
+    .eq('message_id', messageId);
 }
 
-export function getTouchHistory(leadId) {
-  return getDb().prepare(`
-    SELECT * FROM touches WHERE lead_id = ? ORDER BY sent_at ASC
-  `).all(leadId);
+export async function getTouchHistory(leadId) {
+  const { data, error } = await supabase.from('touches').select('*')
+    .eq('lead_id', leadId).order('sent_at', { ascending: true });
+  if (error) throw new Error(`getTouchHistory: ${error.message}`);
+  return data || [];
 }
 
-export function getLastTouch(leadId, channel) {
-  return getDb().prepare(`
-    SELECT * FROM touches WHERE lead_id = ? AND channel = ?
-    ORDER BY sent_at DESC LIMIT 1
-  `).get(leadId, channel);
+export async function getLastTouch(leadId, channel) {
+  const { data, error } = await supabase.from('touches').select('*')
+    .eq('lead_id', leadId).eq('channel', channel)
+    .order('sent_at', { ascending: false }).limit(1);
+  if (error) throw new Error(`getLastTouch: ${error.message}`);
+  return data?.[0] || null;
 }
 
-export function countTouches(leadId, channel) {
-  const row = getDb().prepare(`
-    SELECT COUNT(*) as n FROM touches WHERE lead_id = ? AND channel = ? AND status != 'error'
-  `).get(leadId, channel);
-  return row?.n || 0;
+export async function countTouches(leadId, channel) {
+  const { count, error } = await supabase.from('touches')
+    .select('id', { count: 'exact', head: true })
+    .eq('lead_id', leadId).eq('channel', channel).neq('status', 'error');
+  if (error) throw new Error(`countTouches: ${error.message}`);
+  return count || 0;
+}
+
+/** True if an email/linkedin reply touch already exists for this lead. */
+export async function hasReplied(leadId, channel) {
+  const { count, error } = await supabase.from('touches')
+    .select('id', { count: 'exact', head: true })
+    .eq('lead_id', leadId).eq('channel', channel).eq('status', 'replied');
+  if (error) throw new Error(`hasReplied: ${error.message}`);
+  return (count || 0) > 0;
 }

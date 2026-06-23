@@ -49,7 +49,7 @@ async function importCsv(filePath, { vertical, campaign = 'cold_outreach' } = {}
     }
 
     try {
-      createLead({
+      await createLead({
         first_name: row.first_name,
         last_name: row.last_name || null,
         email: row.email || null,
