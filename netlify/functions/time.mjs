@@ -83,14 +83,32 @@ export default async (req) => {
 
         if (body.type === 'in') {
           if (active) return json({ error: 'already-clocked-in' }, 409);
-          const site = resolveSite(d, emp.id, loc);
+          if (!loc) return json({ error: 'location-required' }, 422);   // GPS is mandatory
+
+          const today = new Date().toISOString().slice(0, 10);
+          const shift = d.shifts.find((s) => s.empId === emp.id && s.date === today);
+          const geocoded = d.sites.filter(hasCoords);
+
+          // Determine the post this punch belongs to: scheduled shift first, else nearest geocoded post.
+          let site = null, shiftId = null;
+          if (shift) { site = d.sites.find((s) => s.name === shift.site) || { name: shift.site }; shiftId = shift.id; }
+          else { site = nearestSite(geocoded, loc); }
+
+          // ENFORCE the geofence — a guard can only clock in while physically at the post.
+          if (site && hasCoords(site)) {
+            const distance = Math.round(haversine(loc.lat, loc.lng, site.lat, site.lng));
+            if (distance > (site.radius || 150) + grace(loc))
+              return json({ error: 'outside-geofence', site: site.name, distance, radius: site.radius || 150 }, 403);
+          }
+
           const entry = {
             id: uid(), empId: emp.id, in: now, out: null, breaks: [],
-            inLoc: loc, outLoc: null, site: site ? site.name : null,
-            shiftId: site ? site.shiftId || null : null,
+            inLoc: loc, outLoc: null, site: site ? site.name : null, shiftId,
             status: 'pending', flags: [], reviewNote: '',
           };
-          if (site) geofenceFlag(entry, site, loc, 'in');
+          // Can't enforce when a post isn't geocoded yet — allow but flag loudly so the admin fixes it.
+          if (site && !hasCoords(site)) addFlag(entry, `Assigned post "${site.name}" has no geofence set`);
+          else if (!geocoded.length) addFlag(entry, 'No geofenced posts configured — location not verified');
           d.entries.push(entry);
           await write(d);
           return json({ ok: true, entries: d.entries.filter((t) => t.empId === emp.id) });
@@ -106,11 +124,17 @@ export default async (req) => {
           if (!openBreak) return json({ error: 'not-on-break' }, 409);
           openBreak.end = now;
         } else if (body.type === 'out') {
+          if (!loc) return json({ error: 'location-required' }, 422);   // GPS mandatory on clock-out too
+          // ENFORCE the geofence on clock-out as well.
+          const site = d.sites.find((s) => s.name === active.site);
+          if (site && hasCoords(site)) {
+            const distance = Math.round(haversine(loc.lat, loc.lng, site.lat, site.lng));
+            if (distance > (site.radius || 150) + grace(loc))
+              return json({ error: 'outside-geofence', site: site.name, distance, radius: site.radius || 150 }, 403);
+          }
           if (openBreak) openBreak.end = now; // auto-close a dangling break
           active.out = now;
           active.outLoc = loc;
-          const site = d.sites.find((s) => s.name === active.site);
-          if (site) geofenceFlag(active, site, loc, 'out');
         } else {
           return json({ error: 'bad-punch-type' }, 400);
         }
@@ -151,33 +175,17 @@ export default async (req) => {
   }
 };
 
-// Resolve which post a clock-in belongs to: today's scheduled shift first, else
-// nearest site within its geofence radius. Returns the site (+shiftId) or null.
-function resolveSite(d, empId, loc) {
-  const today = new Date().toISOString().slice(0, 10);
-  const shift = d.shifts.find((s) => s.empId === empId && s.date === today);
-  if (shift) {
-    const site = d.sites.find((s) => s.name === shift.site);
-    return site ? { ...site, shiftId: shift.id } : { name: shift.site, shiftId: shift.id };
+function hasCoords(s) { return s && typeof s.lat === 'number' && typeof s.lng === 'number'; }
+// GPS accuracy grace so a legit guard with a weak fix isn't wrongly blocked (capped at 100m).
+function grace(loc) { return Math.min((loc && loc.acc) || 0, 100); }
+// Nearest geocoded post to a location (or null if none are geocoded).
+function nearestSite(geocoded, loc) {
+  let best = null, bestDist = Infinity;
+  for (const s of geocoded) {
+    const dist = haversine(loc.lat, loc.lng, s.lat, s.lng);
+    if (dist < bestDist) { bestDist = dist; best = s; }
   }
-  if (loc && d.sites.length) {
-    let best = null, bestDist = Infinity;
-    for (const s of d.sites) {
-      if (typeof s.lat !== 'number' || typeof s.lng !== 'number') continue;
-      const dist = haversine(loc.lat, loc.lng, s.lat, s.lng);
-      if (dist < bestDist) { bestDist = dist; best = s; }
-    }
-    if (best && bestDist <= (best.radius || 150)) return best;
-  }
-  return null;
-}
-
-// Flag an entry if the punch GPS is outside the site geofence.
-function geofenceFlag(entry, site, loc, which) {
-  if (typeof site.lat !== 'number' || typeof site.lng !== 'number') return;
-  if (!loc) { addFlag(entry, `No GPS on clock-${which === 'in' ? 'in' : 'out'}`); return; }
-  const dist = Math.round(haversine(loc.lat, loc.lng, site.lat, site.lng));
-  if (dist > (site.radius || 150)) addFlag(entry, `Clock-${which} ${dist}m from ${site.name} (>${site.radius || 150}m)`);
+  return best;
 }
 function addFlag(entry, msg) { if (!entry.flags.includes(msg)) entry.flags.push(msg); }
 
