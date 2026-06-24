@@ -1,0 +1,7 @@
+# KM-GTS — static portal + serverless CRM backend, both on Netlify.
+[build]
+  publish = "_publish"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"

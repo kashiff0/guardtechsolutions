@@ -734,6 +734,23 @@ const revealObs=new IntersectionObserver(entries=>{
   entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('revealed');revealObs.unobserve(e.target);}});
 },{threshold:0.12});
 revealEls.forEach(el=>{el.classList.add('reveal-init');revealObs.observe(el);});
+
+/* ===== AUTO-UPDATE: reload this tab when a new deploy is detected ===== */
+(function(){
+  var loaded=null;
+  async function check(){
+    try{
+      var r=await fetch('/version.json?cb='+Date.now(),{cache:'no-store'});
+      if(!r.ok)return;
+      var v=(await r.json()).v;
+      if(loaded===null){loaded=v;}
+      else if(v&&v!==loaded){location.reload();}
+    }catch(e){}
+  }
+  check();
+  setInterval(check,60000);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)check();});
+})();
 </script>
 </body>
 </html>

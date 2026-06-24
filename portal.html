@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Staff Portal | Guard Tech Solutions</title>
+<meta name="robots" content="noindex, nofollow" />
+<link rel="icon" type="image/svg+xml" href="guard-tech-icon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0c1221;--navy2:#141f35;--navy3:#1c2d4a;
+  --gold:#c8a84b;--gold2:#e2c06b;--gold-dim:rgba(200,168,75,.12);
+  --white:#f4f6fb;--gray:#8a94a8;--light:#eef1f8;--line:rgba(0,0,0,.07);
+  --green:#3ba776;--green-dim:rgba(59,167,118,.12);--red:#d9534f;--blue:#4a7bd0;
+  --radius:12px;--ease:cubic-bezier(.4,0,.2,1);--t:.25s;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--white);color:var(--navy);line-height:1.6;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit}
+.hidden{display:none!important}
+.mono{font-variant-numeric:tabular-nums}
+
+/* ============ LOGIN ============ */
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 55%,#162340 100%);padding:24px;position:relative;overflow:hidden}
+#login::after{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:52px 52px;pointer-events:none}
+.login-card{position:relative;z-index:2;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(14px);
+  border-radius:20px;padding:42px 38px;width:100%;max-width:420px}
+.login-logo{display:flex;align-items:center;gap:11px;justify-content:center;margin-bottom:6px}
+.login-logo img{height:34px}
+.login-eyebrow{text-align:center;font-size:.66rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:30px}
+.role-toggle{display:flex;gap:8px;background:rgba(255,255,255,.05);padding:5px;border-radius:11px;margin-bottom:26px}
+.role-toggle button{flex:1;padding:11px;border:none;background:transparent;color:rgba(255,255,255,.5);font-size:.85rem;font-weight:600;border-radius:8px;transition:all var(--t) var(--ease)}
+.role-toggle button.active{background:var(--gold);color:var(--navy)}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:.72rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:7px}
+.field input,.field select{width:100%;padding:13px 15px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);border-radius:10px;color:#fff;font-size:.92rem}
+.field input::placeholder{color:rgba(255,255,255,.3)}
+.field select option{background:var(--navy2);color:#fff}
+.field input:focus,.field select:focus{outline:none;border-color:var(--gold)}
+.login-btn{width:100%;padding:14px;background:var(--gold);color:var(--navy);border:none;border-radius:10px;font-size:.92rem;font-weight:700;margin-top:8px;transition:background var(--t) var(--ease)}
+.login-btn:hover{background:var(--gold2)}
+.login-hint{text-align:center;font-size:.74rem;color:rgba(255,255,255,.4);margin-top:20px;line-height:1.7}
+.login-hint code{color:var(--gold);background:rgba(200,168,75,.1);padding:2px 7px;border-radius:5px;font-size:.72rem}
+.login-err{background:rgba(217,83,79,.15);border:1px solid rgba(217,83,79,.4);color:#ffb3b1;font-size:.8rem;padding:10px 13px;border-radius:9px;margin-bottom:16px;text-align:center}
+
+/* ============ APP SHELL ============ */
+#app{display:flex;min-height:100vh}
+.sidebar{width:248px;background:var(--navy);color:#fff;display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:50}
+.sb-logo{display:flex;align-items:center;gap:10px;padding:22px 22px 20px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-logo img{height:30px}
+.sb-role{font-size:.6rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--gold);padding:18px 22px 8px}
+.sb-nav{flex:1;padding:0 12px}
+.sb-nav button{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border:none;background:transparent;color:rgba(255,255,255,.62);font-size:.88rem;font-weight:500;border-radius:9px;margin-bottom:3px;text-align:left;transition:all var(--t) var(--ease)}
+.sb-nav button:hover{background:rgba(255,255,255,.05);color:#fff}
+.sb-nav button.active{background:var(--gold-dim);color:var(--gold)}
+.sb-nav button svg{width:18px;height:18px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2}
+.sb-user{padding:16px 18px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:11px}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0}
+.sb-user-meta{flex:1;min-width:0}
+.sb-user-meta .nm{font-size:.84rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-user-meta .rl{font-size:.7rem;color:rgba(255,255,255,.45)}
+.sb-logout{background:none;border:none;color:rgba(255,255,255,.4);padding:5px;border-radius:6px;display:flex}
+.sb-logout:hover{color:var(--gold)}
+.sb-logout svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2}
+
+.main{flex:1;margin-left:248px;min-height:100vh;background:var(--white)}
+.topbar{background:#fff;border-bottom:1px solid var(--line);padding:0 36px;height:66px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40}
+.topbar h1{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;letter-spacing:-.02em}
+.topbar .clock{font-size:.82rem;color:var(--gray);font-weight:500}
+.content{padding:32px 36px 60px}
+
+/* cards & misc */
+.grid{display:grid;gap:18px}
+.stat-row{grid-template-columns:repeat(4,1fr)}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+.kpi .lbl{font-size:.72rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--gray);margin-bottom:10px}
+.kpi .val{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;line-height:1}
+.kpi .val small{font-size:1rem;color:var(--gray);font-weight:600}
+.kpi .sub{font-size:.76rem;color:var(--gray);margin-top:6px}
+.kpi .val.gold{color:var(--gold)}.kpi .val.green{color:var(--green)}
+.section-title{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:800;margin:34px 0 14px;display:flex;align-items:center;justify-content:space-between}
+.section-title:first-child{margin-top:0}
+
+/* clock widget */
+.clock-card{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-radius:18px;padding:34px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.clock-big{font-family:'Syne',sans-serif;font-size:3.2rem;font-weight:800;line-height:1;letter-spacing:-.02em}
+.clock-status{font-size:.78rem;letter-spacing:.05em;text-transform:uppercase;font-weight:600;margin-top:8px;display:inline-flex;align-items:center;gap:8px}
+.clock-status .dot{width:9px;height:9px;border-radius:50%}
+.dot.on{background:var(--green);box-shadow:0 0 0 4px rgba(59,167,118,.25);animation:pulse 2s infinite}
+.dot.off{background:var(--gray)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.clock-meta{font-size:.82rem;color:rgba(255,255,255,.55);margin-top:6px}
+.btn-clock{padding:18px 38px;border:none;border-radius:12px;font-size:1rem;font-weight:700;transition:all var(--t) var(--ease)}
+.btn-clock.in{background:var(--gold);color:var(--navy)}.btn-clock.in:hover{background:var(--gold2);transform:translateY(-2px)}
+.btn-clock.out{background:var(--red);color:#fff}.btn-clock.out:hover{filter:brightness(1.1);transform:translateY(-2px)}
+
+/* tables */
+table{width:100%;border-collapse:collapse;font-size:.86rem}
+th{text-align:left;font-size:.7rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--gray);padding:11px 14px;border-bottom:1px solid var(--line)}
+td{padding:13px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.tbl-wrap{background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:600;padding:4px 11px;border-radius:999px}
+.pill.green{background:var(--green-dim);color:var(--green)}
+.pill.gray{background:var(--light);color:var(--gray)}
+.pill.gold{background:var(--gold-dim);color:#9c8230}
+.pill .dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+
+/* schedule */
+.sched-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:10px}
+.sched-day{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;min-height:130px}
+.sched-day h4{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--gray);margin-bottom:4px}
+.sched-day .date{font-size:.7rem;color:var(--gray);margin-bottom:10px}
+.sched-day.today{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
+.shift{background:var(--navy);color:#fff;border-radius:8px;padding:8px 9px;margin-bottom:7px;font-size:.74rem;position:relative}
+.shift .tm{color:var(--gold);font-weight:700;font-size:.72rem}
+.shift .st{color:rgba(255,255,255,.7);margin-top:2px}
+.shift .who{color:rgba(255,255,255,.55);font-size:.68rem;margin-top:3px}
+.shift .x{position:absolute;top:5px;right:6px;color:rgba(255,255,255,.4);font-size:.9rem;line-height:1;background:none;border:none;padding:2px}
+.shift .x:hover{color:var(--red)}
+
+/* CRM pipeline */
+.pipe{display:grid;grid-template-columns:repeat(6,minmax(210px,1fr));gap:14px;overflow-x:auto;padding-bottom:8px}
+.pipe-col{background:var(--light);border-radius:12px;padding:12px;min-width:210px}
+.pipe-col h3{font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;color:var(--navy)}
+.pipe-col h3 .ct{background:#fff;color:var(--gray);border-radius:999px;padding:1px 9px;font-size:.7rem}
+.pipe-col .total{font-size:.7rem;color:var(--gray);font-weight:600;margin-bottom:10px}
+.lead{background:#fff;border:1px solid var(--line);border-radius:10px;padding:13px;margin-bottom:9px;cursor:grab;transition:box-shadow var(--t),transform var(--t)}
+.lead:hover{box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.lead.dragging{opacity:.4}
+.lead .co{font-weight:700;font-size:.86rem;line-height:1.3}
+.lead .ct2{font-size:.76rem;color:var(--gray);margin-top:3px}
+.lead .meta{display:flex;align-items:center;justify-content:space-between;margin-top:9px}
+.lead .val{font-size:.78rem;font-weight:700;color:var(--green)}
+.lead .tag{font-size:.66rem;color:var(--gray);background:var(--light);padding:2px 7px;border-radius:5px}
+.pipe-col.drop{outline:2px dashed var(--gold);outline-offset:-2px}
+
+/* CRM next-step on card */
+.lead .next{margin-top:10px;padding-top:9px;border-top:1px dashed var(--line)}
+.next-row{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.next-lbl{font-size:.6rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gray)}
+.next-select{width:100%;font-size:.75rem;font-weight:600;padding:6px 8px;border:1px solid var(--line);border-radius:7px;background:var(--light);color:var(--navy);cursor:pointer}
+.next-select:focus{outline:none;border-color:var(--gold)}
+.next-date{width:100%;font-size:.72rem;padding:5px 7px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--navy);margin-top:6px;cursor:pointer}
+.next-date:focus{outline:none;border-color:var(--gold)}
+.due{font-size:.62rem;font-weight:700;padding:3px 7px;border-radius:6px;white-space:nowrap;margin-left:auto}
+.due.overdue{background:rgba(217,83,79,.14);color:var(--red)}
+.due.today{background:var(--gold-dim);color:#9c8230}
+.due.soon{background:var(--green-dim);color:var(--green)}
+.due.none{background:var(--light);color:var(--gray)}
+
+/* CRM action queue */
+.queue{background:#fff;border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:var(--radius);padding:14px 16px;margin-bottom:18px}
+.queue h3{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:800;display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.queue h3 .qcount{font-family:'Inter',sans-serif;font-size:.7rem;font-weight:600;color:var(--gray);background:var(--light);padding:2px 9px;border-radius:999px}
+.q-item{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:9px;cursor:pointer;transition:background var(--t)}
+.q-item:hover{background:var(--light)}
+.q-item+.q-item{border-top:1px solid var(--line)}
+.q-main{flex:1;min-width:0}
+.q-main strong{font-size:.85rem}
+.q-step{display:block;font-size:.74rem;color:var(--gray);margin-top:1px}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 18px;border:none;border-radius:9px;font-size:.84rem;font-weight:600;transition:all var(--t) var(--ease)}
+.btn.primary{background:var(--navy);color:#fff}.btn.primary:hover{background:var(--navy3)}
+.btn.gold{background:var(--gold);color:var(--navy)}.btn.gold:hover{background:var(--gold2)}
+.btn.ghost{background:#fff;border:1px solid var(--line);color:var(--navy)}.btn.ghost:hover{border-color:var(--gold)}
+.btn.sm{padding:7px 13px;font-size:.78rem}
+.btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2}
+
+/* modal */
+.modal-bg{position:fixed;inset:0;background:rgba(12,18,33,.55);backdrop-filter:blur(3px);z-index:100;display:flex;align-items:center;justify-content:center;padding:24px}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:480px;max-height:90vh;overflow:auto;padding:28px}
+.modal h2{font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:800;margin-bottom:4px}
+.modal .sub{font-size:.82rem;color:var(--gray);margin-bottom:20px}
+.modal .field label{color:var(--navy);opacity:.7}
+.modal .field input,.modal .field select,.modal .field textarea{width:100%;padding:11px 13px;background:var(--white);border:1px solid var(--line);border-radius:9px;color:var(--navy);font-size:.88rem}
+.modal .field input:focus,.modal .field select:focus,.modal .field textarea:focus{outline:none;border-color:var(--gold)}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:22px}
+.lead-detail-row{display:flex;gap:8px;font-size:.84rem;padding:7px 0;border-bottom:1px solid var(--line)}
+.lead-detail-row .k{color:var(--gray);width:90px;flex-shrink:0}
+.note{background:var(--light);border-radius:8px;padding:9px 11px;font-size:.8rem;margin-bottom:7px}
+.note .when{font-size:.68rem;color:var(--gray);margin-top:3px}
+
+.empty{text-align:center;color:var(--gray);font-size:.85rem;padding:30px}
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:13px 22px;border-radius:11px;font-size:.85rem;font-weight:500;z-index:200;box-shadow:0 10px 30px rgba(0,0,0,.25);opacity:0;transition:opacity .3s,transform .3s}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+.toast .ck{color:var(--gold);margin-right:7px}
+
+/* sidebar scrim (mobile only) */
+.scrim{display:none;position:fixed;inset:0;background:rgba(12,18,33,.5);z-index:45}
+.scrim.show{display:block}
+
+@media(max-width:880px){
+  .sidebar{transform:translateX(-100%);transition:transform var(--t);box-shadow:0 0 40px rgba(0,0,0,.35)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .hamb{display:flex!important}
+  .stat-row{grid-template-columns:repeat(2,1fr)}
+  .sched-grid{grid-template-columns:1fr}
+  .content{padding:20px 16px 64px}
+  .topbar{padding:0 16px;height:60px}
+  .topbar h1{font-size:1.1rem}
+  .topbar .clock{display:none}
+  /* tables scroll sideways instead of crushing */
+  .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tbl-wrap table{min-width:540px}
+  /* kanban: swipe one column at a time, full-bleed to screen edges */
+  .pipe{grid-auto-flow:column;grid-template-columns:none;grid-auto-columns:82%;scroll-snap-type:x mandatory;gap:12px;margin:0 -16px;padding:0 16px 10px}
+  .pipe-col{scroll-snap-align:start;min-width:0}
+  /* clock widget stacks, button goes full-width */
+  .clock-card{padding:24px;flex-direction:column;align-items:stretch;text-align:center;gap:18px}
+  .clock-big{font-size:2.6rem}
+  .clock-status{justify-content:center}
+  .btn-clock{width:100%;padding:18px}
+  /* section headers let their action button wrap underneath */
+  .section-title{flex-wrap:wrap;gap:8px;font-size:1rem}
+  /* modals fit small screens */
+  .modal{padding:22px;border-radius:14px}
+  .modal-bg{padding:14px}
+  /* iOS zooms in on focus when input text < 16px — force 16px */
+  .field input,.field select,.field textarea,
+  .modal .field input,.modal .field select,.modal .field textarea{font-size:16px}
+  .next-select,.next-date{font-size:15px}
+}
+@media(min-width:881px){.scrim{display:none!important}}
+
+@media(max-width:480px){
+  .stat-row{grid-template-columns:1fr}
+  .clock-big{font-size:2.2rem}
+  .login-card{padding:32px 22px}
+  .pipe{grid-auto-columns:90%}
+}
+.hamb{display:none;background:none;border:none;padding:6px}
+.hamb svg{width:24px;height:24px;stroke:var(--navy);fill:none;stroke-width:2}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div id="login">
+  <div class="login-card">
+    <div class="login-logo"><img src="guard-tech-logo-dark.svg" alt="Guard Tech Solutions" onerror="this.style.display='none'"/></div>
+    <div class="login-eyebrow">Staff &amp; Admin Portal</div>
+    <div class="role-toggle">
+      <button id="tabEmp" class="active" onclick="setRole('employee')">Employee</button>
+      <button id="tabAdmin" onclick="setRole('admin')">Admin</button>
+    </div>
+    <div id="loginErr" class="login-err hidden"></div>
+    <!-- Employee login -->
+    <div id="empLogin">
+      <div class="field">
+        <label>Your Name</label>
+        <select id="empSelect"></select>
+      </div>
+      <div class="field">
+        <label>4-Digit PIN</label>
+        <input id="empPin" type="password" inputmode="numeric" maxlength="4" placeholder="••••" />
+      </div>
+    </div>
+    <!-- Admin login -->
+    <div id="adminLogin" class="hidden">
+      <div class="field">
+        <label>Admin Username</label>
+        <input id="adminUser" type="text" placeholder="admin" value="admin" />
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input id="adminPass" type="password" placeholder="••••••" />
+      </div>
+    </div>
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+    <div class="login-hint" id="loginHint">
+      Demo PIN for all staff: <code>1234</code>
+    </div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app" class="hidden">
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-logo"><img src="guard-tech-logo-dark.svg" alt="GTS" onerror="this.style.display='none'"/></div>
+    <div class="sb-role" id="sbRole"></div>
+    <nav class="sb-nav" id="sbNav"></nav>
+    <div class="sb-user">
+      <div class="avatar" id="userAv"></div>
+      <div class="sb-user-meta"><div class="nm" id="userName"></div><div class="rl" id="userRole"></div></div>
+      <button class="sb-logout" onclick="logout()" title="Sign out">
+        <svg viewBox="0 0 24 24"><path d="M16 17l5-5-5-5M21 12H9M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/></svg>
+      </button>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim" onclick="toggleSidebar(false)"></div>
+  <div class="main">
+    <div class="topbar">
+      <button class="hamb" onclick="toggleSidebar()">
+        <svg viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+      </button>
+      <h1 id="pageTitle">Dashboard</h1>
+      <div class="clock" id="liveClock"></div>
+    </div>
+    <div class="content" id="view"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+/* ========================= DATA LAYER ========================= */
+const K = {
+  emp:'kmgts_employees', time:'kmgts_time', shifts:'kmgts_shifts', sites:'kmgts_sites',
+  leads:'kmgts_leads', session:'kmgts_session', seeded:'kmgts_seeded_v1'
+};
+const load=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}};
+const save=(k,v)=>{localStorage.setItem(k,JSON.stringify(v)); if(k===K.leads && cloudReady) cloudPush();};
+const uid=()=>Math.random().toString(36).slice(2,9);
+
+/* ===== Cloud CRM (Netlify Function + Blobs) — keeps leads synced across all devices.
+   localStorage is the local cache; the cloud blob is the shared source of truth. ===== */
+const CRM_API='/.netlify/functions/crm';
+let cloudPw = localStorage.getItem('gts_pw') || null;
+let cloudReady = false;
+async function cloudGet(pw){
+  try{
+    const r = await fetch(CRM_API, { headers:{ 'x-gts-pw': pw } });
+    if(r.status===200){ const d=await r.json(); return { ok:true, leads:Array.isArray(d.leads)?d.leads:[] }; }
+    return { ok:false, status:r.status };
+  }catch(e){ return { ok:false, err:String(e) }; }
+}
+let _pushTimer=null;
+function cloudPush(){
+  if(!cloudPw) return;
+  clearTimeout(_pushTimer);
+  _pushTimer=setTimeout(()=>{
+    fetch(CRM_API, { method:'POST', headers:{ 'x-gts-pw':cloudPw, 'content-type':'application/json' },
+      body: JSON.stringify({ leads: load(K.leads, []) }) }).catch(()=>{});
+  }, 600);
+}
+async function cloudPull(){
+  if(!cloudPw) return false;
+  const res = await cloudGet(cloudPw);
+  if(res.ok){ localStorage.setItem(K.leads, JSON.stringify(res.leads)); return true; }
+  return false;
+}
+
+/* ===== Cloud TIME-CLOCK (Netlify Function + Blobs) — real, multi-device, attributable
+   punches that REPLACE Connecteam's clock. Server is the source of truth for employees /
+   time entries / shifts / sites; localStorage mirrors it as a cache. If the function is
+   unreachable we fall back to the local demo so the offline/file-open case still works. */
+const TIME_API='/.netlify/functions/time';
+let timeCloud=false;     // true once we've synced punches with the server
+let empPin=null;         // current guard's PIN, kept in memory to re-auth punches/pulls
+
+async function timeRoster(){           // public: names for the login dropdown
+  try{ const r=await fetch(TIME_API+'?roster=1'); if(r.ok){ const d=await r.json(); return Array.isArray(d.roster)?d.roster:null; } }catch(e){}
+  return null;
+}
+async function timeLogin(empId,pin){   // guard auth → own entries/shifts/sites
+  try{ const r=await fetch(TIME_API,{method:'POST',headers:{'content-type':'application/json'},
+       body:JSON.stringify({action:'login',empId,pin})});
+    if(r.status===200) return {ok:true,...(await r.json())};
+    return {ok:false,status:r.status};
+  }catch(e){ return {ok:false,err:String(e)}; }
+}
+async function timePunch(type){        // guard clock in/out/break (server mutates, returns own entries)
+  const loc=await getLoc();
+  try{ const r=await fetch(TIME_API,{method:'POST',headers:{'content-type':'application/json'},
+       body:JSON.stringify({action:'punch',empId:session.empId,pin:empPin,type,loc})});
+    const d=await r.json().catch(()=>({}));
+    if(r.status===200){ save(K.time,d.entries||[]); return {ok:true}; }
+    return {ok:false,error:d.error||('http '+r.status)};
+  }catch(e){ return {ok:false,error:String(e)}; }
+}
+async function timeAdminGet(pw){       // admin: full snapshot
+  try{ const r=await fetch(TIME_API,{headers:{'x-gts-pw':pw}});
+    if(r.status===200) return {ok:true,data:await r.json()};
+    return {ok:false,status:r.status};
+  }catch(e){ return {ok:false,err:String(e)}; }
+}
+function timeCache(data){              // write a snapshot into the local cache
+  save(K.emp,data.employees||[]); save(K.time,data.entries||[]);
+  save(K.shifts,data.shifts||[]); save(K.sites,data.sites||[]);
+}
+async function timeAdminPull(){        // admin: refresh caches from server
+  if(!cloudPw) return false;
+  const t=await timeAdminGet(cloudPw);
+  if(t.ok){ timeCache(t.data); return true; }
+  return false;
+}
+async function timeEmpPull(){          // guard: refresh own entries from server
+  if(!session||session.role!=='employee'||!empPin) return false;
+  const res=await timeLogin(session.empId,empPin);
+  if(res.ok){ save(K.time,res.entries||[]); save(K.shifts,res.shifts||[]); if(res.sites)save(K.sites,res.sites); return true; }
+  return false;
+}
+async function timeConfig(patch){      // admin: replace config arrays (employees/shifts/sites)
+  if(!cloudPw) return false;
+  try{ const r=await fetch(TIME_API,{method:'POST',headers:{'x-gts-pw':cloudPw,'content-type':'application/json'},
+       body:JSON.stringify({action:'config',...patch})}); return r.ok; }catch(e){ return false; }
+}
+async function reviewEntry(entryId,status){   // admin: approve / flag / reject a punch
+  if(timeCloud && cloudPw){
+    try{ const r=await fetch(TIME_API,{method:'POST',headers:{'x-gts-pw':cloudPw,'content-type':'application/json'},
+         body:JSON.stringify({action:'review',entryId,status})});
+      if(r.ok){ await timeAdminPull(); toast('Entry '+status); render(); return; }
+    }catch(e){}
+  }
+  // offline fallback: mutate the local cache
+  const time=load(K.time,[]); const t=time.find(x=>x.id===entryId);
+  if(t){ t.status=status; save(K.time,time); toast('Entry '+status); render(); }
+}
+/* Geolocation with a sane timeout; resolves null if denied/unavailable (server flags "No GPS"). */
+function getLoc(){
+  return new Promise(res=>{
+    if(!navigator.geolocation) return res(null);
+    navigator.geolocation.getCurrentPosition(
+      p=>res({lat:p.coords.latitude,lng:p.coords.longitude,acc:p.coords.accuracy}),
+      ()=>res(null),{enableHighAccuracy:true,timeout:8000,maximumAge:30000});
+  });
+}
+/* Offline/local punch fallback — mirrors the server's in/out/break logic, minus geofence. */
+function punchLocal(type){
+  const time=load(K.time,[]);
+  const active=time.find(t=>t.empId===session.empId&&!t.out);
+  const now=Date.now();
+  if(type==='in'){
+    if(active)return {ok:false,error:'already-clocked-in'};
+    const today=new Date().toISOString().slice(0,10);
+    const shift=load(K.shifts,[]).find(s=>s.empId===session.empId&&s.date===today);
+    time.push({id:uid(),empId:session.empId,in:now,out:null,breaks:[],inLoc:null,outLoc:null,
+      site:shift?shift.site:null,shiftId:shift?shift.id:null,status:'pending',flags:[],reviewNote:''});
+  }else{
+    if(!active)return {ok:false,error:'not-clocked-in'};
+    active.breaks=active.breaks||[];
+    const open=active.breaks.find(b=>!b.end);
+    if(type==='break_start'){ if(open)return {ok:false,error:'already-on-break'}; active.breaks.push({start:now,end:null}); }
+    else if(type==='break_end'){ if(!open)return {ok:false,error:'not-on-break'}; open.end=now; }
+    else if(type==='out'){ if(open)open.end=now; active.out=now; }
+  }
+  save(K.time,time);
+  return {ok:true};
+}
+
+const STAGES=['New','Contacted','Demo Sent','Proposal','Won','Lost'];
+
+/* Sales-cadence next steps (security guard B2B field sales) */
+const NEXT_STEPS=[
+  'Send intro email',
+  'First call',
+  'First visit',
+  'Site walk-through',
+  'Send proposal',
+  'Follow-up call',
+  'Follow-up visit',
+  'Send contract',
+  'Schedule meeting',
+  'Awaiting decision',
+  'Nurture / check back',
+  '— No next step —'
+];
+const NO_STEP='— No next step —';
+
+/* ===== HITL ACTION PIPELINE =====
+   Each pipeline stage maps to an action the AGENT prepares. When the user moves a lead
+   to a new stage, the lead is flagged actionStatus='pending'; on the agent's next review
+   it drafts the right artifact for that stage and sets actionStatus='ready' for the user
+   to review + send. Statuses: pending (agent to do) → ready (review/send) → done. */
+const STAGE_ACTIONS={
+  'New':'LinkedIn intro — connection note + first message',
+  'Contacted':'Follow-up message',
+  'Demo Sent':'Coverage-plan / demo follow-up',
+  'Proposal':'Proposal & pricing',
+  'Won':'Onboarding kickoff (see close-and-deliver)',
+  'Lost':'Log reason + nurture later'
+};
+function actionFor(stage){return STAGE_ACTIONS[stage]||'Review';}
+function queueForAgent(l){l.actionStatus='pending';l.actionStage=l.stage;l.draft='';}
+function actionBadge(l){
+  if(l.actionStatus==='ready')return '<span style="background:#1e3a2f;color:#56d39b;border:1px solid #2f6b50;border-radius:6px;padding:1px 6px;font-size:.66rem;font-weight:600">✎ draft ready</span>';
+  if(l.actionStatus==='pending')return '<span style="background:#3a331e;color:#e0c056;border:1px solid #6b5e2f;border-radius:6px;padding:1px 6px;font-size:.66rem;font-weight:600">⏳ agent</span>';
+  return '';
+}
+function requeueAction(id){const leads=load(K.leads,[]);const l=leads.find(x=>x.id===id);if(l){queueForAgent(l);save(K.leads,leads);toast('Queued for agent — it will draft on next review');render();leadDetail(id);}}
+function markActionDone(id){const leads=load(K.leads,[]);const l=leads.find(x=>x.id===id);if(l){l.actionStatus='done';save(K.leads,leads);toast('Marked done');render();leadDetail(id);}}
+/* sensible default next action for a given pipeline stage */
+function defaultNextStep(stage){
+  return ({
+    'New':'First call',
+    'Contacted':'Follow-up call',
+    'Demo Sent':'Follow-up call',
+    'Proposal':'Follow-up call',
+    'Won':NO_STEP,
+    'Lost':NO_STEP
+  })[stage]||'First call';
+}
+function isoIn(days){const d=new Date();d.setDate(d.getDate()+days);return d.toISOString().slice(0,10);}
+/* due-date status → chip class + label */
+function dueInfo(due){
+  if(!due)return{cls:'none',txt:'No date'};
+  const today=new Date();today.setHours(0,0,0,0);
+  const d=new Date(due+'T00:00');
+  const diff=Math.round((d-today)/86400000);
+  if(diff<0)return{cls:'overdue',txt:'Overdue '+Math.abs(diff)+'d'};
+  if(diff===0)return{cls:'today',txt:'Due today'};
+  if(diff===1)return{cls:'soon',txt:'Due tomorrow'};
+  if(diff<=3)return{cls:'soon',txt:'In '+diff+'d'};
+  return{cls:'none',txt:fmtDate(d.getTime())};
+}
+
+function seed(){
+  if(localStorage.getItem(K.seeded))return;
+  const employees=[
+    {id:'e1',name:'Marcus Bell',title:'Lead Security Officer',pin:'1234'},
+    {id:'e2',name:'Tanya Rivers',title:'Mobile Patrol Officer',pin:'1234'},
+    {id:'e3',name:'Devin Cole',title:'Unarmed Guard',pin:'1234'},
+    {id:'e4',name:'Priya Shah',title:'Event Security Lead',pin:'1234'},
+    {id:'e5',name:'Andre Wallace',title:'Armed Security Officer',pin:'1234'}
+  ];
+  save(K.emp,employees);
+
+  // seed leads from real Houston prospect list
+  const L=(company,contact,title,phone,city,email,specialty,stage,value,note)=>({
+    id:uid(),company,contact,title,phone,city,email,specialty,stage,value,
+    notes:note?[{t:note,when:Date.now()-86400000*Math.floor(Math.random()*6)}]:[],created:Date.now()
+  });
+  const seedLeads=[
+    L('ABCO Industrial Properties','John W. Able','President / Founder','832-879-3301','Houston, TX 77043','info@abcoip.com','Industrial & Commercial PM','Contacted',2400,'Family owned since 1978. Manages multiple warehouse sites — strong fit for mobile patrol + access control.'),
+    L('Oak Leaf Management','Patrick J. Tollett','President / CEO','713-541-9724','Houston, TX 77036','oakleafinfo@oakleafmgmt.com','Commercial + Multifamily PM','New',3200,'Independent founder-led firm. Multifamily portfolio = recurring unarmed guard contracts.'),
+    L('Black Label Commercial Group','Owner / Broker','Owner','936-441-2610','Houston, TX 77073','info@blacklabelcommercial.com','Commercial PM (300K+ sqft)','Demo Sent',1800,'Boutique shop, owner-operated. Sent demo of patrol reporting dashboard.'),
+    L('Bayou Properties Realty','Family Ownership','Owner','281-286-6500','Houston, TX 77058','—','Commercial + Residential PM','New',1500,'Family-owned 13+ yrs. Mix of residential + commercial; good for after-hours patrol.'),
+    L('Shannon Property Management','Gregory & Steven Shannon','Principals','713-369-4362','Houston, TX','—','Commercial PM','Proposal',4200,'Two-principal family firm. Proposal out for 3-site coverage. Follow up Friday.'),
+    L('Productive Property Management','Principal (women-owned)','Owner','713-781-1262','Houston, TX','—','Commercial & Multifamily PM','Contacted',2800,'Women-owned. Interested in event + lobby coverage for multifamily.'),
+    L('Creative Management Company','Principal','Owner','713-772-4420','Houston, TX','—','Commercial PM','Won',3600,'CLOSED — signed for unarmed lobby guard, 2 sites. Onboarding scheduled.')
+  ];
+  // seed a realistic next-step + due date per lead (drives the Action Queue)
+  const stepPlan=[
+    ['Follow-up call',0],       // ABCO — due today
+    ['First call',2],           // Oak Leaf — upcoming
+    ['Follow-up call',-1],      // Black Label — overdue
+    ['First visit',3],          // Bayou — upcoming
+    ['Send contract',1],        // Shannon — due tomorrow
+    ['Schedule meeting',-2],    // Productive — overdue
+    [NO_STEP,null]              // Creative — won, no action
+  ];
+  seedLeads.forEach((l,i)=>{l.nextStep=stepPlan[i][0];l.nextStepDue=stepPlan[i][1]==null?'':isoIn(stepPlan[i][1]);});
+  save(K.leads,seedLeads);
+
+  // seed a couple of time entries (history) + active shift for Marcus
+  const now=Date.now(), day=86400000;
+  save(K.time,[
+    {id:uid(),empId:'e1',in:now-day-8*3600000,out:now-day},
+    {id:uid(),empId:'e2',in:now-day-7.5*3600000,out:now-day-0.5*3600000},
+    {id:uid(),empId:'e1',in:now-2*day-8*3600000,out:now-2*day},
+    {id:uid(),empId:'e3',in:now-2*day-6*3600000,out:now-2*day}
+  ]);
+
+  // seed week schedule
+  const monday=startOfWeek();
+  const sites=['Galleria Office Tower','Westchase Warehouse','Memorial City Mall','East End Distribution','Sugar Land Plaza'];
+  const shifts=[];
+  for(let d=0;d<7;d++){
+    const date=new Date(monday); date.setDate(monday.getDate()+d);
+    const ds=date.toISOString().slice(0,10);
+    if(d<6){
+      shifts.push({id:uid(),empId:'e1',date:ds,start:'08:00',end:'16:00',site:sites[d%sites.length]});
+      shifts.push({id:uid(),empId:'e2',date:ds,start:'16:00',end:'00:00',site:sites[(d+1)%sites.length]});
+      if(d%2===0)shifts.push({id:uid(),empId:'e3',date:ds,start:'22:00',end:'06:00',site:sites[(d+2)%sites.length]});
+    }
+  }
+  save(K.shifts,shifts);
+  localStorage.setItem(K.seeded,'1');
+}
+function startOfWeek(d=new Date()){const x=new Date(d);const day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);x.setHours(0,0,0,0);return x;}
+
+/* ========================= AUTH ========================= */
+let role='employee', session=null;
+function setRole(r){
+  role=r;
+  document.getElementById('tabEmp').classList.toggle('active',r==='employee');
+  document.getElementById('tabAdmin').classList.toggle('active',r==='admin');
+  document.getElementById('empLogin').classList.toggle('hidden',r!=='employee');
+  document.getElementById('adminLogin').classList.toggle('hidden',r!=='admin');
+  document.getElementById('loginErr').classList.add('hidden');
+  document.getElementById('loginHint').innerHTML = r==='employee'
+    ? 'Demo PIN for all staff: <code>1234</code>'
+    : 'Demo admin login: <code>admin</code> / <code>admin</code>';
+}
+function showErr(m){const e=document.getElementById('loginErr');e.textContent=m;e.classList.remove('hidden');}
+async function doLogin(){
+  if(role==='employee'){
+    const id=document.getElementById('empSelect').value;
+    const pin=document.getElementById('empPin').value;
+    if(!id)return showErr('Select your name.');
+    if(!pin)return showErr('Enter your PIN.');
+    const res=await timeLogin(id,pin);
+    if(res.ok){
+      empPin=pin; timeCloud=true;
+      save(K.time,res.entries||[]); save(K.shifts,res.shifts||[]); if(res.sites)save(K.sites,res.sites);
+      session={role:'employee',empId:res.employee.id,name:res.employee.name,title:res.employee.title,pin};
+    }else if(res.status===401){ return showErr('Incorrect PIN.'); }
+    else{                                   // server unreachable → local demo fallback
+      const emp=load(K.emp,[]).find(e=>e.id===id);
+      if(!emp)return showErr('Select your name.');
+      if(pin!==emp.pin)return showErr('Incorrect PIN.');
+      empPin=pin; timeCloud=false;
+      session={role:'employee',empId:emp.id,name:emp.name,title:emp.title,pin};
+    }
+  }else{
+    const p=document.getElementById('adminPass').value;
+    const res = await cloudGet(p);
+    if(!res.ok) return showErr(res.status===401 ? 'Invalid admin password.' : 'Could not reach the CRM server — check your connection.');
+    cloudPw = p; localStorage.setItem('gts_pw', p); cloudReady = true;
+    // First login against an empty cloud: seed it from this device's existing pipeline.
+    // Otherwise the cloud is the source of truth — pull it into the local cache.
+    const localLeads = load(K.leads, []);
+    if(res.leads.length===0 && localLeads.length>0){ cloudPush(); }
+    else { localStorage.setItem(K.leads, JSON.stringify(res.leads)); }
+    // Time-clock snapshot: pull it, or seed the cloud from the local demo on first run.
+    const t=await timeAdminGet(p);
+    if(t.ok){
+      timeCloud=true;
+      if((t.data.employees||[]).length===0){
+        const employees=load(K.emp,[]);
+        const shifts=load(K.shifts,[]);
+        const sites=[...new Set(shifts.map(s=>s.site).filter(Boolean))].map(name=>({id:uid(),name,lat:null,lng:null,radius:150}));
+        await timeConfig({employees,shifts,sites});
+        timeCache({employees,shifts,sites,entries:[]});
+      }else{ timeCache(t.data); }
+    }
+    session={role:'admin',name:'Geovonni O.',title:'Owner / Admin'};
+  }
+  save(K.session,session);
+  startApp();
+}
+function logout(){localStorage.removeItem(K.session);localStorage.removeItem('gts_pw');cloudReady=false;cloudPw=null;empPin=null;timeCloud=false;location.reload();}
+
+/* ========================= APP SHELL ========================= */
+const NAV={
+  employee:[
+    ['dash','My Dashboard','M3 13h8V3H3zM13 21h8V8h-8zM13 3v3h8V3z'],
+    ['hours','My Hours','M12 6v6l4 2M22 12A10 10 0 1 1 2 12a10 10 0 0 1 20 0z'],
+    ['schedule','My Schedule','M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z']
+  ],
+  admin:[
+    ['dash','Dashboard','M3 13h8V3H3zM13 21h8V8h-8zM13 3v3h8V3z'],
+    ['crm','Leads & CRM','M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75'],
+    ['team','Team & Timesheets','M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75'],
+    ['schedule','Schedule','M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z']
+  ]
+};
+let currentView='dash';
+function startApp(){
+  session=load(K.session,null); if(!session)return;
+  // Returning admin session: re-enable cloud sync and refresh leads + timesheets from the shared store.
+  if(session.role==='admin' && cloudPw){
+    cloudReady=true; timeCloud=true;
+    Promise.all([cloudPull(),timeAdminPull()]).then(()=>{ if(currentView) render(); });
+  }else if(session.role==='employee'){
+    empPin=session.pin||null;
+    if(empPin) timeEmpPull().then(ok=>{ if(ok){ timeCloud=true; render(); } });
+  }
+  document.getElementById('login').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  document.getElementById('sbRole').textContent = session.role==='admin'?'Administration':'Staff Portal';
+  document.getElementById('userName').textContent=session.name;
+  document.getElementById('userRole').textContent=session.title;
+  document.getElementById('userAv').textContent=session.name.split(' ').map(s=>s[0]).join('').slice(0,2);
+  const nav=document.getElementById('sbNav'); nav.innerHTML='';
+  NAV[session.role].forEach(([id,label,path])=>{
+    const b=document.createElement('button');
+    b.innerHTML=`<svg viewBox="0 0 24 24"><path d="${path}"/></svg>${label}`;
+    b.onclick=()=>go(id);
+    b.dataset.id=id;
+    nav.appendChild(b);
+  });
+  go('dash');
+  tickClock(); setInterval(tickClock,1000);
+}
+function toggleSidebar(force){
+  const sb=document.getElementById('sidebar'),sc=document.getElementById('scrim');
+  const open=force!==undefined?force:!sb.classList.contains('open');
+  sb.classList.toggle('open',open);
+  if(sc)sc.classList.toggle('show',open);
+}
+function go(id){
+  currentView=id;
+  document.querySelectorAll('#sbNav button').forEach(b=>b.classList.toggle('active',b.dataset.id===id));
+  toggleSidebar(false);
+  const titles={dash:'Dashboard',hours:'My Hours',schedule:session.role==='admin'?'Team Schedule':'My Schedule',crm:'Leads & CRM',team:'Team & Timesheets'};
+  document.getElementById('pageTitle').textContent=titles[id]||'Dashboard';
+  render();
+}
+function tickClock(){
+  const n=new Date();
+  document.getElementById('liveClock').textContent=n.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+'  ·  '+n.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  // refresh dashboard clock widget seconds
+  const cb=document.getElementById('clockBig'); if(cb)cb.textContent=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+
+/* ========================= HELPERS ========================= */
+function hrs(ms){return ms/3600000;}
+function fmtH(h){const H=Math.floor(h),M=Math.round((h-H)*60);return `${H}h ${M}m`;}
+function fmtTime(ts){return new Date(ts).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});}
+function fmtDate(ts){return new Date(ts).toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+function activeEntry(empId){return load(K.time,[]).find(t=>t.empId===empId&&!t.out);}
+function breakMs(t){return (t.breaks||[]).reduce((s,b)=>s+((b.end||Date.now())-b.start),0);}
+function workedMs(t){return Math.max(0,((t.out||Date.now())-t.in)-breakMs(t));} // billable = elapsed − unpaid breaks
+function onBreak(t){return !!(t&&(t.breaks||[]).some(b=>!b.end));}
+function weekHours(empId){
+  const wk=startOfWeek().getTime();
+  return load(K.time,[]).filter(t=>t.empId===empId&&t.in>=wk).reduce((s,t)=>s+hrs(workedMs(t)),0);
+}
+function money(n){return '$'+Number(n||0).toLocaleString();}
+function toast(m){const t=document.getElementById('toast');t.innerHTML='<span class="ck">✓</span>'+m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);}
+
+/* ========================= RENDER ROUTER ========================= */
+function render(){
+  const v=document.getElementById('view');
+  if(session.role==='employee'){
+    if(currentView==='dash')return empDash(v);
+    if(currentView==='hours')return empHours(v);
+    if(currentView==='schedule')return empSchedule(v);
+  }else{
+    if(currentView==='dash')return adminDash(v);
+    if(currentView==='crm')return crm(v);
+    if(currentView==='team')return team(v);
+    if(currentView==='schedule')return adminSchedule(v);
+  }
+}
+
+/* ========================= EMPLOYEE VIEWS ========================= */
+function empDash(v){
+  const ae=activeEntry(session.empId);
+  const ob=onBreak(ae);
+  const wh=weekHours(session.empId);
+  const todayShifts=load(K.shifts,[]).filter(s=>s.empId===session.empId&&s.date===new Date().toISOString().slice(0,10));
+  const statusTxt=ob?'On break':ae?'On the clock':'Clocked out';
+  const statusDot=ob?'#e0c056':ae?'on':'off';
+  const buttons=!ae
+    ? `<button class="btn-clock in" id="punchBtn" onclick="punch('in')">Clock In</button>`
+    : ob
+      ? `<div style="display:flex;flex-direction:column;gap:10px"><button class="btn-clock in" id="punchBtn" onclick="punch('break_end')">End Break</button><button class="btn-clock out" onclick="punch('out')">Clock Out</button></div>`
+      : `<div style="display:flex;flex-direction:column;gap:10px"><button class="btn-clock out" id="punchBtn" onclick="punch('out')">Clock Out</button><button class="btn-clock in" style="background:#3a331e;color:var(--gold)" onclick="punch('break_start')">Start Break</button></div>`;
+  v.innerHTML=`
+   <div class="clock-card">
+     <div>
+       <div class="clock-big" id="clockBig">${new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</div>
+       <div class="clock-status"><span class="dot" style="background:${statusDot==='on'?'var(--green)':statusDot==='off'?'var(--gray)':statusDot}"></span>${statusTxt}</div>
+       ${ae?`<div class="clock-meta">${ae.site?'📍 '+ae.site+' · ':''}Started ${fmtTime(ae.in)} · ${fmtH(hrs(workedMs(ae)))} worked${breakMs(ae)?' · '+fmtH(hrs(breakMs(ae)))+' break':''}</div>`:`<div class="clock-meta">Tap below to start your shift</div>`}
+     </div>
+     ${buttons}
+   </div>
+   <div class="grid stat-row" style="margin-top:18px">
+     <div class="card kpi"><div class="lbl">This Week</div><div class="val gold">${fmtH(wh)}</div><div class="sub">Hours worked</div></div>
+     <div class="card kpi"><div class="lbl">Today</div><div class="val">${ae?fmtH(hrs(workedMs(ae))):'0h 0m'}</div><div class="sub">${ob?'On break':ae?'In progress':'Not started'}</div></div>
+     <div class="card kpi"><div class="lbl">Next Shift</div><div class="val" style="font-size:1.3rem">${nextShiftLabel()}</div><div class="sub">${nextShiftSite()}</div></div>
+     <div class="card kpi"><div class="lbl">Shifts This Week</div><div class="val">${load(K.shifts,[]).filter(s=>s.empId===session.empId).length}</div><div class="sub">Scheduled</div></div>
+   </div>
+   <div class="section-title">Today's Assignment</div>
+   ${todayShifts.length?todayShifts.map(s=>`<div class="card" style="display:flex;justify-content:space-between;align-items:center"><div><strong>${s.site}</strong><div style="font-size:.8rem;color:var(--gray);margin-top:3px">${s.start} – ${s.end}</div></div><span class="pill gold"><span class="dot"></span>Assigned</span></div>`).join(''):`<div class="card empty">No shift scheduled for today. Enjoy your day off.</div>`}
+  `;
+}
+function nextShiftLabel(){
+  const up=load(K.shifts,[]).filter(s=>s.empId===session.empId&&s.date>=new Date().toISOString().slice(0,10)).sort((a,b)=>a.date.localeCompare(b.date));
+  if(!up.length)return '—';
+  const s=up[0]; const d=new Date(s.date+'T00:00');
+  return d.toLocaleDateString('en-US',{weekday:'short'})+' '+s.start;
+}
+function nextShiftSite(){
+  const up=load(K.shifts,[]).filter(s=>s.empId===session.empId&&s.date>=new Date().toISOString().slice(0,10)).sort((a,b)=>a.date.localeCompare(b.date));
+  return up.length?up[0].site:'Nothing scheduled';
+}
+const PUNCH_MSG={in:'Clocked in. Stay safe out there.',out:'Clocked out — logged for review.',break_start:'Break started.',break_end:'Back on the clock.'};
+const PUNCH_ERR={'already-clocked-in':'You are already clocked in.','not-clocked-in':'You are not clocked in.','already-on-break':'You are already on break.','not-on-break':'You are not on break.','bad-credentials':'Session expired — please sign in again.'};
+let punching=false;
+async function punch(type){
+  if(punching)return; punching=true;
+  const btn=document.getElementById('punchBtn'); const label=btn?btn.textContent:''; if(btn){btn.disabled=true;btn.textContent='…';}
+  const res = timeCloud ? await timePunch(type) : punchLocal(type);
+  punching=false;
+  if(res.ok){ toast(PUNCH_MSG[type]||'Done'); }
+  else{ if(btn){btn.disabled=false;btn.textContent=label;} toast(PUNCH_ERR[res.error]||('Could not record punch: '+res.error)); }
+  render();
+}
+function entryStatusPill(t){
+  if(!t.out)return onBreak(t)?'<span class="pill gold"><span class="dot"></span>On break</span>':'<span class="pill green"><span class="dot"></span>Active</span>';
+  if(t.status==='approved')return '<span class="pill green"><span class="dot"></span>Approved</span>';
+  if(t.status==='rejected')return '<span class="pill gray"><span class="dot"></span>Rejected</span>';
+  if(t.status==='flagged')return '<span class="pill gold"><span class="dot"></span>Flagged</span>';
+  return '<span class="pill gray"><span class="dot"></span>Pending</span>';
+}
+function empHours(v){
+  const entries=load(K.time,[]).filter(t=>t.empId===session.empId).sort((a,b)=>b.in-a.in);
+  const wh=weekHours(session.empId);
+  const rate=(load(K.emp,[]).find(e=>e.id===session.empId)||{}).rate||18;
+  v.innerHTML=`
+   <div class="grid stat-row" style="grid-template-columns:repeat(3,1fr)">
+     <div class="card kpi"><div class="lbl">This Week</div><div class="val gold">${fmtH(wh)}</div></div>
+     <div class="card kpi"><div class="lbl">Est. Gross (@ $${rate}/hr)</div><div class="val green">${money(Math.round(wh*rate))}</div></div>
+     <div class="card kpi"><div class="lbl">Entries Logged</div><div class="val">${entries.length}</div></div>
+   </div>
+   <div class="section-title">Time Entries</div>
+   <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Site</th><th>In</th><th>Out</th><th>Break</th><th>Worked</th><th>Status</th></tr></thead><tbody>
+   ${entries.length?entries.map(t=>`<tr><td>${fmtDate(t.in)}</td><td>${t.site||'—'}</td><td class="mono">${fmtTime(t.in)}</td><td class="mono">${t.out?fmtTime(t.out):'—'}</td><td class="mono">${breakMs(t)?fmtH(hrs(breakMs(t))):'—'}</td><td class="mono">${fmtH(hrs(workedMs(t)))}</td><td>${entryStatusPill(t)}${(t.flags||[]).length?` <span title="${esc((t.flags||[]).join('; '))}" style="color:var(--gold)">⚑</span>`:''}</td></tr>`).join(''):'<tr><td colspan="7" class="empty">No time entries yet.</td></tr>'}
+   </tbody></table></div>`;
+}
+function empSchedule(v){renderWeek(v,session.empId);}
+
+/* ========================= SCHEDULE (shared) ========================= */
+function renderWeek(v,filterEmp){
+  const monday=startOfWeek();
+  const emps=load(K.emp,[]);
+  const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const today=new Date().toISOString().slice(0,10);
+  let cols='';
+  for(let d=0;d<7;d++){
+    const date=new Date(monday); date.setDate(monday.getDate()+d);
+    const ds=date.toISOString().slice(0,10);
+    let shifts=load(K.shifts,[]).filter(s=>s.date===ds);
+    if(filterEmp)shifts=shifts.filter(s=>s.empId===filterEmp);
+    cols+=`<div class="sched-day ${ds===today?'today':''}">
+      <h4>${days[d]}</h4><div class="date">${date.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
+      ${shifts.map(s=>{const e=emps.find(x=>x.id===s.empId);return `<div class="shift"><span class="tm">${s.start}–${s.end}</span>${session.role==='admin'?`<button class="x" onclick="delShift('${s.id}')">×</button>`:''}<div class="st">${s.site}</div>${!filterEmp?`<div class="who">${e?e.name:'?'}</div>`:''}</div>`}).join('')||'<div style="font-size:.72rem;color:var(--gray)">—</div>'}
+    </div>`;
+  }
+  v.innerHTML=`${session.role==='admin'?`<div style="margin-bottom:16px"><button class="btn gold" onclick="openShiftModal()"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add Shift</button></div>`:''}
+   <div class="sched-grid">${cols}</div>
+   ${filterEmp?'':'<div style="margin-top:14px;font-size:.78rem;color:var(--gray)">Week of '+monday.toLocaleDateString('en-US',{month:'long',day:'numeric'})+'</div>'}`;
+}
+function adminSchedule(v){
+  renderWeek(v,null);
+  const sites=load(K.sites,[]);
+  v.insertAdjacentHTML('beforeend',`<div class="section-title" style="margin-top:24px">Sites &amp; Geofence <span style="font-size:.72rem;color:var(--gray);font-weight:400">set each post's location so off-site punches get flagged</span></div>
+   <div class="tbl-wrap"><table><thead><tr><th>Post</th><th>Coordinates</th><th>Radius</th><th></th></tr></thead><tbody>
+   ${sites.length?sites.map(s=>`<tr><td><strong>${esc(s.name)}</strong></td>
+     <td class="mono">${typeof s.lat==='number'?s.lat.toFixed(5)+', '+s.lng.toFixed(5):'<span style="color:var(--gold)">not set</span>'}</td>
+     <td class="mono">${s.radius||150} m</td>
+     <td><button class="btn ghost sm" onclick="openSiteModal('${s.id}')">Set location</button></td></tr>`).join(''):'<tr><td colspan="4" class="empty">No posts yet — add a shift to create one.</td></tr>'}
+   </tbody></table></div>`);
+}
+function openSiteModal(id){
+  const s=load(K.sites,[]).find(x=>x.id===id); if(!s)return;
+  modal(`<h2>${esc(s.name)}</h2><div class="sub">Enter the post's GPS coordinates + geofence radius. Punches outside the radius get auto-flagged for review.</div>
+   <div style="display:flex;gap:12px"><div class="field" style="flex:1"><label>Latitude</label><input id="s_lat" type="number" step="0.00001" value="${typeof s.lat==='number'?s.lat:''}" placeholder="29.76"></div><div class="field" style="flex:1"><label>Longitude</label><input id="s_lng" type="number" step="0.00001" value="${typeof s.lng==='number'?s.lng:''}" placeholder="-95.37"></div></div>
+   <div class="field"><label>Geofence radius (meters)</label><input id="s_rad" type="number" value="${s.radius||150}"></div>
+   <div class="field"><button class="btn ghost sm" type="button" onclick="useMyLocationForSite()">📍 Use my current location</button></div>
+   <div class="modal-actions"><button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn gold" onclick="saveSite('${s.id}')">Save location</button></div>`);
+}
+async function useMyLocationForSite(){
+  const loc=await getLoc(); if(!loc)return toast('Could not get your location — allow location access');
+  const la=document.getElementById('s_lat'),ln=document.getElementById('s_lng');
+  if(la)la.value=loc.lat.toFixed(6); if(ln)ln.value=loc.lng.toFixed(6);
+  toast('Filled from your location');
+}
+async function saveSite(id){
+  const sites=load(K.sites,[]); const s=sites.find(x=>x.id===id); if(!s)return;
+  const lat=parseFloat(val('s_lat')),lng=parseFloat(val('s_lng'));
+  s.lat=isNaN(lat)?null:lat; s.lng=isNaN(lng)?null:lng; s.radius=Number(val('s_rad'))||150;
+  save(K.sites,sites); await timeConfig({sites}); closeModal(); toast('Location saved'); render();
+}
+async function delShift(id){const a=load(K.shifts,[]).filter(s=>s.id!==id);save(K.shifts,a);await timeConfig({shifts:a});toast('Shift removed');render();}
+function openShiftModal(){
+  const emps=load(K.emp,[]);
+  modal(`<h2>Add Shift</h2><div class="sub">Assign an officer to a site and time block.</div>
+   <div class="field"><label>Officer</label><select id="m_emp">${emps.map(e=>`<option value="${e.id}">${e.name}</option>`).join('')}</select></div>
+   <div class="field"><label>Date</label><input id="m_date" type="date" value="${new Date().toISOString().slice(0,10)}"></div>
+   <div style="display:flex;gap:12px"><div class="field" style="flex:1"><label>Start</label><input id="m_start" type="time" value="08:00"></div><div class="field" style="flex:1"><label>End</label><input id="m_end" type="time" value="16:00"></div></div>
+   <div class="field"><label>Site / Post</label><input id="m_site" type="text" placeholder="e.g. Galleria Office Tower"></div>
+   <div class="modal-actions"><button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn gold" onclick="saveShift()">Add Shift</button></div>`);
+}
+async function saveShift(){
+  const s={id:uid(),empId:val('m_emp'),date:val('m_date'),start:val('m_start'),end:val('m_end'),site:val('m_site')||'Unassigned Post'};
+  if(!s.date)return toast('Pick a date');
+  const a=load(K.shifts,[]);a.push(s);save(K.shifts,a);
+  // register a new post so it can be given geofence coords later
+  const sites=load(K.sites,[]); let patch={shifts:a};
+  if(s.site&&!sites.some(x=>x.name===s.site)){ sites.push({id:uid(),name:s.site,lat:null,lng:null,radius:150}); save(K.sites,sites); patch.sites=sites; }
+  await timeConfig(patch); closeModal(); toast('Shift added'); render();
+}
+
+/* ========================= ADMIN DASHBOARD ========================= */
+function adminDash(v){
+  const emps=load(K.emp,[]);
+  const onClock=emps.filter(e=>activeEntry(e.id));
+  const leads=load(K.leads,[]);
+  const pipeline=leads.filter(l=>!['Won','Lost'].includes(l.stage)).reduce((s,l)=>s+Number(l.value||0),0);
+  const won=leads.filter(l=>l.stage==='Won');
+  const wonVal=won.reduce((s,l)=>s+Number(l.value||0),0);
+  const weekTotal=emps.reduce((s,e)=>s+weekHours(e.id),0);
+  v.innerHTML=`
+   <div class="grid stat-row">
+     <div class="card kpi"><div class="lbl">On Duty Now</div><div class="val green">${onClock.length}<small> / ${emps.length}</small></div><div class="sub">${onClock.map(e=>e.name.split(' ')[0]).join(', ')||'Nobody clocked in'}</div></div>
+     <div class="card kpi"><div class="lbl">Open Pipeline</div><div class="val gold">${money(pipeline)}</div><div class="sub">${leads.filter(l=>!['Won','Lost'].includes(l.stage)).length} active leads</div></div>
+     <div class="card kpi"><div class="lbl">Closed / Won</div><div class="val green">${money(wonVal)}</div><div class="sub">${won.length} contracts signed</div></div>
+     <div class="card kpi"><div class="lbl">Team Hours (wk)</div><div class="val">${fmtH(weekTotal)}</div><div class="sub">Across ${emps.length} officers</div></div>
+   </div>
+   <div class="section-title">Who's On Duty <button class="btn ghost sm" onclick="go('team')">View timesheets</button></div>
+   <div class="tbl-wrap"><table><thead><tr><th>Officer</th><th>Status</th><th>Since</th><th>Today</th><th>This Week</th></tr></thead><tbody>
+   ${emps.map(e=>{const ae=activeEntry(e.id);return `<tr><td><strong>${e.name}</strong><div style="font-size:.74rem;color:var(--gray)">${e.title}</div></td>
+     <td>${ae?'<span class="pill green"><span class="dot"></span>On duty</span>':'<span class="pill gray"><span class="dot"></span>Off</span>'}</td>
+     <td class="mono">${ae?fmtTime(ae.in):'—'}</td>
+     <td class="mono">${ae?fmtH(hrs(Date.now()-ae.in)):'—'}</td>
+     <td class="mono">${fmtH(weekHours(e.id))}</td></tr>`}).join('')}
+   </tbody></table></div>
+   <div class="section-title">Hot Leads <button class="btn ghost sm" onclick="go('crm')">Open CRM</button></div>
+   <div class="tbl-wrap"><table><thead><tr><th>Company</th><th>Contact</th><th>Stage</th><th>Value</th></tr></thead><tbody>
+   ${leads.filter(l=>['Proposal','Demo Sent','Contacted'].includes(l.stage)).slice(0,5).map(l=>`<tr onclick="leadDetail('${l.id}')" style="cursor:pointer"><td><strong>${l.company}</strong><div style="font-size:.74rem;color:var(--gray)">${l.city}</div></td><td>${l.contact}</td><td><span class="pill gold"><span class="dot"></span>${l.stage}</span></td><td class="mono" style="color:var(--green);font-weight:700">${money(l.value)}</td></tr>`).join('')}
+   </tbody></table></div>`;
+}
+
+/* ========================= TEAM & TIMESHEETS ========================= */
+const empName=id=>{const e=load(K.emp,[]).find(x=>x.id===id);return e?e.name:'?';};
+const empRate=id=>{const e=load(K.emp,[]).find(x=>x.id===id);return (e&&e.rate)||18;};
+function team(v){
+  const emps=load(K.emp,[]);
+  const all=load(K.time,[]);
+  // Stage 2 — approval queue: closed punches awaiting review (pending or auto-flagged)
+  const queue=all.filter(t=>t.out&&(t.status==='pending'||t.status==='flagged'))
+    .sort((a,b)=>(b.flags||[]).length-(a.flags||[]).length||b.in-a.in);
+  const queueHTML=queue.length?`<div class="queue" style="margin-bottom:20px">
+     <h3>🕑 Timesheet Approval Queue<span class="qcount">${queue.length} ${queue.length>1?'entries':'entry'} to review</span></h3>
+     <div class="tbl-wrap"><table><thead><tr><th>Officer</th><th>Date</th><th>Site</th><th>In</th><th>Out</th><th>Worked</th><th>Flags</th><th>Review</th></tr></thead><tbody>
+     ${queue.map(t=>`<tr>
+        <td><strong>${empName(t.empId)}</strong></td>
+        <td>${fmtDate(t.in)}</td><td>${t.site||'—'}</td>
+        <td class="mono">${fmtTime(t.in)}</td><td class="mono">${fmtTime(t.out)}</td>
+        <td class="mono">${fmtH(hrs(workedMs(t)))}</td>
+        <td>${(t.flags||[]).length?`<span style="color:var(--gold);font-size:.72rem">⚑ ${esc((t.flags||[]).join('; '))}</span>`:'<span style="color:var(--gray);font-size:.74rem">clean</span>'}</td>
+        <td style="white-space:nowrap"><button class="btn gold sm" onclick="reviewEntry('${t.id}','approved')">Approve</button>
+          <button class="btn ghost sm" onclick="reviewEntry('${t.id}','rejected')">Reject</button></td>
+     </tr>`).join('')}
+     </tbody></table></div>
+   </div>`:'<div class="card empty" style="margin-bottom:20px">No timesheets awaiting review. All caught up.</div>';
+  v.innerHTML=`
+   <div class="section-title">Stage 2 — Approval Queue <span style="font-size:.72rem;color:var(--gray);font-weight:400">approve before it feeds billing</span></div>
+   ${queueHTML}
+   <div class="section-title">Officers <button class="btn ghost sm" onclick="openEmpModal()">+ Add officer</button></div>
+   <div class="tbl-wrap"><table><thead><tr><th>Officer</th><th>Role</th><th>Bill rate</th><th>Status</th><th>This Week</th><th>Est. (wk)</th><th></th></tr></thead><tbody>
+   ${emps.map(e=>{const ae=activeEntry(e.id);const wh=weekHours(e.id);return `<tr><td><div style="display:flex;align-items:center;gap:10px"><div class="avatar" style="width:30px;height:30px;font-size:.72rem">${e.name.split(' ').map(s=>s[0]).join('')}</div><strong>${e.name}</strong></div></td>
+     <td>${e.title}</td>
+     <td class="mono">$${e.rate||18}/hr</td>
+     <td>${ae?(onBreak(ae)?'<span class="pill gold"><span class="dot"></span>On break</span>':'<span class="pill green"><span class="dot"></span>On duty</span>'):'<span class="pill gray"><span class="dot"></span>Off</span>'}</td>
+     <td class="mono">${fmtH(wh)}</td>
+     <td class="mono" style="color:var(--green);font-weight:700">${money(Math.round(wh*(e.rate||18)))}</td>
+     <td><button class="btn ghost sm" onclick="openEmpModal('${e.id}')">Edit</button></td></tr>`}).join('')}
+   </tbody></table></div>
+   <div class="section-title">All Time Entries</div>
+   <div class="tbl-wrap"><table><thead><tr><th>Officer</th><th>Date</th><th>Site</th><th>In</th><th>Out</th><th>Break</th><th>Worked</th><th>Status</th></tr></thead><tbody>
+   ${all.sort((a,b)=>b.in-a.in).map(t=>`<tr><td>${empName(t.empId)}</td><td>${fmtDate(t.in)}</td><td>${t.site||'—'}</td><td class="mono">${fmtTime(t.in)}</td><td class="mono">${t.out?fmtTime(t.out):'—'}</td><td class="mono">${breakMs(t)?fmtH(hrs(breakMs(t))):'—'}</td><td class="mono">${fmtH(hrs(workedMs(t)))}</td><td>${entryStatusPill(t)}${(t.flags||[]).length?` <span title="${esc((t.flags||[]).join('; '))}" style="color:var(--gold)">⚑</span>`:''}</td></tr>`).join('')||'<tr><td colspan="8" class="empty">No entries.</td></tr>'}
+   </tbody></table></div>`;
+}
+/* Officer add/edit — name, role, PIN, bill rate. Syncs the roster to the cloud. */
+function openEmpModal(id){
+  const e=id?load(K.emp,[]).find(x=>x.id===id):null;
+  modal(`<h2>${e?'Edit':'Add'} Officer</h2><div class="sub">PIN is what the guard uses to clock in. Bill rate drives timesheet + invoice totals.</div>
+   <div class="field"><label>Name</label><input id="e_name" value="${e?esc(e.name):''}" placeholder="Full name"></div>
+   <div class="field"><label>Role / Title</label><input id="e_title" value="${e?esc(e.title):''}" placeholder="e.g. Unarmed Guard"></div>
+   <div style="display:flex;gap:12px"><div class="field" style="flex:1"><label>4-digit PIN</label><input id="e_pin" inputmode="numeric" maxlength="4" value="${e?esc(e.pin):''}" placeholder="1234"></div><div class="field" style="flex:1"><label>Bill rate ($/hr)</label><input id="e_rate" type="number" value="${e?(e.rate||18):18}"></div></div>
+   <div class="modal-actions">${e?`<button class="btn ghost" onclick="removeEmp('${e.id}')" style="margin-right:auto;color:var(--red)">Deactivate</button>`:''}<button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn gold" onclick="saveEmp('${id||''}')">Save</button></div>`);
+}
+async function saveEmp(id){
+  const name=val('e_name').trim(); if(!name)return toast('Name required');
+  const pin=val('e_pin').trim(); if(!/^\d{4}$/.test(pin))return toast('PIN must be 4 digits');
+  const emps=load(K.emp,[]);
+  if(id){ const e=emps.find(x=>x.id===id); if(e){e.name=name;e.title=val('e_title').trim();e.pin=pin;e.rate=Number(val('e_rate'))||18;} }
+  else{ emps.push({id:uid(),name,title:val('e_title').trim()||'Security Officer',pin,rate:Number(val('e_rate'))||18,active:true}); }
+  save(K.emp,emps); await timeConfig({employees:emps}); closeModal(); toast('Officer saved'); render();
+}
+async function removeEmp(id){
+  const emps=load(K.emp,[]); const e=emps.find(x=>x.id===id); if(e)e.active=false;
+  save(K.emp,emps); await timeConfig({employees:emps}); closeModal(); toast('Officer deactivated'); render();
+}
+
+/* ========================= CRM ========================= */
+let dragId=null;
+/* next-step + due-date controls shown on each kanban card */
+function nextStepHTML(l){
+  const cur=l.nextStep||defaultNextStep(l.stage);
+  const di=dueInfo(l.nextStepDue);
+  return `<div class="next" draggable="false" onclick="event.stopPropagation()" onmousedown="event.stopPropagation()">
+     <div class="next-row"><span class="next-lbl">Next step</span><span class="due ${di.cls}">${di.txt}</span></div>
+     <select class="next-select" onchange="setNextStep('${l.id}',this.value)">
+       ${NEXT_STEPS.map(s=>`<option ${s===cur?'selected':''}>${s}</option>`).join('')}
+     </select>
+     <input class="next-date" type="date" value="${l.nextStepDue||''}" onchange="setNextDue('${l.id}',this.value)" title="Due date">
+   </div>`;
+}
+function setNextStep(id,v){const leads=load(K.leads,[]);const l=leads.find(x=>x.id===id);if(l){l.nextStep=v;save(K.leads,leads);toast(l.company+': '+v);render();}}
+function setNextDue(id,v){const leads=load(K.leads,[]);const l=leads.find(x=>x.id===id);if(l){l.nextStepDue=v;save(K.leads,leads);if(v)toast(l.company+' · due '+dueInfo(v).txt);render();}}
+function crm(v){
+  const leads=load(K.leads,[]);
+  // Action Queue: open leads whose next step is overdue or due today
+  const queue=leads.filter(l=>!['Won','Lost'].includes(l.stage)&&(l.nextStep||defaultNextStep(l.stage))!==NO_STEP
+      &&['overdue','today'].includes(dueInfo(l.nextStepDue).cls))
+    .sort((a,b)=>(a.nextStepDue||'').localeCompare(b.nextStepDue||''));
+  const queueHTML=queue.length?`<div class="queue">
+     <h3>⚡ Action Queue<span class="qcount">${queue.length} ${queue.length>1?'leads need':'lead needs'} attention</span></h3>
+     ${queue.map(l=>{const di=dueInfo(l.nextStepDue);return `<div class="q-item" onclick="leadDetail('${l.id}')">
+        <div class="q-main"><strong>${l.company}</strong><span class="q-step">${l.nextStep||defaultNextStep(l.stage)}</span></div>
+        <span class="due ${di.cls}">${di.txt}</span></div>`}).join('')}
+   </div>`:'';
+  v.innerHTML=`${queueHTML}<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+     <div style="font-size:.82rem;color:var(--gray)">Drag cards between columns to update stage. Set each lead's next step so nothing slips. ${leads.length} total leads · ${money(leads.filter(l=>!['Won','Lost'].includes(l.stage)).reduce((s,l)=>s+Number(l.value||0),0))} open pipeline.</div>
+     <button class="btn gold" onclick="openLeadModal()"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add Lead</button>
+   </div>
+   <div class="pipe">${STAGES.map(st=>{
+     const col=leads.filter(l=>l.stage===st);
+     const tot=col.reduce((s,l)=>s+Number(l.value||0),0);
+     return `<div class="pipe-col" data-stage="${st}" ondragover="dragOver(event,this)" ondragleave="this.classList.remove('drop')" ondrop="dropLead(event,'${st}',this)">
+       <h3>${st}<span class="ct">${col.length}</span></h3>
+       <div class="total">${money(tot)}</div>
+       ${col.map(l=>`<div class="lead" draggable="true" ondragstart="dragId='${l.id}';this.classList.add('dragging')" ondragend="this.classList.remove('dragging')" onclick="leadDetail('${l.id}')">
+         <div class="co">${l.company}</div>
+         <div class="ct2">${l.contact}</div>
+         <div class="meta"><span class="val">${money(l.value)}</span><span class="tag">${l.city.split(',')[0]}</span></div>
+         ${actionBadge(l)?`<div style="margin:6px 0 2px">${actionBadge(l)}</div>`:''}
+         ${nextStepHTML(l)}
+       </div>`).join('')}
+     </div>`}).join('')}</div>`;
+}
+function dragOver(e,el){e.preventDefault();el.classList.add('drop');}
+function dropLead(e,stage,el){
+  e.preventDefault();el.classList.remove('drop');
+  const leads=load(K.leads,[]);const l=leads.find(x=>x.id===dragId);
+  if(l&&l.stage!==stage){
+    l.stage=stage;
+    // nudge: if no active next step, suggest the default for the new stage
+    if(!l.nextStep||l.nextStep===NO_STEP)l.nextStep=defaultNextStep(stage);
+    queueForAgent(l);   // new stage → queue the agent to draft its action
+    save(K.leads,leads);toast(l.company+' → '+stage+' · queued for agent');
+  }
+  dragId=null;render();
+}
+function openLeadModal(){
+  modal(`<h2>Add Lead</h2><div class="sub">New prospect into the pipeline.</div>
+   <div class="field"><label>Company</label><input id="l_co" placeholder="Business name"></div>
+   <div class="field"><label>Contact</label><input id="l_ct" placeholder="Owner / decision maker"></div>
+   <div style="display:flex;gap:12px"><div class="field" style="flex:1"><label>Phone</label><input id="l_ph" placeholder="713-..."></div><div class="field" style="flex:1"><label>Est. Value</label><input id="l_val" type="number" placeholder="2400"></div></div>
+   <div class="field"><label>City</label><input id="l_city" placeholder="Houston, TX" value="Houston, TX"></div>
+   <div class="field"><label>LinkedIn URL</label><input id="l_li" placeholder="https://www.linkedin.com/in/..."></div>
+   <div class="field"><label>Stage</label><select id="l_stage">${STAGES.map(s=>`<option>${s}</option>`).join('')}</select></div>
+   <div style="display:flex;gap:12px"><div class="field" style="flex:2"><label>Next Step</label><select id="l_next">${NEXT_STEPS.map(s=>`<option ${s==='First call'?'selected':''}>${s}</option>`).join('')}</select></div><div class="field" style="flex:1"><label>Due</label><input id="l_due" type="date"></div></div>
+   <div class="modal-actions"><button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn gold" onclick="saveLead()">Add Lead</button></div>`);
+}
+function saveLead(){
+  const co=val('l_co');if(!co)return toast('Company name required');
+  const leads=load(K.leads,[]);
+  leads.push({id:uid(),company:co,contact:val('l_ct')||'—',title:'',phone:val('l_ph')||'—',city:val('l_city')||'Houston, TX',email:'—',linkedin:val('l_li')||'',specialty:'',stage:val('l_stage'),value:Number(val('l_val'))||0,nextStep:val('l_next')||'First call',nextStepDue:val('l_due')||'',notes:[],created:Date.now()});
+  save(K.leads,leads);closeModal();toast('Lead added');render();
+}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function leadDetail(id){
+  const leads=load(K.leads,[]);const l=leads.find(x=>x.id===id);if(!l)return;
+  const ns=l.nextStep||defaultNextStep(l.stage);
+  modal(`<h2>Edit Lead</h2><div class="sub">All fields editable — changes sync to every device.</div>
+   <div class="field"><label>Company</label><input id="d_company" value="${esc(l.company)}"></div>
+   <div style="display:flex;gap:12px"><div class="field" style="flex:1"><label>Contact</label><input id="d_contact" value="${esc(l.contact)}"></div><div class="field" style="flex:1"><label>Title</label><input id="d_title" value="${esc(l.title)}"></div></div>
+   <div style="display:flex;gap:12px"><div class="field" style="flex:1"><label>Phone</label><input id="d_phone" value="${esc(l.phone)}"></div><div class="field" style="flex:1"><label>Email</label><input id="d_email" value="${esc(l.email)}"></div></div>
+   <div style="display:flex;gap:12px"><div class="field" style="flex:1"><label>City</label><input id="d_city" value="${esc(l.city)}"></div><div class="field" style="flex:1"><label>Est. Value ($)</label><input id="d_value" type="number" value="${Number(l.value)||0}"></div></div>
+   <div class="field"><label>LinkedIn URL</label><input id="d_linkedin" value="${esc(l.linkedin)}" placeholder="https://www.linkedin.com/in/...">${l.linkedin?` <a href="${esc(l.linkedin)}" target="_blank" rel="noopener noreferrer" style="color:var(--blue);font-size:.74rem">open ↗</a>`:''}</div>
+   <div class="field"><label>Specialty</label><input id="d_specialty" value="${esc(l.specialty)}"></div>
+   <div style="display:flex;gap:12px"><div class="field" style="flex:1"><label>Stage</label><select id="d_stage">${STAGES.map(s=>`<option ${s===l.stage?'selected':''}>${s}</option>`).join('')}</select></div><div class="field" style="flex:1"><label>Due</label><input id="d_due" type="date" value="${l.nextStepDue||''}"></div></div>
+   <div class="field"><label>Next Step</label><select id="d_next">${NEXT_STEPS.map(s=>`<option ${s===ns?'selected':''}>${s}</option>`).join('')}</select></div>
+   <div class="field" style="margin-top:14px;border-top:1px solid rgba(255,255,255,.08);padding-top:14px">
+     <label>🤖 Agent action — ${esc(actionFor(l.stage))} ${actionBadge(l)||'<span style="color:var(--gray);font-size:.66rem;font-weight:400">not queued</span>'}</label>
+     <textarea id="d_draft" rows="6" placeholder="Move this lead to a stage (or hit 'Re-queue for agent'); the agent drafts the outreach for that stage here on its next review. Edit freely, then send it yourself.">${esc(l.draft||'')}</textarea>
+     <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+       <button class="btn ghost sm" onclick="requeueAction('${l.id}')">↻ Re-queue for agent</button>
+       <button class="btn ghost sm" onclick="markActionDone('${l.id}')">✓ Mark sent / done</button>
+     </div>
+   </div>
+   <div class="field"><label>Add Note</label><textarea id="d_note" rows="2" placeholder="Call notes, next step..."></textarea></div>
+   <button class="btn ghost sm" onclick="addNote('${l.id}')">Save note</button>
+   <div style="margin-top:16px">${(l.notes||[]).slice().reverse().map(n=>`<div class="note">${esc(n.t)}<div class="when">${fmtDate(n.when)} · ${fmtTime(n.when)}</div></div>`).join('')||'<div style="font-size:.78rem;color:var(--gray)">No notes yet.</div>'}</div>
+   <div class="modal-actions" style="justify-content:space-between"><button class="btn ghost sm" style="color:#ff6b6b" onclick="deleteLead('${l.id}')">Delete lead</button><span style="display:flex;gap:8px"><button class="btn ghost" onclick="closeModal()">Close</button><button class="btn gold" onclick="saveLeadEdits('${l.id}')">Save changes</button></span></div>`);
+}
+function deleteLead(id){
+  const leads=load(K.leads,[]);const l=leads.find(x=>x.id===id);if(!l)return;
+  if(!confirm('Delete '+(l.company||'this lead')+'? This removes it from the CRM on every device.'))return;
+  save(K.leads,leads.filter(x=>x.id!==id));   // save() pushes the updated array to the cloud
+  toast('Lead deleted');closeModal();render();
+}
+function saveLeadEdits(id){
+  const leads=load(K.leads,[]);const l=leads.find(x=>x.id===id);if(!l)return;
+  const co=val('d_company').trim(); if(!co)return toast('Company name required');
+  l.company=co;
+  l.contact=val('d_contact').trim();
+  l.title=val('d_title').trim();
+  l.phone=val('d_phone').trim();
+  l.email=val('d_email').trim();
+  l.city=val('d_city').trim();
+  l.value=Number(val('d_value'))||0;
+  l.linkedin=val('d_linkedin').trim();
+  l.specialty=val('d_specialty').trim();
+  const newStage=val('d_stage'); const stageChanged=newStage!==l.stage;
+  l.stage=newStage;
+  l.nextStep=val('d_next');
+  l.nextStepDue=val('d_due');
+  if(stageChanged){ queueForAgent(l); }      // moved stage → re-queue the agent (clears stale draft)
+  else { l.draft=val('d_draft'); }           // same stage → keep manual edits to the draft
+  save(K.leads,leads);toast(stageChanged?'Updated · queued for agent':'Lead updated');render();closeModal();
+}
+function changeStage(id,stage){const leads=load(K.leads,[]);const l=leads.find(x=>x.id===id);if(l){l.stage=stage;queueForAgent(l);save(K.leads,leads);toast('Moved to '+stage+' · queued for agent');}}
+function addNote(id){
+  const txt=val('d_note').trim();if(!txt)return;
+  const leads=load(K.leads,[]);const l=leads.find(x=>x.id===id);
+  l.notes=l.notes||[];l.notes.push({t:txt,when:Date.now()});save(K.leads,leads);toast('Note saved');leadDetail(id);
+}
+
+/* ========================= MODAL UTIL ========================= */
+function modal(html){
+  closeModal();
+  const bg=document.createElement('div');bg.className='modal-bg';bg.id='modalBg';
+  bg.onclick=e=>{if(e.target===bg)closeModal();};
+  bg.innerHTML=`<div class="modal">${html}</div>`;
+  document.body.appendChild(bg);
+}
+function closeModal(){const m=document.getElementById('modalBg');if(m)m.remove();}
+const val=id=>{const e=document.getElementById(id);return e?e.value:'';};
+
+/* ========================= MIGRATION ========================= */
+/* backfill next-step fields onto leads seeded before this feature existed (no data loss) */
+function migrateLeads(){
+  const leads=load(K.leads,[]);let changed=false;
+  const plan={
+    'ABCO Industrial Properties':['Follow-up call',0],
+    'Oak Leaf Management':['First call',2],
+    'Black Label Commercial Group':['Follow-up call',-1],
+    'Bayou Properties Realty':['First visit',3],
+    'Shannon Property Management':['Send contract',1],
+    'Productive Property Management':['Schedule meeting',-2],
+    'Creative Management Company':[NO_STEP,null]
+  };
+  leads.forEach(l=>{
+    if(l.nextStep===undefined){
+      const p=plan[l.company];
+      if(p){l.nextStep=p[0];l.nextStepDue=p[1]==null?'':isoIn(p[1]);}
+      else{l.nextStep=defaultNextStep(l.stage);l.nextStepDue='';}
+      changed=true;
+    }
+  });
+  if(changed)save(K.leads,leads);
+}
+
+/* ========================= BOOT ========================= */
+seed();
+migrateLeads();
+
+function populateRoster(list){
+  const sel=document.getElementById('empSelect'); if(!sel||!list)return;
+  sel.innerHTML=list.map(e=>`<option value="${e.id}">${e.name} — ${e.title}</option>`).join('');
+}
+(async function init(){
+  populateRoster(load(K.emp,[]));                 // local seeds first (instant)
+  document.getElementById('empPin').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+  document.getElementById('adminPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+  const roster=await timeRoster();                // then prefer the live cloud roster
+  if(roster&&roster.length)populateRoster(roster);
+  if(load(K.session,null)){startApp();}
+})();
+
+/* Re-pull shared data when the tab regains focus, so another device's changes show up. */
+window.addEventListener('focus',()=>{
+  if(!session) return;
+  if(cloudReady) cloudPull().then(ok=>{ if(ok && currentView) render(); });
+  if(timeCloud){
+    const pull = session.role==='admin' ? timeAdminPull : timeEmpPull;
+    pull().then(ok=>{ if(ok && currentView) render(); });
+  }
+});
+
+/* ===== AUTO-UPDATE: reload this tab when a new deploy is detected ===== */
+(function(){
+  var loaded=null;
+  async function check(){
+    try{
+      var r=await fetch('/version.json?cb='+Date.now(),{cache:'no-store'});
+      if(!r.ok)return;
+      var v=(await r.json()).v;
+      if(loaded===null){loaded=v;}
+      else if(v&&v!==loaded){location.reload();}
+    }catch(e){}
+  }
+  check();
+  setInterval(check,60000);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)check();});
+})();
+</script>
+</body>
+</html>

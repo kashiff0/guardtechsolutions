@@ -1,0 +1,17 @@
+node_modules/
+.env
+
+# Local Netlify folder
+.netlify
+
+# Build output (staged by deploy.ps1)
+_publish/
+
+# Sensitive lead data — must NEVER be published (public repo)
+*.xlsx
+*.csv
+lead-gen/
+.~lock.*#
+
+# Stray lockfile (this is a Node project)
+deno.lock
