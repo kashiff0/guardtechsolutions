@@ -7,8 +7,7 @@
   <meta name="description" content="Guard Tech Solutions provides professionally trained, licensed security guards in Houston, Pearland, Katy, Sugar Land, The Woodlands, Cypress and surrounding areas. Armed, unarmed, mobile patrol and full security management. Free quote." />
   <meta name="keywords" content="security guard company Houston TX, security guards Houston Texas, armed security guards Houston, unarmed security guards Houston, security company Pearland TX, security guards Katy TX, security company Sugar Land TX, security guard company The Woodlands, security services Cypress TX, mobile patrol Houston, event security Houston, commercial security guards Houston" />
   <link rel="canonical" href="https://www.guardtechsolutions.com/" />
-  <link rel="icon" type="image/svg+xml" href="guard-tech-icon.svg" />
-  <link rel="apple-touch-icon" href="guard-tech-icon.svg" />
+  <link rel="icon" id="favicon-link" type="image/png" href="" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Security Guard Company Houston TX | Guard Tech Solutions" />
   <meta property="og:description" content="Licensed security guard company serving Houston, Pearland, Katy, Sugar Land and all Houston metro suburbs. Uniformed guards, mobile patrol, full security management." />
@@ -41,8 +40,8 @@
     .topbar .sep { margin:0 14px; opacity:.3; }
     nav { position:sticky; top:0; z-index:200; background:rgba(255,255,255,.95); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border-bottom:1px solid rgba(0,0,0,.07); padding:0 60px; display:flex; align-items:center; justify-content:space-between; height:70px; }
     .nav-logo { text-decoration:none; display:flex; align-items:center; }
-    .nav-logo-img { height:36px; width:auto; display:block; }
-    .footer-logo-img { height:40px; width:auto; display:block; margin-bottom:12px; }
+    .nav-logo-img { height:42px; width:auto; display:block; }
+    .footer-logo-img { height:124px; width:auto; display:block; margin-bottom:12px; }
     .nav-logo-icon { width:38px; height:38px; background:var(--navy); border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
     .nav-logo-icon svg { width:22px; height:22px; }
     .nav-logo-text { display:flex; flex-direction:column; line-height:1.1; }
@@ -263,7 +262,7 @@
 </div>
 <nav id="main-nav" role="navigation" aria-label="Main navigation">
   <a href="#hero" class="nav-logo" aria-label="Guard Tech Solutions Home">
-    <img src="guard-tech-logo.svg" alt="Guard Tech Solutions" class="nav-logo-img" width="180" height="36" />
+    <canvas id="nav-logo-canvas" width="44" height="42" aria-label="Guard Tech Solutions" class="nav-logo-img"></canvas>
   </a>
   <ul class="nav-links">
     <li><a href="#about">About</a></li>
@@ -589,7 +588,7 @@
 <footer>
   <div class="footer-inner">
     <div class="footer-brand">
-      <img src="guard-tech-logo-dark.svg" alt="Guard Tech Solutions" class="footer-logo-img" width="200" height="40" />
+      <canvas id="footer-logo-canvas" width="130" height="124" aria-label="Guard Tech Solutions" class="footer-logo-img"></canvas>
       <p class="footer-tagline">Professional Security Guard Services<br>Houston, TX & Surrounding Areas</p>
       <p class="footer-dps">Licensed &amp; Regulated by Texas Department of Public Safety (TX DPS) — All officers background-checked, uniformed, and trained.</p>
     </div>
@@ -634,6 +633,80 @@
 </footer>
 <a href="#contact" class="float-btn" id="float-btn" aria-label="Get a free security quote">Get a Free Quote</a>
 <script>
+/* ── GTS Canvas Logo ── */
+function drawGTSLogo(canvas) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+  function pent(cx,cy,r){
+    return Array.from({length:5},(_,i)=>{
+      const a=Math.PI/180*(-90+i*72);
+      return [cx+r*Math.cos(a),cy+r*Math.sin(a)];
+    });
+  }
+  function tracePent(pts){
+    ctx.beginPath();
+    pts.forEach(([x,y],i)=>i===0?ctx.moveTo(x,y):ctx.lineTo(x,y));
+    ctx.closePath();
+  }
+  const cx=W/2, R=W*0.460, gap=W*0.050;
+  const cy=(H+R*0.191)/2, Ri=R-gap;
+  const outerPts=pent(cx,cy,R), innerPts=pent(cx,cy,Ri);
+  ctx.save();
+  ctx.shadowColor='rgba(245,197,0,0.22)';
+  ctx.shadowBlur=W*0.06; ctx.shadowOffsetY=W*0.008;
+  tracePent(outerPts); ctx.fillStyle='#F5C500'; ctx.fill();
+  ctx.restore();
+  tracePent(innerPts);
+  const grad=ctx.createRadialGradient(cx,cy-R*0.1,0,cx,cy,Ri*0.95);
+  grad.addColorStop(0,'#1c1c1c'); grad.addColorStop(1,'#070707');
+  ctx.fillStyle=grad; ctx.fill();
+  const topY=innerPts[0][1],bottomY=innerPts[2][1],height=bottomY-topY;
+  const sideVy=innerPts[1][1];
+  const sideHalfW=(innerPts[1][0]-innerPts[4][0])/2;
+  const botHalfW=(innerPts[2][0]-innerPts[3][0])/2;
+  function halfWidthAt(y){
+    if(y<=sideVy){const t=(y-topY)/(sideVy-topY);return sideHalfW*t;}
+    const t=(y-sideVy)/(bottomY-sideVy);
+    return sideHalfW+(botHalfW-sideHalfW)*t;
+  }
+  const baselineY=topY+height*0.60;
+  let baseSize=height*0.30, sG=baseSize, sT=baseSize*1.32, sDot=baseSize*0.95;
+  const tight=-baseSize*0.02;
+  ctx.fillStyle='#F5C500'; ctx.textBaseline='alphabetic'; ctx.textAlign='left';
+  function gw(ch,s,w=700){ctx.font=`${w} ${s}px 'Oswald','Arial Narrow',sans-serif`;return ctx.measureText(ch).width;}
+  function tw(){return gw('G',sG,600)+tight+gw('.',sDot)+tight+gw('T',sT)+tight+gw('.',sDot)+tight+gw('S',sG,600);}
+  const maxW=halfWidthAt(baselineY)*0.86*2;
+  const ratio=tw()/maxW; if(ratio>1){sG/=ratio;sT/=ratio;sDot/=ratio;}
+  let x=cx-tw()/2;
+  function place(ch,s,w=700){const g=gw(ch,s,w);ctx.font=`${w} ${s}px 'Oswald','Arial Narrow',sans-serif`;ctx.fillText(ch,x,baselineY);x+=g+tight;}
+  place('G',sG,600); place('.',sDot); place('T',sT); place('.',sDot); place('S',sG,600);
+  const divY=baselineY+baseSize*0.34;
+  const divHalf=Math.min(halfWidthAt(divY)*0.70,maxW*0.5);
+  ctx.strokeStyle='#F5C500'; ctx.lineWidth=Math.max(0.8,W*0.002);
+  ctx.globalAlpha=0.30; ctx.beginPath(); ctx.moveTo(cx-divHalf,divY); ctx.lineTo(cx+divHalf,divY); ctx.stroke();
+  ctx.globalAlpha=1;
+  const tagY=divY+baseSize*0.30, tagAvail=halfWidthAt(tagY)*0.84*2;
+  let tagSize=baseSize*0.165;
+  ctx.font=`500 ${tagSize}px 'Oswald',sans-serif`; ctx.letterSpacing=`${tagSize*0.22}px`;
+  let tagW=ctx.measureText('GUARD TECH SOLUTIONS').width;
+  if(tagW>tagAvail){tagSize*=tagAvail/tagW;ctx.font=`500 ${tagSize}px 'Oswald',sans-serif`;ctx.letterSpacing=`${tagSize*0.22}px`;}
+  ctx.globalAlpha=0.80; ctx.textAlign='center';
+  ctx.fillText('GUARD TECH SOLUTIONS',cx,tagY+tagSize*0.95);
+  ctx.globalAlpha=1; ctx.letterSpacing='0px';
+}
+document.fonts.ready.then(()=>{
+  const navC = document.getElementById('nav-logo-canvas');
+  const footC = document.getElementById('footer-logo-canvas');
+  if(navC) drawGTSLogo(navC);
+  if(footC) drawGTSLogo(footC);
+  // Set favicon from 64x64 canvas
+  const fc = document.createElement('canvas'); fc.width=64; fc.height=64;
+  drawGTSLogo(fc);
+  const fl = document.getElementById('favicon-link');
+  if(fl) fl.href = fc.toDataURL('image/png');
+});
+
 /* ── Mobile Nav ── */
 function toggleMenu(){
   const m=document.getElementById('mobile-menu');
