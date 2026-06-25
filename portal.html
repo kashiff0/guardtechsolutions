@@ -1239,6 +1239,9 @@ window.addEventListener('focus',()=>{
    /agent function, which can add/remove/update/move leads, add notes,
    and open browser tabs for research. Each turn ships the LIVE leads so
    the agent always sees what the user just changed by hand. */
+// Claude-powered CRM agent is temporarily disabled. Flip to true to bring back the
+// "💬 Ask Agent" launcher (the agent.mjs function stays deployed, just unused for now).
+const AGENT_ENABLED=false;
 const AGENT_API='/.netlify/functions/agent';
 const K_CHAT='kmgts_agent_chat';
 let agentMsgs=load(K_CHAT,[]);
@@ -1279,6 +1282,7 @@ function ensureAgentUI(){
   renderAgentChat();
 }
 function updateAgentFab(){
+  if(!AGENT_ENABLED){const f=document.getElementById('agentFab');if(f)f.classList.remove('show');closeAgent();return;}
   ensureAgentUI();
   const fab=document.getElementById('agentFab');
   const show=session&&session.role==='admin'&&currentView==='crm';
