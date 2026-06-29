@@ -5,7 +5,10 @@
 //                  Dedupes by company|contact (lowercased). Adds missing as stage "New" /
 //                  nextStep "First call". NEVER changes the stage or next-step of existing
 //                  leads. Idempotent. Returns { added, skipped, totalNow }.
-// Auth: header `x-gts-pw` must equal site env var GTS_ADMIN_PW.
+// Auth: header `x-gts-pw` must equal site env var GTS_ADMIN_PW (operator) OR
+//       GTS_OWNER_PW (owner Kenrick M.). Both have full read/write on the shared
+//       leads blob; GET echoes back which role matched so the portal can route the
+//       owner to his summary/approvals view vs. the operator's CRM.
 // Everything is wrapped so any failure returns a readable JSON error, never a raw 502.
 
 import SEED from './seed-leads.json' with { type: 'json' };
@@ -19,8 +22,12 @@ const uid = () => Math.random().toString(36).slice(2, 9);
 export default async (req) => {
   try {
     const pw = req.headers.get('x-gts-pw') || '';
-    const expected = process.env.GTS_ADMIN_PW || '';
-    if (!expected || pw !== expected) {
+    const adminPw = process.env.GTS_ADMIN_PW || '';
+    const ownerPw = process.env.GTS_OWNER_PW || '';
+    let role = null;
+    if (adminPw && pw === adminPw) role = 'admin';
+    else if (ownerPw && pw === ownerPw) role = 'owner';
+    if (!role) {
       return json({ error: 'unauthorized' }, 401);
     }
 
@@ -29,7 +36,7 @@ export default async (req) => {
 
     if (req.method === 'GET') {
       const leads = (await store.get(KEY, { type: 'json' })) || [];
-      return json({ leads });
+      return json({ leads, role });
     }
     if (req.method === 'POST') {
       const url = new URL(req.url);

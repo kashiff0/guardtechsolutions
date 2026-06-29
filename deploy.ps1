@@ -36,7 +36,10 @@ Write-Host "Staged. Deploying version $ver ..."
 # netlify-cli writes its progress spinner to stderr; under EAP=Stop that aborts the
 # script mid-deploy. Relax to Continue and gate on the real exit code instead.
 $ErrorActionPreference = 'Continue'
-$func = Join-Path $root 'netlify/functions'
-netlify deploy --dir "$pub" --functions "$func" --prod --no-build --site $site
+# Must let Netlify bundle the functions (esbuild, per netlify.toml) so runtime deps
+# like @netlify/blobs are packaged in. --no-build ships the raw .mjs files and the
+# functions then crash at runtime with "Cannot find package '@netlify/blobs'".
+# publish dir (_publish) + functions dir come from netlify.toml.
+netlify deploy --prod --site $site
 if ($LASTEXITCODE -ne 0) { Write-Error "Netlify deploy failed (exit $LASTEXITCODE)"; exit $LASTEXITCODE }
 Write-Host "Done. Open tabs will auto-reload to version $ver within ~60s (or on focus)."

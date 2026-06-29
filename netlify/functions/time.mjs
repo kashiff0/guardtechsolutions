@@ -8,7 +8,9 @@
 //     sites:[{id,name,lat,lng,radius}] }
 //
 // Two auth paths:
-//   - ADMIN: header `x-gts-pw` === GTS_ADMIN_PW  -> full read + config/review writes.
+//   - ADMIN/OWNER: header `x-gts-pw` === GTS_ADMIN_PW (operator) or GTS_OWNER_PW
+//                  (owner Kenrick M.) -> full read + config/review writes. The owner
+//                  uses this to approve/reject timesheets from his summary view.
 //   - GUARD: body { empId, pin } validated against employees -> read-own + punch only.
 //
 // Punches mutate server-side (read-modify-write) so concurrent guards never clobber.
@@ -36,8 +38,10 @@ export default async (req) => {
     const read = async () => ({ ...EMPTY, ...((await store.get(KEY, { type: 'json' })) || {}) });
     const write = (d) => store.setJSON(KEY, d);
     const isAdmin = () => {
-      const expected = process.env.GTS_ADMIN_PW || '';
-      return expected && (req.headers.get('x-gts-pw') || '') === expected;
+      const admin = process.env.GTS_ADMIN_PW || '';
+      const owner = process.env.GTS_OWNER_PW || '';
+      const pw = req.headers.get('x-gts-pw') || '';
+      return (admin && pw === admin) || (owner && pw === owner);
     };
 
     // --- public roster (login screen needs names before anyone is authed) ---

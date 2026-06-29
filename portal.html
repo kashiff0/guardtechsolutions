@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Staff Portal | Guard Tech Solutions</title>
 <meta name="robots" content="noindex, nofollow" />
-<link rel="icon" type="image/svg+xml" href="guard-tech-icon.svg" />
+<link rel="icon" id="favicon-link" type="image/svg+xml" href="guard-tech-icon.svg" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -33,6 +33,7 @@ input,select,textarea{font-family:inherit}
   border-radius:20px;padding:42px 38px;width:100%;max-width:420px}
 .login-logo{display:flex;align-items:center;gap:11px;justify-content:center;margin-bottom:6px}
 .login-logo img{height:34px}
+.login-logo canvas{height:96px;width:auto;display:block}
 .login-eyebrow{text-align:center;font-size:.66rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:30px}
 .role-toggle{display:flex;gap:8px;background:rgba(255,255,255,.05);padding:5px;border-radius:11px;margin-bottom:26px}
 .role-toggle button{flex:1;padding:11px;border:none;background:transparent;color:rgba(255,255,255,.5);font-size:.85rem;font-weight:600;border-radius:8px;transition:all var(--t) var(--ease)}
@@ -54,6 +55,7 @@ input,select,textarea{font-family:inherit}
 .sidebar{width:248px;background:var(--navy);color:#fff;display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:50}
 .sb-logo{display:flex;align-items:center;gap:10px;padding:22px 22px 20px;border-bottom:1px solid rgba(255,255,255,.08)}
 .sb-logo img{height:30px}
+.sb-logo canvas{height:48px;width:auto;display:block}
 .sb-role{font-size:.6rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--gold);padding:18px 22px 8px}
 .sb-nav{flex:1;padding:0 12px}
 .sb-nav button{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border:none;background:transparent;color:rgba(255,255,255,.62);font-size:.88rem;font-weight:500;border-radius:9px;margin-bottom:3px;text-align:left;transition:all var(--t) var(--ease)}
@@ -290,6 +292,67 @@ tr:last-child td{border-bottom:none}
 .ag-send{background:var(--gold);border:none;border-radius:11px;color:var(--navy);font-weight:700;padding:0 16px;flex-shrink:0}
 .ag-send:disabled{opacity:.5}
 @media(max-width:640px){#agentPanel{width:100%}#agentFab{right:16px;bottom:16px}}
+
+/* ============ CRM REDESIGN (data-table first) ============ */
+.wq{background:#fff;border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:var(--radius);padding:12px 15px;margin-bottom:16px;display:flex;gap:22px;flex-wrap:wrap;align-items:center}
+.wq .wqi{font-size:.8rem;color:var(--gray)}
+.wq .wqi b{font-family:'Syne',sans-serif;font-size:1.05rem;color:var(--navy);margin-right:5px}
+.wq .wqi b.red{color:var(--red)}.wq .wqi b.gold{color:var(--gold)}.wq .wqi b.green{color:var(--green)}
+.views{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.view-tab{font-size:.8rem;font-weight:600;padding:7px 14px;border-radius:9px;border:1px solid var(--line);background:#fff;color:var(--navy)}
+.view-tab:hover{border-color:var(--gold)}
+.view-tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.view-tab .vc{font-size:.68rem;color:var(--gray);margin-left:5px}
+.view-tab.active .vc{color:rgba(255,255,255,.6)}
+.crm-tools{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.crm-tools input,.crm-tools select{font-size:.84rem;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--navy)}
+.crm-tools input:focus,.crm-tools select:focus{outline:none;border-color:var(--gold)}
+.crm-search{flex:1;min-width:180px}
+.toggle{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.toggle button{font-size:.8rem;font-weight:600;padding:8px 13px;border:none;background:#fff;color:var(--gray)}
+.toggle button.active{background:var(--navy);color:#fff}
+.dt-wrap{background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:auto}
+table.dt{width:100%;border-collapse:collapse;font-size:.82rem;min-width:920px}
+table.dt th{position:sticky;top:0;background:#fff;text-align:left;font-size:.66rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gray);padding:11px 12px;border-bottom:2px solid var(--line);cursor:pointer;white-space:nowrap;user-select:none}
+table.dt th:hover{color:var(--navy)}
+table.dt th .ar{color:var(--gold);margin-left:3px}
+table.dt td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+table.dt tbody tr{cursor:pointer}
+table.dt tbody tr:hover{background:var(--light)}
+table.dt .co{font-weight:700}
+table.dt .ct{font-size:.74rem;color:var(--gray)}
+.score-chip{display:inline-block;min-width:30px;text-align:center;font-weight:700;font-size:.74rem;padding:2px 7px;border-radius:6px}
+.score-hi{background:var(--green-dim);color:var(--green)}
+.score-mid{background:var(--gold-dim);color:#9c8230}
+.score-lo{background:var(--light);color:var(--gray)}
+.cell-sel{font-size:.76rem;padding:5px 7px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--navy);max-width:150px}
+.cell-sel:focus{outline:none;border-color:var(--gold)}
+.drawer-bg{position:fixed;inset:0;background:rgba(12,18,33,.4);z-index:90;opacity:0;transition:opacity .2s}
+.drawer-bg.open{opacity:1}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:440px;max-width:94vw;background:#fff;z-index:91;transform:translateX(105%);transition:transform .28s var(--ease);box-shadow:-8px 0 40px rgba(0,0,0,.22);display:flex;flex-direction:column;overflow:hidden}
+.drawer.open{transform:translateX(0)}
+.dw-head{padding:20px 22px 16px;border-bottom:1px solid var(--line);background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff}
+.dw-head .co{font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:800}
+.dw-head .ct{font-size:.82rem;color:rgba(255,255,255,.7);margin-top:2px}
+.dw-head .x{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.12);border:none;color:#fff;width:30px;height:30px;border-radius:8px;font-size:1.2rem;line-height:1}
+.dw-body{flex:1;overflow-y:auto;padding:18px 22px}
+.dw-sec{font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gray);margin:18px 0 8px}
+.dw-sec:first-child{margin-top:0}
+.dw-row{display:flex;gap:8px;font-size:.84rem;padding:6px 0;border-bottom:1px solid var(--line)}
+.dw-row .k{color:var(--gray);width:84px;flex-shrink:0}
+.dw-row a{color:var(--blue);word-break:break-all}
+.tl{position:relative;padding-left:16px;border-left:2px solid var(--line);margin-left:4px}
+.tl-item{position:relative;padding:0 0 12px 12px}
+.tl-item::before{content:'';position:absolute;left:-21px;top:4px;width:9px;height:9px;border-radius:50%;background:var(--gold)}
+.tl-item .tt{font-size:.82rem}
+.tl-item .tw{font-size:.68rem;color:var(--gray);margin-top:2px}
+.dw-foot{border-top:1px solid var(--line);padding:14px 22px;display:flex;gap:8px;flex-wrap:wrap;background:#fafbfe}
+.api-help{background:var(--navy);color:#cdd6e6;border-radius:12px;padding:18px 20px;font-size:.8rem;line-height:1.7;overflow:auto}
+.api-help code{background:rgba(255,255,255,.08);color:var(--gold2);padding:1px 6px;border-radius:5px;font-size:.78rem}
+.api-help h4{color:#fff;font-family:'Syne',sans-serif;margin:14px 0 6px}
+.callscript{white-space:pre-wrap;font-family:'Inter',system-ui,sans-serif;background:var(--light);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:8px;padding:12px 13px;font-size:.82rem;line-height:1.6;color:var(--navy);margin-top:2px}
+.dw-goal{font-size:.78rem;color:var(--green);background:var(--green-dim);border:1px solid var(--green-dim);border-radius:7px;padding:8px 10px;margin-top:8px;line-height:1.45}
+@media(max-width:880px){.drawer{width:100%}.crm-tools .crm-search{min-width:140px}}
 </style>
 </head>
 <body>
@@ -297,11 +360,12 @@ tr:last-child td{border-bottom:none}
 <!-- ============ LOGIN ============ -->
 <div id="login">
   <div class="login-card">
-    <div class="login-logo"><img src="guard-tech-logo-dark.svg" alt="Guard Tech Solutions" onerror="this.style.display='none'"/></div>
+    <div class="login-logo"><canvas id="loginLogo" width="208" height="200" aria-label="Guard Tech Solutions"></canvas></div>
     <div class="login-eyebrow">Staff &amp; Admin Portal</div>
     <div class="role-toggle">
       <button id="tabEmp" class="active" onclick="setRole('employee')">Employee</button>
       <button id="tabAdmin" onclick="setRole('admin')">Admin</button>
+      <button id="tabOwner" onclick="setRole('owner')">Owner</button>
     </div>
     <div id="loginErr" class="login-err hidden"></div>
     <!-- Employee login -->
@@ -326,6 +390,13 @@ tr:last-child td{border-bottom:none}
         <input id="adminPass" type="password" placeholder="••••••" />
       </div>
     </div>
+    <!-- Owner login (Kenrick M.) -->
+    <div id="ownerLogin" class="hidden">
+      <div class="field">
+        <label>Owner Password</label>
+        <input id="ownerPass" type="password" placeholder="••••••" />
+      </div>
+    </div>
     <button class="login-btn" onclick="doLogin()">Sign In</button>
     <div class="login-hint" id="loginHint">
       Demo PIN for all staff: <code>1234</code>
@@ -336,7 +407,7 @@ tr:last-child td{border-bottom:none}
 <!-- ============ APP ============ -->
 <div id="app" class="hidden">
   <aside class="sidebar" id="sidebar">
-    <div class="sb-logo"><img src="guard-tech-logo-dark.svg" alt="GTS" onerror="this.style.display='none'"/></div>
+    <div class="sb-logo"><canvas id="sbLogo" width="104" height="100" aria-label="GTS"></canvas></div>
     <div class="sb-role" id="sbRole"></div>
     <nav class="sb-nav" id="sbNav"></nav>
     <div class="sb-user">
@@ -366,7 +437,7 @@ tr:last-child td{border-bottom:none}
 /* ========================= DATA LAYER ========================= */
 const K = {
   emp:'kmgts_employees', time:'kmgts_time', shifts:'kmgts_shifts', sites:'kmgts_sites',
-  leads:'kmgts_leads', session:'kmgts_session', seeded:'kmgts_seeded_v1'
+  leads:'kmgts_leads', session:'kmgts_session', seeded:'kmgts_seeded_v2'
 };
 const load=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}};
 const save=(k,v)=>{localStorage.setItem(k,JSON.stringify(v)); if(k===K.leads && cloudReady) cloudPush();};
@@ -380,7 +451,7 @@ let cloudReady = false;
 async function cloudGet(pw){
   try{
     const r = await fetch(CRM_API, { headers:{ 'x-gts-pw': pw } });
-    if(r.status===200){ const d=await r.json(); return { ok:true, leads:Array.isArray(d.leads)?d.leads:[] }; }
+    if(r.status===200){ const d=await r.json(); return { ok:true, leads:Array.isArray(d.leads)?d.leads:[], role:d.role||'admin' }; }
     return { ok:false, status:r.status };
   }catch(e){ return { ok:false, err:String(e) }; }
 }
@@ -533,6 +604,7 @@ const STAGE_ACTIONS={
 function actionFor(stage){return STAGE_ACTIONS[stage]||'Review';}
 function queueForAgent(l){l.actionStatus='pending';l.actionStage=l.stage;l.draft='';}
 function actionBadge(l){
+  if(l.actionStatus==='approved')return '<span style="background:#173a4d;color:#5cc8e0;border:1px solid #2f5e6b;border-radius:6px;padding:1px 6px;font-size:.66rem;font-weight:600">✓ owner-approved</span>';
   if(l.actionStatus==='ready')return '<span style="background:#1e3a2f;color:#56d39b;border:1px solid #2f6b50;border-radius:6px;padding:1px 6px;font-size:.66rem;font-weight:600">✎ draft ready</span>';
   if(l.actionStatus==='pending')return '<span style="background:#3a331e;color:#e0c056;border:1px solid #6b5e2f;border-radius:6px;padding:1px 6px;font-size:.66rem;font-weight:600">⏳ agent</span>';
   return '';
@@ -575,32 +647,376 @@ function seed(){
   ];
   save(K.emp,employees);
 
-  // seed leads from real Houston prospect list
-  const L=(company,contact,title,phone,city,email,specialty,stage,value,note)=>({
-    id:uid(),company,contact,title,phone,city,email,specialty,stage,value,
-    notes:note?[{t:note,when:Date.now()-86400000*Math.floor(Math.random()*6)}]:[],created:Date.now()
-  });
-  const seedLeads=[
-    L('ABCO Industrial Properties','John W. Able','President / Founder','832-879-3301','Houston, TX 77043','info@abcoip.com','Industrial & Commercial PM','Contacted',2400,'Family owned since 1978. Manages multiple warehouse sites — strong fit for mobile patrol + access control.'),
-    L('Oak Leaf Management','Patrick J. Tollett','President / CEO','713-541-9724','Houston, TX 77036','oakleafinfo@oakleafmgmt.com','Commercial + Multifamily PM','New',3200,'Independent founder-led firm. Multifamily portfolio = recurring unarmed guard contracts.'),
-    L('Black Label Commercial Group','Owner / Broker','Owner','936-441-2610','Houston, TX 77073','info@blacklabelcommercial.com','Commercial PM (300K+ sqft)','Demo Sent',1800,'Boutique shop, owner-operated. Sent demo of patrol reporting dashboard.'),
-    L('Bayou Properties Realty','Family Ownership','Owner','281-286-6500','Houston, TX 77058','—','Commercial + Residential PM','New',1500,'Family-owned 13+ yrs. Mix of residential + commercial; good for after-hours patrol.'),
-    L('Shannon Property Management','Gregory & Steven Shannon','Principals','713-369-4362','Houston, TX','—','Commercial PM','Proposal',4200,'Two-principal family firm. Proposal out for 3-site coverage. Follow up Friday.'),
-    L('Productive Property Management','Principal (women-owned)','Owner','713-781-1262','Houston, TX','—','Commercial & Multifamily PM','Contacted',2800,'Women-owned. Interested in event + lobby coverage for multifamily.'),
-    L('Creative Management Company','Principal','Owner','713-772-4420','Houston, TX','—','Commercial PM','Won',3600,'CLOSED — signed for unarmed lobby guard, 2 sites. Onboarding scheduled.')
-  ];
-  // seed a realistic next-step + due date per lead (drives the Action Queue)
-  const stepPlan=[
-    ['Follow-up call',0],       // ABCO — due today
-    ['First call',2],           // Oak Leaf — upcoming
-    ['Follow-up call',-1],      // Black Label — overdue
-    ['First visit',3],          // Bayou — upcoming
-    ['Send contract',1],        // Shannon — due tomorrow
-    ['Schedule meeting',-2],    // Productive — overdue
-    [NO_STEP,null]              // Creative — won, no action
-  ];
-  seedLeads.forEach((l,i)=>{l.nextStep=stepPlan[i][0];l.nextStepDue=stepPlan[i][1]==null?'':isoIn(stepPlan[i][1]);});
-  save(K.leads,seedLeads);
+  // seed leads — real Houston prospect pipeline (generated from lead-gen/leads.csv, 2026-06-25)
+  const _real = [
+  {
+    "company": "Lincoln Property Company",
+    "contact": "Rachel J.",
+    "title": "Commercial Property Manager",
+    "phone": "",
+    "city": "Houston",
+    "email": "",
+    "specialty": "Office/Retail/Industrial/Multifamily PM",
+    "value": 6000,
+    "linkedin": "https://www.linkedin.com/in/rachel-j-74a11a48/",
+    "note": "Score 81. National full-service firm (562M sqft mgmt globally; 12+ property Houston portfolio). High guard demand across asset types. Big firm = likely procurement/regional approval. Enrich email/phone via Apollo."
+  },
+  {
+    "company": "Property Commerce",
+    "contact": "Marquon Roberts",
+    "title": "Sr. Property Manager",
+    "phone": "832-804-8508",
+    "city": "Houston",
+    "email": "mroberts@propertycommerce.com",
+    "specialty": "Retail / Shopping Center PM",
+    "value": 5000,
+    "linkedin": "https://www.linkedin.com/in/marquon-roberts-a78ab5172/",
+    "note": "Score 80. CONFIRMED email + direct phone from propertycommerce.com/marquon-roberts. Oversees 2.1M sqft retail. 8811 Gaylord Dr #200."
+  },
+  {
+    "company": "EDIFIS",
+    "contact": "Dawn Haywood",
+    "title": "Commercial Property Manager",
+    "phone": "",
+    "city": "Houston",
+    "email": "",
+    "specialty": "Retail/Industrial/Office/Multifamily PM",
+    "value": 3500,
+    "linkedin": "https://www.linkedin.com/in/dawn-haywood-a21a35165/",
+    "note": "Score 73. Houston-HQ integrated firm, 5301 Katy Fwy #200. Multifamily courtesy patrol + industrial after-hours angles. Company line 713-668-7400 / info@edifisgroup.com (no direct email public — Apollo needed)."
+  },
+  {
+    "company": "Wellcom Realty",
+    "contact": "Ashley Dutton",
+    "title": "Commercial Property Manager",
+    "phone": "",
+    "city": "Houston",
+    "email": "",
+    "specialty": "Office & Retail PM",
+    "value": 3000,
+    "linkedin": "https://www.linkedin.com/in/ashley-dutton-34477388/",
+    "note": "Score 71. Family-owned, 15+ yrs; high-rise office (Beaumont Tower) + retail. Lobby/front-desk + patrol fit."
+  },
+  {
+    "company": "WPW Management Corporation",
+    "contact": "Rebecca M.",
+    "title": "Commercial Property Manager",
+    "phone": "713-627-2711",
+    "city": "Houston",
+    "email": "",
+    "specialty": "Commercial / Retail PM",
+    "value": 3000,
+    "linkedin": "https://www.linkedin.com/in/rebecca-mae-pulley/",
+    "note": "Score 69. Full-service since 1976; 510 Bering Dr / 1330 Post Oak. Phone is company main line."
+  },
+  {
+    "company": "Criss Cross Commercial Group",
+    "contact": "Dana Cangemi",
+    "title": "Commercial Property Manager",
+    "phone": "713-956-6625",
+    "city": "Houston",
+    "email": "",
+    "specialty": "Retail PM",
+    "value": 2500,
+    "linkedin": "https://www.linkedin.com/in/dana-cangemi-70019724/",
+    "note": "Score 69. Retail dev/mgmt, ~14 employees. After-hours line suggests live security relevance. EMAIL INFERRED: dcangemi@crisscrosscg.com (ZoomInfo d***@crisscrosscg.com — verify)."
+  },
+  {
+    "company": "Rockstar Building",
+    "contact": "Mariah Fausett",
+    "title": "Property Manager",
+    "phone": "",
+    "city": "Houston",
+    "email": "",
+    "specialty": "Single Class-A office building",
+    "value": 2000,
+    "linkedin": "https://www.linkedin.com/in/mariah-fausett-787970162/",
+    "note": "Score 51. Below 60: manages ONE building, not a portfolio. Low guard-hours. Single-post lobby-guard prospect only."
+  },
+  {
+    "company": "",
+    "contact": "Marina B.",
+    "title": "Commercial Property Manager",
+    "phone": "",
+    "city": "Houston",
+    "email": "",
+    "specialty": "Commercial PM",
+    "value": 0,
+    "linkedin": "https://www.linkedin.com/in/marina-b-2774a116/",
+    "note": "Score 52. Company not shown in search. Below 60 until company + property types identified."
+  },
+  {
+    "company": "Avison Young",
+    "contact": "Ashley Howard, CMCA, AMS",
+    "title": "Assistant Commercial Property Manager",
+    "phone": "",
+    "city": "",
+    "email": "",
+    "specialty": "Commercial PM",
+    "value": 0,
+    "linkedin": "https://www.linkedin.com/in/ashley-howard-cmca-ams-8276a049/",
+    "note": "Score 48. Assistant role + Houston not confirmed. Avison Young is large CRE firm. Confirm location/decision power."
+  },
+  {
+    "company": "Rycore Commercial LLC",
+    "contact": "Danielle Urech",
+    "title": "Assistant Property Manager",
+    "phone": "",
+    "city": "Houston",
+    "email": "",
+    "specialty": "Commercial PM",
+    "value": 0,
+    "linkedin": "https://www.linkedin.com/in/durech/",
+    "note": "Score 50. Assistant role = lower authority. Find the senior PM/GM above her at Rycore."
+  },
+  {
+    "company": "Second Baptist Church Houston",
+    "contact": "Jerry Towne",
+    "title": "Pastor / Director of Operations",
+    "phone": "713-465-3408",
+    "city": "Houston",
+    "email": "",
+    "specialty": "Faith org — 5-campus megachurch + K-12 school",
+    "value": 5000,
+    "linkedin": "https://www.linkedin.com/in/jerry-towne-2227a68b/",
+    "note": "Score 88. ~24k weekly; huge weekend/parking/child-area/event demand. Lee Maxcy = Church Admin. 6400 Woodway Dr. EMAIL INFERRED: jtowne@second.org (ZoomInfo shows j***@second.org — verify). HOT ANGLE: Towne is a former HPD homicide detective now Dir of Ops — speaks security."
+  },
+  {
+    "company": "Houston's First Baptist Church",
+    "contact": "Chad Hamm",
+    "title": "Director of Operations",
+    "phone": "713-681-8000",
+    "city": "Houston",
+    "email": "",
+    "specialty": "Faith org — multi-campus megachurch",
+    "value": 4500,
+    "linkedin": "https://www.linkedin.com/in/chad-hamm-3a8797b5/",
+    "note": "Score 85. Exec Pastor Stephen Trammell. 7401 Katy Fwy. EMAIL INFERRED: chad.hamm@houstonsfirst.org (First.Last pattern — verify)."
+  },
+  {
+    "company": "Champion Forest Baptist Church",
+    "contact": "Mike Haney",
+    "title": "Operations Director",
+    "phone": "281-440-3800",
+    "city": "Houston",
+    "email": "",
+    "specialty": "Faith org — multi-site church",
+    "value": 4000,
+    "linkedin": "https://www.linkedin.com/in/mike-haney-71028a30",
+    "note": "Score 82. CFO/Ops Keith Barbour; Exec Pastor Jeff Young; Facilities Scott LeCroy. 15555 Stuebner Airline Rd. EMAIL INFERRED: mhaney@cfbc.org ({f}{last} pattern — verify)."
+  },
+  {
+    "company": "Sugar Creek Baptist Church",
+    "contact": "Gary Hill",
+    "title": "Pastor of Administration",
+    "phone": "281-242-2858",
+    "city": "Sugar Land",
+    "email": "",
+    "specialty": "Faith org — 3-site church + preschool",
+    "value": 3500,
+    "linkedin": "https://www.linkedin.com/in/gary-hill-6979ba12/",
+    "note": "Score 80. 3 Houston-area sites. Core service area. 13223 SW Fwy."
+  },
+  {
+    "company": "The Church Without Walls",
+    "contact": "Ralph Douglas West",
+    "title": "Senior Pastor / Founder",
+    "phone": "281-649-6800",
+    "city": "Houston",
+    "email": "",
+    "specialty": "Faith org — large multi-campus",
+    "value": 3500,
+    "linkedin": "https://www.linkedin.com/in/ralph-west-7191537/",
+    "note": "Score 76. Identify Exec Pastor/Operations as primary gatekeeper next touch. 5725 Queenston Blvd."
+  },
+  {
+    "company": "RISE Association Management Group",
+    "contact": "John Elmore",
+    "title": "Managing Partner / Co-Founder",
+    "phone": "713-936-9200",
+    "city": "Houston",
+    "email": "john@riseamg.com",
+    "specialty": "HOA / high-rise condo mgmt",
+    "value": 5000,
+    "linkedin": "https://www.linkedin.com/in/john-elmore-567b7428/",
+    "note": "Score 83. Email published (riseamg.com); phone is main office direct. 3131 Eastside St #130. USMC veteran owner = warm angle. Co-founder Jason Delgado also a gatekeeper."
+  },
+  {
+    "company": "SBB Community Management",
+    "contact": "Vanessa Burch, CMCA, AMS, PCAM",
+    "title": "President",
+    "phone": "281-857-6027",
+    "city": "Houston",
+    "email": "v.burch@sbbmanagement.com",
+    "specialty": "HOA / community association mgmt (170+ assns)",
+    "value": 5000,
+    "linkedin": "https://www.linkedin.com/in/vanessa-burch-cmca-ams-pcam-a67838141/",
+    "note": "Score 82. Direct email confirmed (sbbmanagement.com). Houston ofc 281-857-6027 (Dallas direct 972-960-2800). Top decision authority. 13231 Champion Forest Dr #311."
+  },
+  {
+    "company": "Wulfe & Co.",
+    "contact": "Susan Mazewski, CPM",
+    "title": "Senior Property Manager",
+    "phone": "713-621-1700",
+    "city": "Houston",
+    "email": "smazewski@wulfe.com",
+    "specialty": "Retail / shopping center PM",
+    "value": 4500,
+    "linkedin": "Retail centers = parking + after-hours + loss-prevention guard need",
+    "note": "Score  loss prevention). 2026-06-25"
+  },
+  {
+    "company": "NewQuest Properties",
+    "contact": "Bob Conwell",
+    "title": "Vice President",
+    "phone": "281-477-4324",
+    "city": "Houston",
+    "email": "bconwell@newquest.com",
+    "specialty": "Retail / shopping center PM",
+    "value": 5000,
+    "linkedin": "https://www.linkedin.com/in/bob-conwell-9332a86a/",
+    "note": "Score 83. Direct email + direct line both published. VP = strong authority. 8827 W Sam Houston Pkwy N #200."
+  },
+  {
+    "company": "Wulfe & Co.",
+    "contact": "Christiana Webber, CPM",
+    "title": "Commercial Property Manager",
+    "phone": "713-621-1700",
+    "city": "Houston",
+    "email": "cwebber@wulfe.com",
+    "specialty": "Retail / commercial PM",
+    "value": 3500,
+    "linkedin": "https://www.linkedin.com/in/christianawebber/",
+    "note": "Score 74. Direct email published; phone main line. CPM-credentialed PM at retail firm."
+  },
+  {
+    "company": "Wulfe & Co.",
+    "contact": "Martha Myers-McGuyer",
+    "title": "Commercial Property Manager",
+    "phone": "713-621-1700",
+    "city": "Houston",
+    "email": "mmcguyer@wulfe.com",
+    "specialty": "Retail / commercial PM",
+    "value": 3500,
+    "linkedin": "https://www.linkedin.com/in/martha-myers-mcguyer-71846330/",
+    "note": "Score 74. Direct email published; phone main line. Manages retail centers for Wulfe."
+  },
+  {
+    "company": "Wulfe & Co.",
+    "contact": "Amy Greenlee-Holland",
+    "title": "Property Manager",
+    "phone": "713-621-1700",
+    "city": "Houston",
+    "email": "agreenlee@wulfe.com",
+    "specialty": "Retail / commercial PM",
+    "value": 3000,
+    "linkedin": "https://www.linkedin.com/in/amy-greenlee-holland-91b46427a/",
+    "note": "Score 72. Direct email published; phone main line. PM at Wulfe retail portfolio."
+  },
+  {
+    "company": "Genesis Community Management",
+    "contact": "Alan DeBarbieris",
+    "title": "Director of Business Development",
+    "phone": "713-953-0808",
+    "city": "Houston",
+    "email": "alan@genesiscommunity.com",
+    "specialty": "HOA / community association mgmt",
+    "value": 3500,
+    "linkedin": "https://www.linkedin.com/in/alan-debarbieris-7b4b8626/",
+    "note": "Score 70. Direct email + main line published. Biz-dev = warm intro path; principal Carl DeBarbieris is owner. 9700 Richmond #160."
+  },
+  {
+    "company": "Oak Leaf Management",
+    "contact": "John Ayure",
+    "title": "Property Manager, Commercial & Industrial",
+    "phone": "713-541-9724",
+    "city": "Houston",
+    "email": "jayure@oakleafmgmt.com",
+    "specialty": "Commercial / industrial PM",
+    "value": 3500,
+    "linkedin": "https://www.linkedin.com/in/john-ayure-a41990124/",
+    "note": "Score 72. Direct email published (oakleafmgmt.com/about_leadership); phone main line. Industrial + commercial both guard-relevant. 9555 W Sam Houston Pkwy S #250."
+  },
+  {
+    "company": "Oak Leaf Management",
+    "contact": "Joshua Asch",
+    "title": "Property Manager, Commercial Division",
+    "phone": "713-541-9724",
+    "city": "Houston",
+    "email": "jasch@oakleafmgmt.com",
+    "specialty": "Commercial PM",
+    "value": 3000,
+    "linkedin": "https://www.linkedin.com/in/joshua-asch-843692106/",
+    "note": "Score 69. Direct email published. Phone main line. NOTE: firm page lists him as Commercial PM but LinkedIn headline says Senior Corporate Accountant — verify current role before outreach. Asch family runs the firm (EVP/CFO R. Thomas Asch)."
+  },
+  {
+    "company": "Greystar",
+    "contact": "Jeff Hope",
+    "title": "Sr. Regional Property Manager, CPM CAPS",
+    "phone": "",
+    "city": "Houston",
+    "email": "",
+    "specialty": "Multifamily regional PM",
+    "value": 8000,
+    "linkedin": "https://www.linkedin.com/in/jeff-hope-a72079152/",
+    "note": "Score 84. Greystar largest US apartment operator. Sr Regional = multi-community authority. Greystar Houston ofc 713-479-8900 (730 Town & Country Blvd #800). EMAIL INFERRED: jeff.hope@greystar.com (first.last pattern — verify; Apollo for confirmed)."
+  },
+  {
+    "company": "",
+    "contact": "Guillermo Ramirez",
+    "title": "Regional Property Manager",
+    "phone": "",
+    "city": "Houston",
+    "email": "",
+    "specialty": "Multifamily regional PM",
+    "value": 7000,
+    "linkedin": "https://www.linkedin.com/in/guillermo-ramirez-b57a82264/",
+    "note": "Score 83. LinkedIn-exclusive (no email/phone yet — enrich via Apollo). Company not shown in search; states 2100+ units, 96-98% occupancy. Bilingual EN/ES."
+  },
+  {
+    "company": "Cushman & Wakefield",
+    "contact": "Rebecca Bond",
+    "title": "Regional Property Manager",
+    "phone": "",
+    "city": "Houston",
+    "email": "",
+    "specialty": "Multifamily regional PM",
+    "value": 7000,
+    "linkedin": "https://www.linkedin.com/in/rebecca-bond-99798b8/",
+    "note": "Score 81. C&W multifamily ops leader. Big firm = regional approval path. EMAIL INFERRED: rebecca.bond@cushwake.com (C&W first.last pattern — verify; Apollo for confirmed)."
+  },
+  {
+    "company": "",
+    "contact": "Krystal Hoover, CAM, CPO",
+    "title": "New Development Regional Property Manager",
+    "phone": "",
+    "city": "Houston",
+    "email": "",
+    "specialty": "Multifamily — new development",
+    "value": 6000,
+    "linkedin": "https://www.linkedin.com/in/krystal-hoover-cam-cpo-4b098988/",
+    "note": "Score 80. LinkedIn-exclusive (no email/phone yet — enrich via Apollo). 'New Development' = construction security + new-community patrol angle. Company not shown."
+  },
+  {
+    "company": "",
+    "contact": "Robin Williams, NALP CAM",
+    "title": "Regional Property Manager / Asset Manager",
+    "phone": "",
+    "city": "Houston",
+    "email": "",
+    "specialty": "Multifamily regional PM / asset",
+    "value": 6000,
+    "linkedin": "https://www.linkedin.com/in/robin-williams-nalp-cam-62145677/",
+    "note": "Score 78. LinkedIn-exclusive (no email/phone yet — enrich via Apollo). Regional + asset manager = broader vendor authority. Company not shown."
+  }
+];
+  const seedLeads = _real.map(r => ({
+    id: uid(), company: r.company, contact: r.contact, title: r.title, phone: r.phone,
+    city: r.city || 'Houston, TX', email: r.email, specialty: r.specialty, stage: 'New',
+    value: Number(r.value) || 0, linkedin: r.linkedin, nextStep: 'First call', nextStepDue: '',
+    notes: r.note ? [{ t: r.note, when: Date.now() }] : [], created: Date.now()
+  }));
+  save(K.leads, seedLeads);
 
   // seed a couple of time entries (history) + active shift for Marcus
   const now=Date.now(), day=86400000;
@@ -635,12 +1051,16 @@ function setRole(r){
   role=r;
   document.getElementById('tabEmp').classList.toggle('active',r==='employee');
   document.getElementById('tabAdmin').classList.toggle('active',r==='admin');
+  document.getElementById('tabOwner').classList.toggle('active',r==='owner');
   document.getElementById('empLogin').classList.toggle('hidden',r!=='employee');
   document.getElementById('adminLogin').classList.toggle('hidden',r!=='admin');
+  document.getElementById('ownerLogin').classList.toggle('hidden',r!=='owner');
   document.getElementById('loginErr').classList.add('hidden');
   document.getElementById('loginHint').innerHTML = r==='employee'
     ? 'Demo PIN for all staff: <code>1234</code>'
-    : 'Demo admin login: <code>admin</code> / <code>admin</code>';
+    : r==='owner'
+    ? 'Owner sign-in — Kenrick M.'
+    : 'Operations team sign-in.';
 }
 function showErr(m){const e=document.getElementById('loginErr');e.textContent=m;e.classList.remove('hidden');}
 async function doLogin(){
@@ -662,10 +1082,11 @@ async function doLogin(){
       empPin=pin; timeCloud=false;
       session={role:'employee',empId:emp.id,name:emp.name,title:emp.title,pin};
     }
-  }else{
+  }else if(role==='admin'){
     const p=document.getElementById('adminPass').value;
     const res = await cloudGet(p);
     if(!res.ok) return showErr(res.status===401 ? 'Invalid admin password.' : 'Could not reach the CRM server — check your connection.');
+    if(res.role==='owner') return showErr("That's the Owner password — use the Owner tab.");
     cloudPw = p; localStorage.setItem('gts_pw', p); cloudReady = true;
     // First login against an empty cloud: seed it from this device's existing pipeline.
     // Otherwise the cloud is the source of truth — pull it into the local cache.
@@ -684,7 +1105,18 @@ async function doLogin(){
         timeCache({employees,shifts,sites,entries:[]});
       }else{ timeCache(t.data); }
     }
-    session={role:'admin',name:'Geovonni O.',title:'Owner / Admin'};
+    session={role:'admin',name:'Geovonni O.',title:'Operations / Admin'};
+  }else{
+    // ===== OWNER (Kenrick M.) — exec summary + approvals, signs in with his own password =====
+    const p=document.getElementById('ownerPass').value;
+    const res = await cloudGet(p);
+    if(!res.ok) return showErr(res.status===401 ? 'Invalid owner password.' : 'Could not reach the server — check your connection.');
+    if(res.role!=='owner') return showErr(res.role==='admin' ? "That's the Admin password — use the Admin tab." : 'Invalid owner password.');
+    cloudPw = p; localStorage.setItem('gts_pw', p); cloudReady = true;
+    localStorage.setItem(K.leads, JSON.stringify(res.leads));   // cloud is the source of truth — never seed from the owner's device
+    const t=await timeAdminGet(p);
+    if(t.ok){ timeCloud=true; timeCache(t.data); }
+    session={role:'owner',name:'Kenrick M.',title:'Owner'};
   }
   save(K.session,session);
   startApp();
@@ -703,13 +1135,17 @@ const NAV={
     ['crm','Leads & CRM','M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75'],
     ['team','Team & Timesheets','M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75'],
     ['schedule','Schedule','M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z']
+  ],
+  owner:[
+    ['dash','Overview','M3 13h8V3H3zM13 21h8V8h-8zM13 3v3h8V3z'],
+    ['approvals','Approvals','M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11']
   ]
 };
 let currentView='dash';
 function startApp(){
   session=load(K.session,null); if(!session)return;
   // Returning admin session: re-enable cloud sync and refresh leads + timesheets from the shared store.
-  if(session.role==='admin' && cloudPw){
+  if((session.role==='admin'||session.role==='owner') && cloudPw){
     cloudReady=true; timeCloud=true;
     Promise.all([cloudPull(),timeAdminPull()]).then(()=>{ if(currentView) render(); });
   }else if(session.role==='employee'){
@@ -718,7 +1154,7 @@ function startApp(){
   }
   document.getElementById('login').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
-  document.getElementById('sbRole').textContent = session.role==='admin'?'Administration':'Staff Portal';
+  document.getElementById('sbRole').textContent = session.role==='admin'?'Administration':session.role==='owner'?'Ownership':'Staff Portal';
   document.getElementById('userName').textContent=session.name;
   document.getElementById('userRole').textContent=session.title;
   document.getElementById('userAv').textContent=session.name.split(' ').map(s=>s[0]).join('').slice(0,2);
@@ -743,8 +1179,8 @@ function go(id){
   currentView=id;
   document.querySelectorAll('#sbNav button').forEach(b=>b.classList.toggle('active',b.dataset.id===id));
   toggleSidebar(false);
-  const titles={dash:'Dashboard',hours:'My Hours',schedule:session.role==='admin'?'Team Schedule':'My Schedule',crm:'Leads & CRM',team:'Team & Timesheets'};
-  document.getElementById('pageTitle').textContent=titles[id]||'Dashboard';
+  const titles={dash:'Dashboard',hours:'My Hours',schedule:session.role==='admin'?'Team Schedule':'My Schedule',crm:'Leads & CRM',team:'Team & Timesheets',approvals:'Approval Center'};
+  document.getElementById('pageTitle').textContent=(id==='dash'&&session.role==='owner')?'Owner Overview':(titles[id]||'Dashboard');
   updateAgentFab();
   render();
 }
@@ -778,6 +1214,9 @@ function render(){
     if(currentView==='dash')return empDash(v);
     if(currentView==='hours')return empHours(v);
     if(currentView==='schedule')return empSchedule(v);
+  }else if(session.role==='owner'){
+    if(currentView==='dash')return ownerDash(v);
+    if(currentView==='approvals')return ownerApprovals(v);
   }else{
     if(currentView==='dash')return adminDash(v);
     if(currentView==='crm')return crm(v);
@@ -973,6 +1412,107 @@ function adminDash(v){
    </tbody></table></div>`;
 }
 
+/* ========================= OWNER (Kenrick M.) — SUMMARY + APPROVALS ========================= */
+/* Owner-facing read of the same cloud data the operator uses, framed as an exec summary
+   plus an interactive approval queue. Two things need his sign-off: outgoing email drafts
+   (lead.actionStatus==='ready') and timesheets (entry pending/geofence-flagged). */
+function ownerPending(){
+  const drafts=load(K.leads,[]).filter(l=>l.actionStatus==='ready'&&String(l.draft||'').trim());
+  const times=load(K.time,[]).filter(t=>t.out&&(t.status==='pending'||t.status==='flagged'));
+  return {drafts,times};
+}
+function ownerDash(v){
+  const emps=load(K.emp,[]);
+  const leads=load(K.leads,[]);
+  const onClock=emps.filter(e=>activeEntry(e.id));
+  const pipeline=leads.filter(l=>!['Won','Lost'].includes(l.stage)).reduce((s,l)=>s+Number(l.value||0),0);
+  const won=leads.filter(l=>l.stage==='Won');
+  const wonVal=won.reduce((s,l)=>s+Number(l.value||0),0);
+  const weekTotal=emps.reduce((s,e)=>s+weekHours(e.id),0);
+  const payroll=emps.reduce((s,e)=>s+weekHours(e.id)*(e.rate||18),0);
+  const {drafts,times}=ownerPending();
+  const need=drafts.length+times.length;
+  // recent activity feed — clock events + freshly drafted outreach, newest first
+  const acts=[];
+  load(K.time,[]).forEach(t=>{
+    acts.push({when:t.in,icon:'🟢',txt:`<strong>${esc(empName(t.empId))}</strong> clocked in${t.site?' at '+esc(t.site):''}`});
+    if(t.out)acts.push({when:t.out,icon:'⚪',txt:`<strong>${esc(empName(t.empId))}</strong> clocked out · ${fmtH(hrs(workedMs(t)))}`});
+  });
+  drafts.forEach(l=>acts.push({when:(l.notes&&l.notes[0]&&l.notes[0].when)||l.created||Date.now(),icon:'✉️',txt:`Outreach drafted for <strong>${esc(l.company)}</strong> — awaiting your approval`}));
+  won.forEach(l=>acts.push({when:l.created||Date.now(),icon:'🏆',txt:`Contract won — <strong>${esc(l.company)}</strong> · ${money(l.value)}`}));
+  acts.sort((a,b)=>b.when-a.when);
+  v.innerHTML=`
+   ${need?`<div class="card" style="border:1px solid var(--gold);background:linear-gradient(135deg,rgba(200,168,75,.14),rgba(200,168,75,.04));display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px">
+     <div><div style="font-weight:700;font-size:1.02rem;color:var(--gold)">${need} item${need>1?'s':''} need your approval</div>
+       <div style="font-size:.8rem;color:var(--gray);margin-top:3px">${drafts.length} email draft${drafts.length===1?'':'s'} to send · ${times.length} timesheet${times.length===1?'':'s'} to review</div></div>
+     <button class="btn gold" onclick="go('approvals')">Review now →</button>
+   </div>`:`<div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:20px"><span style="font-size:1.3rem">✅</span><div><div style="font-weight:700">You're all caught up</div><div style="font-size:.8rem;color:var(--gray)">No drafts or timesheets are waiting on you.</div></div></div>`}
+   <div class="grid stat-row">
+     <div class="card kpi"><div class="lbl">On Duty Now</div><div class="val green">${onClock.length}<small> / ${emps.length}</small></div><div class="sub">${onClock.map(e=>e.name.split(' ')[0]).join(', ')||'Nobody clocked in'}</div></div>
+     <div class="card kpi"><div class="lbl">Open Pipeline</div><div class="val gold">${money(pipeline)}</div><div class="sub">${leads.filter(l=>!['Won','Lost'].includes(l.stage)).length} active leads</div></div>
+     <div class="card kpi"><div class="lbl">Closed / Won</div><div class="val green">${money(wonVal)}</div><div class="sub">${won.length} contract${won.length===1?'':'s'} signed</div></div>
+     <div class="card kpi"><div class="lbl">Payroll (wk)</div><div class="val">${money(Math.round(payroll))}</div><div class="sub">${fmtH(weekTotal)} across ${emps.length} officers</div></div>
+   </div>
+   <div class="section-title">Who's On Duty</div>
+   <div class="tbl-wrap"><table><thead><tr><th>Officer</th><th>Status</th><th>Since</th><th>Today</th><th>This Week</th></tr></thead><tbody>
+   ${emps.map(e=>{const ae=activeEntry(e.id);return `<tr><td><strong>${esc(e.name)}</strong><div style="font-size:.74rem;color:var(--gray)">${esc(e.title||'')}</div></td>
+     <td>${ae?'<span class="pill green"><span class="dot"></span>On duty</span>':'<span class="pill gray"><span class="dot"></span>Off</span>'}</td>
+     <td class="mono">${ae?fmtTime(ae.in):'—'}</td>
+     <td class="mono">${ae?fmtH(hrs(Date.now()-ae.in)):'—'}</td>
+     <td class="mono">${fmtH(weekHours(e.id))}</td></tr>`}).join('')||'<tr><td colspan="5" class="empty">No officers yet.</td></tr>'}
+   </tbody></table></div>
+   <div class="section-title">Recent Activity</div>
+   <div class="card" style="padding:6px 4px">${acts.length?acts.slice(0,8).map(a=>`<div style="display:flex;gap:12px;align-items:baseline;padding:9px 14px;border-bottom:1px solid rgba(255,255,255,.05)"><span>${a.icon}</span><div style="flex:1;font-size:.86rem">${a.txt}</div><span class="mono" style="font-size:.72rem;color:var(--gray);white-space:nowrap">${fmtDate(a.when)} ${fmtTime(a.when)}</span></div>`).join(''):'<div class="empty">No activity yet.</div>'}</div>`;
+}
+function ownerApprovals(v){
+  const {drafts,times}=ownerPending();
+  const draftsHTML=drafts.length?drafts.map(l=>{
+    const mail=l.email?`mailto:${encodeURIComponent(l.email)}?subject=${encodeURIComponent('KM Guard Tech Solutions')}&body=${encodeURIComponent(l.draft||'')}`:'';
+    return `<div class="card" style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+        <div><div style="font-weight:700;font-size:1rem">${esc(l.company)}</div>
+          <div style="font-size:.8rem;color:var(--gray)">${esc(l.contact||'—')}${l.email?' · '+esc(l.email):''}</div></div>
+        <span class="pill gold"><span class="dot"></span>${esc(l.stage)}</span>
+      </div>
+      <div style="font-size:.72rem;color:var(--gold);margin:10px 0 5px;text-transform:uppercase;letter-spacing:.08em">${esc(actionFor(l.actionStage||l.stage))}</div>
+      <div style="white-space:pre-wrap;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:9px;padding:12px 14px;font-size:.86rem;line-height:1.5;max-height:230px;overflow:auto">${esc(l.draft)}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+        <button class="btn gold sm" onclick="approveDraft('${l.id}')">✓ Approve to send</button>
+        ${mail?`<a class="btn ghost sm" href="${mail}" target="_blank" rel="noopener" style="text-decoration:none">✉️ Open in email</a>`:''}
+        <button class="btn ghost sm" onclick="rejectDraft('${l.id}')">↩︎ Send back for revision</button>
+      </div>
+    </div>`;}).join(''):'<div class="card empty" style="margin-bottom:20px">No email drafts waiting on you.</div>';
+  const tq=times.sort((a,b)=>(b.flags||[]).length-(a.flags||[]).length||b.in-a.in);
+  const timesHTML=tq.length?`<div class="tbl-wrap"><table><thead><tr><th>Officer</th><th>Date</th><th>Site</th><th>In</th><th>Out</th><th>Worked</th><th>Flags</th><th>Review</th></tr></thead><tbody>
+     ${tq.map(t=>`<tr>
+        <td><strong>${esc(empName(t.empId))}</strong></td>
+        <td>${fmtDate(t.in)}</td><td>${esc(t.site||'—')}</td>
+        <td class="mono">${fmtTime(t.in)}</td><td class="mono">${fmtTime(t.out)}</td>
+        <td class="mono">${fmtH(hrs(workedMs(t)))}</td>
+        <td>${(t.flags||[]).length?`<span style="color:var(--gold);font-size:.72rem">⚑ ${esc((t.flags||[]).join('; '))}</span>`:'<span style="color:var(--gray);font-size:.74rem">clean</span>'}</td>
+        <td style="white-space:nowrap"><button class="btn gold sm" onclick="reviewEntry('${t.id}','approved')">Approve</button>
+          <button class="btn ghost sm" onclick="reviewEntry('${t.id}','rejected')">Reject</button></td>
+     </tr>`).join('')}
+     </tbody></table></div>`:'<div class="card empty">No timesheets awaiting review. All caught up.</div>';
+  v.innerHTML=`
+   <div class="section-title">✉️ Email Drafts Awaiting Your Approval <span style="font-size:.72rem;color:var(--gray);font-weight:400">approve before it goes to the prospect</span></div>
+   ${draftsHTML}
+   <div class="section-title" style="margin-top:24px">🕑 Timesheets Awaiting Your Approval <span style="font-size:.72rem;color:var(--gray);font-weight:400">approve before it feeds billing</span></div>
+   ${timesHTML}`;
+}
+function approveDraft(id){
+  const leads=load(K.leads,[]);const l=leads.find(x=>x.id===id);if(!l)return;
+  l.actionStatus='approved';
+  l.notes=l.notes||[];l.notes.unshift({t:'✅ Draft approved to send by '+session.name,when:Date.now()});
+  save(K.leads,leads);toast('Approved — cleared to send');render();
+}
+function rejectDraft(id){
+  const leads=load(K.leads,[]);const l=leads.find(x=>x.id===id);if(!l)return;
+  l.notes=l.notes||[];l.notes.unshift({t:'↩︎ Draft sent back for revision by '+session.name,when:Date.now()});
+  queueForAgent(l);  // → actionStatus 'pending' + clears the draft so the agent re-drafts it
+  save(K.leads,leads);toast('Sent back for revision');render();
+}
+
 /* ========================= TEAM & TIMESHEETS ========================= */
 const empName=id=>{const e=load(K.emp,[]).find(x=>x.id===id);return e?e.name:'?';};
 const empRate=id=>{const e=load(K.emp,[]).find(x=>x.id===id);return (e&&e.rate)||18;};
@@ -1052,37 +1592,223 @@ function nextStepHTML(l){
 }
 function setNextStep(id,v){const leads=load(K.leads,[]);const l=leads.find(x=>x.id===id);if(l){l.nextStep=v;save(K.leads,leads);toast(l.company+': '+v);render();}}
 function setNextDue(id,v){const leads=load(K.leads,[]);const l=leads.find(x=>x.id===id);if(l){l.nextStepDue=v;save(K.leads,leads);if(v)toast(l.company+' · due '+dueInfo(v).txt);render();}}
+/* ===== CRM derived helpers (shared by UI + window.GTS agent API) ===== */
+function normKey(l){return ((l&&l.company||'')+'|'+(l&&l.contact||'')).toLowerCase().trim();}
+function scoreOf(l){                 // parse "Score NN" out of notes[] (or l.score if present)
+  if(l&&typeof l.score==='number')return l.score;
+  const notes=(l&&l.notes)||[];
+  for(const n of notes){const m=/score\s*[:\-]?\s*(\d{1,3})/i.exec(n&&n.t||'');if(m)return Number(m[1]);}
+  return null;
+}
+function segOf(l){return (l&&l.specialty)||'—';}
+function lastActivityTs(l){
+  const notes=(l&&l.notes)||[];
+  let t=l&&l.created||0; notes.forEach(n=>{if(n&&n.when>t)t=n.when;});
+  return t;
+}
+function leadByKey(key){             // accept id, "company|contact", or company name (case-insensitive)
+  const leads=load(K.leads,[]); if(!key)return null;
+  const k=String(key).toLowerCase().trim();
+  return leads.find(l=>l.id===key) || leads.find(l=>normKey(l)===k)
+      || leads.find(l=>(l.company||'').toLowerCase().trim()===k) || null;
+}
+
+/* ===== CRM view state (persists across re-renders) ===== */
+let crmS={ view:'table', smart:'all', sort:{col:'score',dir:-1}, search:'', stage:'', seg:'', minScore:0 };
+const SMART_VIEWS=[
+  ['all','All'],['today','Today'],['calls','Call List'],['email','Has Email'],['linkedin','Has LinkedIn'],
+  ['awaiting','Awaiting Send'],['segment','By Segment'],['highscore','Highest Score']
+];
+function crmMatch(l){
+  // smart-view scoping
+  if(crmS.smart==='today'){ if(['Won','Lost'].includes(l.stage))return false;
+    if(!['overdue','today'].includes(dueInfo(l.nextStepDue).cls))return false; }
+  else if(crmS.smart==='calls'){ if((l.email||'').trim()&&(l.email||'').trim()!=='—')return false; }
+  else if(crmS.smart==='email'){ const e=(l.email||'').trim(); if(!e||e==='—')return false; }
+  else if(crmS.smart==='linkedin'){ if(!/^https?:/i.test((l.linkedin||'').trim()))return false; }
+  else if(crmS.smart==='awaiting'){
+    const drafted=(l.notes||[]).some(n=>/drafted|awaiting send/i.test(n&&n.t||''))||/send cold email/i.test(l.nextStep||'')||l.actionStatus==='ready';
+    if(!drafted)return false; }
+  // filters
+  if(crmS.stage && l.stage!==crmS.stage)return false;
+  if(crmS.seg && segOf(l)!==crmS.seg)return false;
+  if(crmS.minScore){ const s=scoreOf(l); if(s==null||s<crmS.minScore)return false; }
+  // free-text search across company/contact/email
+  if(crmS.search){ const q=crmS.search.toLowerCase();
+    if(!((l.company||'')+' '+(l.contact||'')+' '+(l.email||'')+' '+(l.specialty||'')).toLowerCase().includes(q))return false; }
+  return true;
+}
+function crmList(){
+  let rows=load(K.leads,[]).filter(crmMatch);
+  let {col,dir}=crmS.sort;
+  if(crmS.smart==='highscore'){col='score';dir=-1;}
+  if(crmS.smart==='segment'){col='segment';dir=1;}
+  const get={ company:l=>(l.company||'').toLowerCase(), contact:l=>(l.contact||'').toLowerCase(),
+    segment:l=>segOf(l).toLowerCase(), score:l=>scoreOf(l)??-1, value:l=>Number(l.value||0),
+    stage:l=>STAGES.indexOf(l.stage), nextStep:l=>(l.nextStep||'').toLowerCase(),
+    due:l=>l.nextStepDue||'￿', activity:l=>lastActivityTs(l) };
+  const g=get[col]||get.score;
+  rows.sort((a,b)=>{const x=g(a),y=g(b);return x<y?-1*dir:x>y?1*dir:0;});
+  return rows;
+}
 function crm(v){
-  const leads=load(K.leads,[]);
-  // Action Queue: open leads whose next step is overdue or due today
-  const queue=leads.filter(l=>!['Won','Lost'].includes(l.stage)&&(l.nextStep||defaultNextStep(l.stage))!==NO_STEP
-      &&['overdue','today'].includes(dueInfo(l.nextStepDue).cls))
-    .sort((a,b)=>(a.nextStepDue||'').localeCompare(b.nextStepDue||''));
-  const queueHTML=queue.length?`<div class="queue">
-     <h3>⚡ Action Queue<span class="qcount">${queue.length} ${queue.length>1?'leads need':'lead needs'} attention</span></h3>
-     ${queue.map(l=>{const di=dueInfo(l.nextStepDue);return `<div class="q-item" onclick="leadDetail('${l.id}')">
-        <div class="q-main"><strong>${l.company}</strong><span class="q-step">${l.nextStep||defaultNextStep(l.stage)}</span></div>
-        <span class="due ${di.cls}">${di.txt}</span></div>`}).join('')}
-   </div>`:'';
-  v.innerHTML=`${queueHTML}<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
-     <div style="font-size:.82rem;color:var(--gray)">Drag cards between columns to update stage. Set each lead's next step so nothing slips. ${leads.length} total leads · ${money(leads.filter(l=>!['Won','Lost'].includes(l.stage)).reduce((s,l)=>s+Number(l.value||0),0))} open pipeline.</div>
-     <button class="btn gold" onclick="openLeadModal()"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add Lead</button>
+  const all=load(K.leads,[]);
+  const open=all.filter(l=>!['Won','Lost'].includes(l.stage));
+  const pipeline=open.reduce((s,l)=>s+Number(l.value||0),0);
+  const wonVal=all.filter(l=>l.stage==='Won').reduce((s,l)=>s+Number(l.value||0),0);
+  const dueCount=open.filter(l=>['overdue','today'].includes(dueInfo(l.nextStepDue).cls)).length;
+  const segs=[...new Set(all.map(segOf))].filter(s=>s&&s!=='—').sort();
+  const smartCount=sv=>{const save_=crmS.smart;crmS.smart=sv;const n=all.filter(crmMatch).length;crmS.smart=save_;return n;};
+  v.innerHTML=`
+   <div class="wq">
+     <span class="wqi"><b class="gold">${money(pipeline)}</b>open pipeline</span>
+     <span class="wqi"><b>${open.length}</b>open leads</span>
+     <span class="wqi"><b class="${dueCount?'red':''}">${dueCount}</b>follow-ups due / overdue</span>
+     <span class="wqi"><b class="green">${money(wonVal)}</b>won</span>
+     <span class="wqi"><b>${all.length}</b>total leads · ${segs.length} segments</span>
    </div>
+   <div class="views">${SMART_VIEWS.map(([id,label])=>`<button class="view-tab ${crmS.smart===id?'active':''}" data-view="${id}" onclick="crmSetSmart('${id}')">${label}<span class="vc">${smartCount(id)}</span></button>`).join('')}</div>
+   <div class="crm-tools">
+     <input class="crm-search" id="crmSearch" placeholder="Search company, contact, email…" value="${esc(crmS.search)}" oninput="crmS.search=this.value;renderCrmBody()">
+     <span class="toggle"><button class="${crmS.view==='table'?'active':''}" onclick="crmSetView('table')">Table</button><button class="${crmS.view==='kanban'?'active':''}" onclick="crmSetView('kanban')">Kanban</button></span>
+     <button class="btn ghost sm" onclick="showApiHelp()" title="Agent / data API docs">⌗ Agent API</button>
+     <button class="btn gold sm" onclick="openLeadModal()" style="margin-left:auto"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add Lead</button>
+   </div>
+   <div id="crmBody"></div>`;
+  renderCrmBody();
+}
+function crmSetSmart(id){crmS.smart=id;render();}
+function crmSetView(view){crmS.view=view;render();}
+function crmSortBy(col){if(crmS.sort.col===col)crmS.sort.dir*=-1;else crmS.sort={col,dir:col==='score'||col==='value'||col==='activity'?-1:1};renderCrmBody();}
+function renderCrmBody(){
+  const el=document.getElementById('crmBody'); if(!el)return;
+  el.innerHTML = crmS.view==='kanban' ? kanbanHTML() : tableHTML();
+}
+function sortAr(col){return crmS.sort.col===col?`<span class="ar">${crmS.sort.dir<0?'▾':'▴'}</span>`:'';}
+function tableHTML(){
+  const rows=crmList();
+  if(!rows.length)return '<div class="card empty">No leads match this view/filter.</div>';
+  const cols=[['company','Company / Contact'],['segment','Segment'],['score','Score'],['value','Value'],['stage','Stage'],['nextStep','Next Step'],['due','Due'],['activity','Last Activity']];
+  return `<div class="dt-wrap"><table class="dt"><thead><tr>
+    ${cols.map(([c,lbl])=>`<th onclick="crmSortBy('${c}')">${lbl}${sortAr(c)}</th>`).join('')}
+  </tr></thead><tbody>
+  ${rows.map(l=>{const sc=scoreOf(l);const di=dueInfo(l.nextStepDue);const ns=l.nextStep||defaultNextStep(l.stage);
+    const scCls=sc==null?'score-lo':sc>=80?'score-hi':sc>=60?'score-mid':'score-lo';
+    return `<tr data-lead-id="${l.id}" data-company-contact="${esc(normKey(l))}" onclick="leadDrawer('${l.id}')">
+      <td><div class="co">${esc(l.company||'(no company)')}</div><div class="ct">${esc(l.contact||'—')}${l.title?' · '+esc(l.title):''}</div></td>
+      <td>${esc(segOf(l))}</td>
+      <td><span class="score-chip ${scCls}">${sc==null?'—':sc}</span></td>
+      <td class="mono">${money(l.value)}</td>
+      <td data-field="stage" onclick="event.stopPropagation()"><select class="cell-sel" data-field="stage" onchange="crmInlineStage('${l.id}',this.value)">${STAGES.map(s=>`<option ${s===l.stage?'selected':''}>${s}</option>`).join('')}</select></td>
+      <td data-field="nextStep" onclick="event.stopPropagation()"><select class="cell-sel" data-field="nextStep" onchange="crmInlineNext('${l.id}',this.value)">${NEXT_STEPS.map(s=>`<option ${s===ns?'selected':''}>${esc(s)}</option>`).join('')}</select></td>
+      <td><span class="due ${di.cls}">${di.txt}</span></td>
+      <td class="mono">${fmtDate(lastActivityTs(l))}</td>
+    </tr>`;}).join('')}
+  </tbody></table></div>
+  <div style="font-size:.74rem;color:var(--gray);margin-top:10px">${rows.length} of ${load(K.leads,[]).length} leads · click a row for details · click a column to sort</div>`;
+}
+function kanbanHTML(){
+  const rows=crmList();
+  return `<div style="font-size:.78rem;color:var(--gray);margin-bottom:10px">Drag cards between columns to update stage (deals in motion). Showing ${rows.length} filtered leads.</div>
    <div class="pipe">${STAGES.map(st=>{
-     const col=leads.filter(l=>l.stage===st);
-     const tot=col.reduce((s,l)=>s+Number(l.value||0),0);
-     return `<div class="pipe-col" data-stage="${st}" ondragover="dragOver(event,this)" ondragleave="this.classList.remove('drop')" ondrop="dropLead(event,'${st}',this)">
-       <h3>${st}<span class="ct">${col.length}</span></h3>
-       <div class="total">${money(tot)}</div>
-       ${col.map(l=>`<div class="lead" draggable="true" ondragstart="dragId='${l.id}';this.classList.add('dragging')" ondragend="this.classList.remove('dragging')" onclick="leadDetail('${l.id}')">
-         <div class="co">${l.company}</div>
-         <div class="ct2">${l.contact}</div>
-         <div class="meta"><span class="val">${money(l.value)}</span><span class="tag">${l.city.split(',')[0]}</span></div>
+     const col=rows.filter(l=>l.stage===st); const tot=col.reduce((s,l)=>s+Number(l.value||0),0);
+     return `<div class="pipe-col" data-stage="${st}" data-view="kanban-${st}" ondragover="dragOver(event,this)" ondragleave="this.classList.remove('drop')" ondrop="dropLead(event,'${st}',this)">
+       <h3>${st}<span class="ct">${col.length}</span></h3><div class="total">${money(tot)}</div>
+       ${col.map(l=>`<div class="lead" data-lead-id="${l.id}" data-company-contact="${esc(normKey(l))}" draggable="true" ondragstart="dragId='${l.id}';this.classList.add('dragging')" ondragend="this.classList.remove('dragging')" onclick="leadDrawer('${l.id}')">
+         <div class="co">${esc(l.company||'(no company)')}</div><div class="ct2">${esc(l.contact||'—')}</div>
+         <div class="meta"><span class="val">${money(l.value)}</span><span class="tag">${esc((l.city||'').split(',')[0])}</span></div>
          ${actionBadge(l)?`<div style="margin:6px 0 2px">${actionBadge(l)}</div>`:''}
          ${nextStepHTML(l)}
        </div>`).join('')}
      </div>`}).join('')}</div>`;
 }
+function crmInlineStage(id,stage){const leads=load(K.leads,[]);const l=leads.find(x=>x.id===id);if(l&&l.stage!==stage){l.stage=stage;if(!l.nextStep||l.nextStep===NO_STEP)l.nextStep=defaultNextStep(stage);queueForAgent(l);save(K.leads,leads);toast(l.company+' → '+stage);render();}}
+function crmInlineNext(id,v){const leads=load(K.leads,[]);const l=leads.find(x=>x.id===id);if(l){l.nextStep=v;save(K.leads,leads);toast(l.company+': '+v);render();}}
+
+/* ===== Lead detail DRAWER (right panel) — primary row-click surface ===== */
+/* ===== Cold-call script generator (for call-list leads — no email on file) ===== */
+function isCallList(l){const e=((l&&l.email)||'').trim();return !e||e==='—';}
+function timeOfDay(){const h=new Date().getHours();return h<12?'morning':h<17?'afternoon':'evening';}
+function firstName(l){const c=((l&&l.contact)||'').trim();if(!c||c==='—')return 'there';return c.split(/\s+/)[0];}
+function vertical(l){
+  const s=(((l&&l.specialty)||'')+' '+((l&&l.company)||'')).toLowerCase();
+  if(/retail|shopping|mall/.test(s))                            return {who:'retail & shopping-center properties', angle:'loss prevention, parking-lot patrol & after-hours coverage'};
+  if(/multifamily|apartment/.test(s))                           return {who:'multifamily communities',            angle:'courtesy patrol, tenant safety & curb appeal'};
+  if(/hoa|condo|community assoc|high-rise/.test(s))             return {who:'HOAs & community associations',       angle:'courtesy patrol, amenity & parking enforcement, resident peace of mind'};
+  if(/faith|church|congregation|preschool|megachurch/.test(s))  return {who:'churches & faith campuses',           angle:'weekend-service & event coverage, parking & child-safety'};
+  if(/office|class-a/.test(s))                                  return {who:'office properties',                   angle:'lobby/visitor access control & after-hours coverage'};
+  if(/industrial|warehouse|distribution/.test(s))              return {who:'industrial & warehouse sites',         angle:'perimeter security, access control & theft deterrence'};
+  if(/commercial/.test(s))                                      return {who:'commercial properties',               angle:'on-site uniformed presence & liability reduction'};
+  return {who:'businesses like yours', angle:'trained, uniformed on-site security'};
+}
+function callScript(l){
+  const n=firstName(l); const them=(n==='there')?'Them':n; const who=vertical(l).who;
+  return [
+    `You:  Hi ${n}, good ${timeOfDay()} — this is Geovonni with Guard Tech Solutions, here in Houston.`,
+    `${them}:  (let them answer)`,
+    `You:  I just wanted to touch base and let you know what we do — we provide ${who} a solution with trained, uniformed security officers and full security services.`,
+    `      I just wanted to connect to see how I can assist you and your company, and stay top of mind.`
+  ].join('\n');
+}
+function copyCallScript(){const el=document.getElementById('callScriptText');if(!el)return;const t=el.innerText;
+  (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Script copied')).catch(()=>{try{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('Script copied');}catch(e){toast('Copy failed');}});}
+function leadDrawer(id){
+  const l=leadByKey(id); if(!l)return;
+  closeDrawer();
+  const sc=scoreOf(l); const ns=l.nextStep||defaultNextStep(l.stage);
+  const tl=(l.notes||[]).slice().sort((a,b)=>b.when-a.when);
+  const bg=document.createElement('div'); bg.className='drawer-bg'; bg.id='drawerBg'; bg.onclick=closeDrawer;
+  const d=document.createElement('div'); d.className='drawer'; d.id='leadDrawerEl'; d.setAttribute('data-lead-id',l.id); d.setAttribute('data-company-contact',normKey(l));
+  d.innerHTML=`
+   <div class="dw-head" style="position:relative">
+     <button class="x" onclick="closeDrawer()">×</button>
+     <div class="co">${esc(l.company||'(no company)')}</div>
+     <div class="ct">${esc(l.contact||'—')}${l.title?' · '+esc(l.title):''}</div>
+     <div style="margin-top:8px;display:flex;gap:7px;flex-wrap:wrap">
+       <span class="score-chip ${sc==null?'score-lo':sc>=80?'score-hi':sc>=60?'score-mid':'score-lo'}">${sc==null?'No score':'Score '+sc}</span>
+       <span class="pill gold" style="background:rgba(255,255,255,.12);color:#fff">${esc(l.stage)}</span>
+       <span class="pill gray" style="background:rgba(255,255,255,.12);color:#fff">${money(l.value)}</span>
+     </div>
+   </div>
+   <div class="dw-body">
+     <div class="dw-sec">Contact</div>
+     <div class="dw-row"><span class="k">Segment</span><span>${esc(segOf(l))}</span></div>
+     <div class="dw-row"><span class="k">Phone</span><span>${l.phone?`<a href="tel:${esc(l.phone)}">${esc(l.phone)}</a>`:'—'}</span></div>
+     <div class="dw-row"><span class="k">Email</span><span>${l.email&&l.email!=='—'?`<a href="mailto:${esc(l.email)}">${esc(l.email)}</a>`:'<span style="color:var(--red)">none — call list</span>'}</span></div>
+     <div class="dw-row"><span class="k">City</span><span>${esc(l.city||'—')}</span></div>
+     ${l.linkedin&&/^https?:/.test(l.linkedin)?`<div class="dw-row"><span class="k">LinkedIn</span><a href="${esc(l.linkedin)}" target="_blank" rel="noopener noreferrer">view ↗</a></div>`:''}
+     <div class="dw-sec">Lead details</div>
+     <div class="dw-row"><span class="k">Vertical</span><span>${esc(vertical(l).who)}</span></div>
+     <div class="dw-row"><span class="k">Best angle</span><span>${esc(vertical(l).angle)}</span></div>
+     <div class="dw-row"><span class="k">Outreach</span><span>${isCallList(l)?'📞 Call list (no email)':'✉️ Has email'}${l.linkedin&&/^https?:/.test(l.linkedin)?' · 🔗 LinkedIn':''}</span></div>
+     ${isCallList(l)?`
+     <div class="dw-sec">📞 Cold-call script <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--gray)">— this lead is on the call list</span></div>
+     <pre class="callscript" id="callScriptText">${esc(callScript(l))}</pre>
+     <div class="dw-goal">🎯 Goal of the call: get them to agree to receive our material by email — then capture that email so they move off the call list.</div>
+     <button class="btn ghost sm" style="margin-top:8px" onclick="copyCallScript()">Copy script</button>`:''}
+     <div class="dw-sec">Pipeline — quick actions</div>
+     <div style="display:flex;gap:8px;flex-wrap:wrap">
+       <select class="cell-sel" style="flex:1" onchange="crmInlineStage('${l.id}',this.value);leadDrawer('${l.id}')">${STAGES.map(s=>`<option ${s===l.stage?'selected':''}>${s}</option>`).join('')}</select>
+       <select class="cell-sel" style="flex:1" onchange="setNextStep('${l.id}',this.value);leadDrawer('${l.id}')">${NEXT_STEPS.map(s=>`<option ${s===ns?'selected':''}>${esc(s)}</option>`).join('')}</select>
+     </div>
+     <div style="margin-top:8px"><input class="cell-sel" type="date" style="width:100%" value="${l.nextStepDue||''}" onchange="setNextDue('${l.id}',this.value);leadDrawer('${l.id}')"></div>
+     <div class="dw-sec">Activity timeline</div>
+     ${tl.length?`<div class="tl">${tl.map(n=>`<div class="tl-item"><div class="tt">${esc(n.t)}</div><div class="tw">${fmtDate(n.when)} · ${fmtTime(n.when)}</div></div>`).join('')}</div>`:'<div style="font-size:.8rem;color:var(--gray)">No activity yet.</div>'}
+     <div class="dw-sec">Add note</div>
+     <textarea id="dw_note" rows="2" style="width:100%;border:1px solid var(--line);border-radius:8px;padding:9px;font-size:.84rem" placeholder="Log a call, email, or next step…"></textarea>
+     <button class="btn ghost sm" style="margin-top:7px" onclick="drawerAddNote('${l.id}')">Save note</button>
+   </div>
+   <div class="dw-foot">
+     <button class="btn gold sm" onclick="leadDetail('${l.id}')">Edit all fields</button>
+     <button class="btn ghost sm" onclick="closeDrawer()">Close</button>
+     <button class="btn ghost sm" style="color:var(--red);margin-left:auto" onclick="deleteLead('${l.id}')">Delete</button>
+   </div>`;
+  document.body.appendChild(bg); document.body.appendChild(d);
+  requestAnimationFrame(()=>{bg.classList.add('open');d.classList.add('open');});
+}
+function closeDrawer(){['drawerBg','leadDrawerEl'].forEach(id=>{const e=document.getElementById(id);if(e)e.remove();});}
+function drawerAddNote(id){const txt=val('dw_note').trim();if(!txt)return;const leads=load(K.leads,[]);const l=leads.find(x=>x.id===id);if(!l)return;l.notes=l.notes||[];l.notes.push({t:txt,when:Date.now()});save(K.leads,leads);toast('Note saved');render();leadDrawer(id);}
+function showApiHelp(){ modal(`<h2>Agent / Data API</h2><div class="sub">Programmatic access for LLM agents &amp; scripts. Open DevTools console and call <code>window.GTS</code>.</div><div class="api-help">${GTS.help(true)}</div><div class="modal-actions"><button class="btn gold" onclick="closeModal()">Got it</button></div>`); }
 function dragOver(e,el){e.preventDefault();el.classList.add('drop');}
 function dropLead(e,stage,el){
   e.preventDefault();el.classList.remove('drop');
@@ -1182,6 +1908,118 @@ function modal(html){
 }
 function closeModal(){const m=document.getElementById('modalBg');if(m)m.remove();}
 const val=id=>{const e=document.getElementById(id);return e?e.value:'';};
+
+/* =====================================================================
+   ============== DATA DICTIONARY + window.GTS AGENT API ===============
+   =====================================================================
+   LEAD SCHEMA (one object per lead, stored as an array in localStorage key
+   'kmgts_leads' AND mirrored to the Netlify Blobs cloud store via crm.mjs):
+     id          string   stable unique id (auto)
+     company     string   business name           -- DEDUPE KEY part 1
+     contact     string   decision-maker name     -- DEDUPE KEY part 2
+     title       string   contact's title
+     phone       string   "" or "—" = none
+     city        string   default "Houston, TX"
+     email       string   "" or "—" = none (-> Call List)
+     linkedin    string   profile URL
+     specialty   string   segment / vertical (shown as "Segment")
+     stage       enum     one of STAGES: New, Contacted, Demo Sent, Proposal, Won, Lost
+     value       number   est. monthly contract $ (open pipeline = sum where stage not in {Won,Lost})
+     nextStep    string   one of NEXT_STEPS
+     nextStepDue string   ISO date "YYYY-MM-DD" or ""
+     notes       [{t,when}]  activity timeline; "Score NN" in any note -> the lead's score
+     created     number   epoch ms
+   DEDUPE KEY = (company + "|" + contact) lowercased+trimmed  (see normKey()).
+   SYNC: every write goes through save('kmgts_leads', arr) which debounce-pushes the
+   full array to the cloud (cloudPush) when an admin is signed in (cloudReady).
+   The cloud blob is the shared source of truth; localStorage is the local cache.
+   ===================================================================== */
+const GTS = (function(){
+  const getAll=()=>load(K.leads,[]);
+  const commit=arr=>{ save(K.leads,arr); if(typeof currentView!=='undefined'&&currentView==='crm'&&session) render(); };
+  const find=(arr,key)=>{ if(!key)return -1; const k=String(key).toLowerCase().trim();
+    let i=arr.findIndex(l=>l.id===key); if(i>=0)return i;
+    i=arr.findIndex(l=>normKey(l)===k); if(i>=0)return i;
+    return arr.findIndex(l=>(l.company||'').toLowerCase().trim()===k); };
+  const shape=l=>({id:l.id,company:l.company,contact:l.contact,title:l.title,phone:l.phone,city:l.city,
+    email:l.email,linkedin:l.linkedin,specialty:l.specialty,segment:segOf(l),stage:l.stage,value:Number(l.value||0),
+    score:scoreOf(l),nextStep:l.nextStep,nextStepDue:l.nextStepDue,lastActivity:lastActivityTs(l),
+    notes:(l.notes||[]).slice(),key:normKey(l)});
+  const blank=()=>({id:uid(),company:'',contact:'—',title:'',phone:'',city:'Houston, TX',email:'',linkedin:'',
+    specialty:'',stage:'New',value:0,nextStep:'First call',nextStepDue:'',notes:[],created:Date.now()});
+  const FIELDS=['company','contact','title','phone','city','email','linkedin','specialty','stage','value','nextStep','nextStepDue'];
+  function applyPatch(l,obj){ FIELDS.forEach(f=>{ if(obj[f]!==undefined && obj[f]!==null){ l[f]=f==='value'?Number(obj[f])||0:obj[f]; } });
+    if(obj.note){ l.notes=l.notes||[]; l.notes.push({t:String(obj.note),when:Date.now()}); } }
+
+  return {
+    /* READ */
+    listLeads(filter){ filter=filter||{}; let rows=getAll().filter(l=>{
+        if(filter.stage&&l.stage!==filter.stage)return false;
+        if(filter.segment&&segOf(l)!==filter.segment)return false;
+        if(filter.minScore!=null){const s=scoreOf(l);if(s==null||s<filter.minScore)return false;}
+        if(filter.noEmail&&((l.email||'').trim()&&(l.email||'').trim()!=='—'))return false;
+        if(filter.search){const q=String(filter.search).toLowerCase();
+          if(!((l.company||'')+' '+(l.contact||'')+' '+(l.email||'')+' '+(l.specialty||'')).toLowerCase().includes(q))return false;}
+        return true; });
+      return {ok:true,count:rows.length,leads:rows.map(shape)}; },
+    getLead(key){ const arr=getAll(),i=find(arr,key); return i<0?{ok:false,error:'not found'}:{ok:true,lead:shape(arr[i])}; },
+    /* WRITE (all dedupe by company|contact, all cloud-sync via save()) */
+    upsertLead(obj){ if(!obj||(!obj.company&&!obj.contact))return {ok:false,error:'company or contact required'};
+      const arr=getAll(); const key=((obj.company||'')+'|'+(obj.contact||'')).toLowerCase().trim();
+      let i=arr.findIndex(l=>normKey(l)===key);
+      if(i>=0){ applyPatch(arr[i],obj); commit(arr); return {ok:true,action:'updated',id:arr[i].id,key:normKey(arr[i])}; }
+      const l=blank(); applyPatch(l,obj); arr.push(l); commit(arr);
+      return {ok:true,action:'added',id:l.id,key:normKey(l)}; },
+    updateLead(key,patch){ const arr=getAll(),i=find(arr,key); if(i<0)return {ok:false,error:'not found'};
+      applyPatch(arr[i],patch||{}); commit(arr); return {ok:true,id:arr[i].id}; },
+    addNote(key,text){ if(!text)return {ok:false,error:'text required'}; const arr=getAll(),i=find(arr,key);
+      if(i<0)return {ok:false,error:'not found'}; arr[i].notes=arr[i].notes||[]; arr[i].notes.push({t:String(text),when:Date.now()});
+      commit(arr); return {ok:true,id:arr[i].id,notes:arr[i].notes.length}; },
+    setStage(key,stage){ if(!STAGES.includes(stage))return {ok:false,error:'stage must be one of '+STAGES.join(', ')};
+      const arr=getAll(),i=find(arr,key); if(i<0)return {ok:false,error:'not found'};
+      arr[i].stage=stage; if(!arr[i].nextStep||arr[i].nextStep===NO_STEP)arr[i].nextStep=defaultNextStep(stage);
+      if(typeof queueForAgent==='function')queueForAgent(arr[i]); commit(arr); return {ok:true,id:arr[i].id,stage}; },
+    setNextStep(key,step,due){ const arr=getAll(),i=find(arr,key); if(i<0)return {ok:false,error:'not found'};
+      if(step!=null)arr[i].nextStep=step; if(due!==undefined)arr[i].nextStepDue=due||''; commit(arr);
+      return {ok:true,id:arr[i].id,nextStep:arr[i].nextStep,nextStepDue:arr[i].nextStepDue}; },
+    bulkUpsert(list){ if(!Array.isArray(list))return {ok:false,error:'array required'};
+      const arr=getAll(); let added=0,updated=0;
+      list.forEach(obj=>{ if(!obj||(!obj.company&&!obj.contact))return;
+        const key=((obj.company||'')+'|'+(obj.contact||'')).toLowerCase().trim();
+        let i=arr.findIndex(l=>normKey(l)===key);
+        if(i>=0){applyPatch(arr[i],obj);updated++;}else{const l=blank();applyPatch(l,obj);arr.push(l);added++;} });
+      commit(arr); return {ok:true,added,updated,total:arr.length}; },
+    exportJSON(){ return JSON.stringify(getAll(),null,2); },
+    importJSON(str){ try{const list=JSON.parse(str);return this.bulkUpsert(list);}catch(e){return {ok:false,error:String(e)};} },
+    stats(){ const arr=getAll(); const byStage={}; STAGES.forEach(s=>byStage[s]=0);
+      const bySegment={}; let pipeline=0,won=0,dueToday=0;
+      arr.forEach(l=>{ byStage[l.stage]=(byStage[l.stage]||0)+1; const sg=segOf(l); bySegment[sg]=(bySegment[sg]||0)+1;
+        if(!['Won','Lost'].includes(l.stage)){pipeline+=Number(l.value||0); if(['overdue','today'].includes(dueInfo(l.nextStepDue).cls))dueToday++;}
+        if(l.stage==='Won')won+=Number(l.value||0); });
+      return {ok:true,total:arr.length,byStage,bySegment,pipeline,wonValue:won,dueTodayOrOverdue:dueToday}; },
+    help(asHtml){
+      const h=`<b>window.GTS — KM-GTS CRM agent API</b> (all writes dedupe by company|contact and cloud-sync)
+<h4>Read</h4>
+<code>GTS.listLeads({stage,segment,minScore,noEmail,search})</code> -> {ok,count,leads[]}
+<code>GTS.getLead(idOrCompanyContactOrCompany)</code> -> {ok,lead}
+<code>GTS.stats()</code> -> {total,byStage,bySegment,pipeline,wonValue,dueTodayOrOverdue}
+<code>GTS.exportJSON()</code> -> full array as JSON string
+<h4>Write (idempotent, route through save()->cloudPush)</h4>
+<code>GTS.upsertLead({company,contact,...,note})</code> -> adds or patches; never blanks fields you omit
+<code>GTS.updateLead(key,{patch})</code> · <code>GTS.bulkUpsert([{...}])</code> · <code>GTS.importJSON(str)</code>
+<code>GTS.addNote(key,text)</code> · <code>GTS.setStage(key,stage)</code> · <code>GTS.setNextStep(key,step,due)</code>
+<h4>Keys &amp; enums</h4>
+key = id, "company|contact" (lowercased), or company name. stage in ${STAGES.join(', ')}.
+score is parsed from a "Score NN" note. Read the data dictionary comment above this block in source.
+<h4>DOM (for reading the rendered table)</h4>
+rows: <code>[data-lead-id]</code>, <code>[data-company-contact]</code>; editable cells: <code>[data-field=stage|nextStep]</code>; smart views: <code>.view-tab[data-view]</code>.`;
+      if(asHtml)return h;
+      const txt=h.replace(/<h4>/g,'\n— ').replace(/<\/h4>/g,' —').replace(/<[^>]+>/g,'');
+      console.log(txt); return txt;
+    }
+  };
+})();
+try{ window.GTS=GTS; }catch(e){}
 
 /* ========================= MIGRATION ========================= */
 /* backfill next-step fields onto leads seeded before this feature existed (no data loss) */
@@ -1355,6 +2193,59 @@ function pushAgentBot(msg){agentMsgs.push({role:'assistant',content:msg});save(K
   setInterval(check,60000);
   document.addEventListener('visibilitychange',function(){if(!document.hidden)check();});
 })();
+
+/* ── Site-wide GTS canvas logo (matches index.html nav/footer) ── */
+function drawGTSLogo(canvas){
+  const ctx=canvas.getContext('2d'); const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const pent=(cx,cy,r)=>Array.from({length:5},(_,i)=>{const a=Math.PI/180*(-90+i*72);return [cx+r*Math.cos(a),cy+r*Math.sin(a)];});
+  const tracePent=pts=>{ctx.beginPath();pts.forEach(([x,y],i)=>i===0?ctx.moveTo(x,y):ctx.lineTo(x,y));ctx.closePath();};
+  const cx=W/2, R=W*0.460, gap=W*0.050;
+  const cy=(H+R*0.191)/2, Ri=R-gap;
+  const outerPts=pent(cx,cy,R), innerPts=pent(cx,cy,Ri);
+  ctx.save();
+  ctx.shadowColor='rgba(245,197,0,0.16)'; ctx.shadowBlur=W*0.04; ctx.shadowOffsetY=W*0.007;
+  tracePent(outerPts); ctx.fillStyle='#F5C500'; ctx.fill();
+  ctx.restore();
+  tracePent(innerPts);
+  const grad=ctx.createRadialGradient(cx,cy-R*0.1,0,cx,cy,Ri*0.95);
+  grad.addColorStop(0,'#1c1c1c'); grad.addColorStop(1,'#070707');
+  ctx.fillStyle=grad; ctx.fill();
+  const topY=innerPts[0][1],bottomY=innerPts[2][1],height=bottomY-topY;
+  const sideVy=innerPts[1][1];
+  const sideHalfW=(innerPts[1][0]-innerPts[4][0])/2;
+  const botHalfW=(innerPts[2][0]-innerPts[3][0])/2;
+  const halfWidthAt=y=>{if(y<=sideVy){const t=(y-topY)/(sideVy-topY);return sideHalfW*t;}const t=(y-sideVy)/(bottomY-sideVy);return sideHalfW+(botHalfW-sideHalfW)*t;};
+  const baselineY=topY+height*0.60;
+  let baseSize=height*0.30, sG=baseSize, sT=baseSize*1.32, sDot=baseSize*0.95;
+  const tight=-baseSize*0.02;
+  ctx.fillStyle='#F5C500'; ctx.textBaseline='alphabetic'; ctx.textAlign='left';
+  const gw=(ch,s,w=700)=>{ctx.font=`${w} ${s}px 'Oswald','Arial Narrow',sans-serif`;return ctx.measureText(ch).width;};
+  const tw=()=>gw('G',sG,600)+tight+gw('.',sDot)+tight+gw('T',sT)+tight+gw('.',sDot)+tight+gw('S',sG,600);
+  const maxW=halfWidthAt(baselineY)*0.86*2;
+  const ratio=tw()/maxW; if(ratio>1){sG/=ratio;sT/=ratio;sDot/=ratio;}
+  let x=cx-tw()/2;
+  const place=(ch,s,w=700)=>{const g=gw(ch,s,w);ctx.font=`${w} ${s}px 'Oswald','Arial Narrow',sans-serif`;ctx.fillText(ch,x,baselineY);x+=g+tight;};
+  place('G',sG,600); place('.',sDot); place('T',sT); place('.',sDot); place('S',sG,600);
+  const divY=baselineY+baseSize*0.34;
+  const divHalf=Math.min(halfWidthAt(divY)*0.70,maxW*0.5);
+  ctx.strokeStyle='#F5C500'; ctx.lineWidth=Math.max(0.8,W*0.0018);
+  ctx.globalAlpha=0.30; ctx.beginPath(); ctx.moveTo(cx-divHalf,divY); ctx.lineTo(cx+divHalf,divY); ctx.stroke();
+  ctx.globalAlpha=1;
+  const tagY=divY+baseSize*0.30, tagAvail=halfWidthAt(tagY)*0.84*2;
+  let tagSize=baseSize*0.165;
+  ctx.font=`500 ${tagSize}px 'Oswald',sans-serif`; ctx.letterSpacing=`${tagSize*0.22}px`;
+  let tagW=ctx.measureText('GUARD TECH SOLUTIONS').width;
+  if(tagW>tagAvail){tagSize*=tagAvail/tagW;ctx.font=`500 ${tagSize}px 'Oswald',sans-serif`;ctx.letterSpacing=`${tagSize*0.22}px`;}
+  ctx.globalAlpha=0.80; ctx.textAlign='center';
+  ctx.fillText('GUARD TECH SOLUTIONS',cx,tagY+tagSize*0.95);
+  ctx.globalAlpha=1; ctx.letterSpacing='0px';
+}
+(document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(()=>{
+  ['loginLogo','sbLogo'].forEach(id=>{const c=document.getElementById(id);if(c)drawGTSLogo(c);});
+  const fc=document.createElement('canvas'); fc.width=64; fc.height=64; drawGTSLogo(fc);
+  const fl=document.getElementById('favicon-link'); if(fl){fl.type='image/png'; fl.href=fc.toDataURL('image/png');}
+});
 </script>
 </body>
 </html>
