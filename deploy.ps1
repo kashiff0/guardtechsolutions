@@ -14,6 +14,10 @@ $assets = @(
 )
 foreach ($f in $assets) { Copy-Item (Join-Path $root $f) (Join-Path $pub $f) -Force }
 
+# Document library (PDFs) -> served at /docs/*. Whole folder is public-safe.
+$docsSrc = Join-Path $root 'docs'
+if (Test-Path $docsSrc) { Copy-Item $docsSrc (Join-Path $pub 'docs') -Recurse -Force }
+
 # Cache headers (Netlify reads _headers from the publish dir):
 # HTML always revalidates; version.json never cached; static art cached a day.
 $headers = @"
@@ -25,6 +29,8 @@ $headers = @"
   Cache-Control: public, max-age=86400
 /*.png
   Cache-Control: public, max-age=86400
+/docs/*
+  Cache-Control: public, max-age=3600
 "@
 [System.IO.File]::WriteAllText((Join-Path $pub '_headers'), $headers)  # UTF-8, no BOM
 
@@ -40,6 +46,11 @@ $ErrorActionPreference = 'Continue'
 # like @netlify/blobs are packaged in. --no-build ships the raw .mjs files and the
 # functions then crash at runtime with "Cannot find package '@netlify/blobs'".
 # publish dir (_publish) + functions dir come from netlify.toml.
+# CRITICAL: with no --dir, netlify resolves netlify.toml from the CURRENT directory.
+# If run from elsewhere it finds no config, falls back to the git-repo root, and
+# deploys THE WRONG FOLDER over production (404'd the whole site once). Pin cwd here
+# so "run from anywhere" actually holds.
+Set-Location $root
 netlify deploy --prod --site $site
 if ($LASTEXITCODE -ne 0) { Write-Error "Netlify deploy failed (exit $LASTEXITCODE)"; exit $LASTEXITCODE }
 Write-Host "Done. Open tabs will auto-reload to version $ver within ~60s (or on focus)."

@@ -1134,11 +1134,14 @@ const NAV={
     ['dash','Dashboard','M3 13h8V3H3zM13 21h8V8h-8zM13 3v3h8V3z'],
     ['crm','Leads & CRM','M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75'],
     ['team','Team & Timesheets','M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75'],
-    ['schedule','Schedule','M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z']
+    ['schedule','Schedule','M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z'],
+    ['docs','Documents','M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM14 2v6h6M16 13H8M16 17H8M10 9H8']
   ],
   owner:[
     ['dash','Overview','M3 13h8V3H3zM13 21h8V8h-8zM13 3v3h8V3z'],
-    ['approvals','Approvals','M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11']
+    ['leads','Pipeline','M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2M9 12h6M9 16h6'],
+    ['approvals','Approvals','M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11'],
+    ['docs','Documents','M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM14 2v6h6M16 13H8M16 17H8M10 9H8']
   ]
 };
 let currentView='dash';
@@ -1179,7 +1182,7 @@ function go(id){
   currentView=id;
   document.querySelectorAll('#sbNav button').forEach(b=>b.classList.toggle('active',b.dataset.id===id));
   toggleSidebar(false);
-  const titles={dash:'Dashboard',hours:'My Hours',schedule:session.role==='admin'?'Team Schedule':'My Schedule',crm:'Leads & CRM',team:'Team & Timesheets',approvals:'Approval Center'};
+  const titles={dash:'Dashboard',hours:'My Hours',schedule:session.role==='admin'?'Team Schedule':'My Schedule',crm:'Leads & CRM',leads:'Pipeline Pulse',team:'Team & Timesheets',approvals:'Approval Center',docs:'Documents'};
   document.getElementById('pageTitle').textContent=(id==='dash'&&session.role==='owner')?'Owner Overview':(titles[id]||'Dashboard');
   updateAgentFab();
   render();
@@ -1216,13 +1219,41 @@ function render(){
     if(currentView==='schedule')return empSchedule(v);
   }else if(session.role==='owner'){
     if(currentView==='dash')return ownerDash(v);
+    if(currentView==='leads')return ownerLeads(v);
     if(currentView==='approvals')return ownerApprovals(v);
+    if(currentView==='docs')return docsView(v);
   }else{
     if(currentView==='dash')return adminDash(v);
     if(currentView==='crm')return crm(v);
     if(currentView==='team')return team(v);
     if(currentView==='schedule')return adminSchedule(v);
+    if(currentView==='docs')return docsView(v);
   }
+}
+
+/* ========================= DOCUMENTS (shared: admin + owner) ========================= */
+/* Company document library. Files live in /docs and deploy with the site (deploy.ps1
+   stages the whole docs folder). Add an entry here per file. */
+const DOCS=[
+  {name:'GTS Capability Overview', kind:'PDF',
+   desc:'Company capability statement — services, coverage areas, and why owners choose KM Guard Tech Solutions.',
+   file:'docs/gts-capability-overview.pdf'}
+];
+function docsView(v){
+  v.innerHTML=`
+   <div class="section-title">Company Documents <span style="font-size:.72rem;color:var(--gray);font-weight:400">shared library — view or download</span></div>
+   ${DOCS.length?`<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px">${DOCS.map(d=>`
+     <div class="card" style="display:flex;flex-direction:column;gap:8px">
+       <div style="display:flex;align-items:center;gap:10px">
+         <span style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:9px;background:rgba(200,168,75,.15);color:var(--gold);font-size:.7rem;font-weight:700;border:1px solid rgba(200,168,75,.35)">${esc(d.kind)}</span>
+         <div style="font-weight:700;font-size:.96rem;line-height:1.2">${esc(d.name)}</div>
+       </div>
+       <div style="font-size:.82rem;color:var(--gray);flex:1">${esc(d.desc)}</div>
+       <div style="display:flex;gap:8px;margin-top:4px">
+         <a class="btn gold sm" href="${esc(d.file)}" target="_blank" rel="noopener" style="text-decoration:none">Open</a>
+         <a class="btn ghost sm" href="${esc(d.file)}" download style="text-decoration:none">Download</a>
+       </div>
+     </div>`).join('')}</div>`:'<div class="card empty">No documents yet.</div>'}`;
 }
 
 /* ========================= EMPLOYEE VIEWS ========================= */
@@ -1432,14 +1463,40 @@ function ownerDash(v){
   const payroll=emps.reduce((s,e)=>s+weekHours(e.id)*(e.rate||18),0);
   const {drafts,times}=ownerPending();
   const need=drafts.length+times.length;
-  // recent activity feed — clock events + freshly drafted outreach, newest first
+  // recent activity feed — real CRM + clock activity, newest first
   const acts=[];
   load(K.time,[]).forEach(t=>{
     acts.push({when:t.in,icon:'🟢',txt:`<strong>${esc(empName(t.empId))}</strong> clocked in${t.site?' at '+esc(t.site):''}`});
     if(t.out)acts.push({when:t.out,icon:'⚪',txt:`<strong>${esc(empName(t.empId))}</strong> clocked out · ${fmtH(hrs(workedMs(t)))}`});
   });
-  drafts.forEach(l=>acts.push({when:(l.notes&&l.notes[0]&&l.notes[0].when)||l.created||Date.now(),icon:'✉️',txt:`Outreach drafted for <strong>${esc(l.company)}</strong> — awaiting your approval`}));
   won.forEach(l=>acts.push({when:l.created||Date.now(),icon:'🏆',txt:`Contract won — <strong>${esc(l.company)}</strong> · ${money(l.value)}`}));
+  // CRM activity from lead notes (user notes, stage changes, calls — skip agent-only drafts)
+  leads.forEach(l=>{
+    if(!l.notes||!l.notes.length)return;
+    l.notes.forEach(n=>{
+      if(!n||!n.when)return;
+      const t=(n.t||'').trim();
+      if(!t)return;
+      // skip pure agent draft notifications
+      if(/^Agent drafted|^Outreach drafted|^✉️/i.test(t))return;
+      // stage changes (auto or manual)
+      if(/^\[Auto\]/.test(t)){
+        acts.push({when:n.when,icon:'⚡',txt:`<strong>${esc(l.company)}</strong> — ${esc(t.replace('[Auto] ',''))}`});
+      }
+      // user call notes (short, no URL, not system-generated)
+      else if(/called|left v|spoke|vm|voicemail|met with|visited|no answer/i.test(t)&&t.length<200){
+        acts.push({when:n.when,icon:'📞',txt:`<strong>${esc(l.company)}</strong> — ${esc(t)}`});
+      }
+      // user notes about interest/status
+      else if(/interested|not intrested|overview|proposal|pricing|signed|won|lost|declined|schedule|meeting/i.test(t)&&t.length<200&&!/^Score \d/.test(t)){
+        acts.push({when:n.when,icon:'📝',txt:`<strong>${esc(l.company)}</strong> — ${esc(t)}`});
+      }
+      // draft sent back for revision by owner
+      else if(/↩︎ Draft sent back/i.test(t)){
+        acts.push({when:n.when,icon:'↩️',txt:`<strong>${esc(l.company)}</strong> — draft sent back for revision`});
+      }
+    });
+  });
   acts.sort((a,b)=>b.when-a.when);
   v.innerHTML=`
    ${need?`<div class="card" style="border:1px solid var(--gold);background:linear-gradient(135deg,rgba(200,168,75,.14),rgba(200,168,75,.04));display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px">
@@ -1453,6 +1510,44 @@ function ownerDash(v){
      <div class="card kpi"><div class="lbl">Closed / Won</div><div class="val green">${money(wonVal)}</div><div class="sub">${won.length} contract${won.length===1?'':'s'} signed</div></div>
      <div class="card kpi"><div class="lbl">Payroll (wk)</div><div class="val">${money(Math.round(payroll))}</div><div class="sub">${fmtH(weekTotal)} across ${emps.length} officers</div></div>
    </div>
+   <div class="section-title">Pipeline <button class="btn ghost sm" onclick="go('crm')">Open full CRM</button></div>
+   ${(function(){
+     const open=leads.filter(l=>!['Won','Lost'].includes(l.stage));
+     const stages=['New','Contacted','Demo Sent','Proposal'];
+     const stageCounts=stages.map(s=>{const sl=open.filter(l=>l.stage===s);return{stage:s,count:sl.length,val:sl.reduce((a,l)=>a+Number(l.value||0),0)};});
+     // due today / tomorrow / overdue
+     const dueNow=open.filter(l=>['overdue','today'].includes(dueInfo(l.nextStepDue).cls));
+     const dueTom=open.filter(l=>dueInfo(l.nextStepDue).cls==='soon');
+     return `<div class="grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">
+       ${stageCounts.map(s=>`<div class="card" style="padding:14px 16px;text-align:center">
+         <div style="font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gray);margin-bottom:6px">${s.stage}</div>
+         <div style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800">${s.count}</div>
+         <div style="font-size:.76rem;color:var(--green);font-weight:600;margin-top:2px">${money(s.val)}</div>
+       </div>`).join('')}
+     </div>
+     <div style="display:flex;gap:10px;margin-bottom:16px">
+       <div class="card" style="flex:1;padding:12px 16px;display:flex;align-items:center;gap:10px;border-color:${dueNow.length?'var(--gold)':'var(--line)'}">
+         <span style="font-size:1.1rem">${dueNow.length?'🔥':'✅'}</span>
+         <div><div style="font-weight:700;font-size:.9rem">${dueNow.length} due today</div>
+           <div style="font-size:.74rem;color:var(--gray)">${dueNow.slice(0,3).map(l=>l.company||l.contact).join(', ')}${dueNow.length>3?' +more':''}</div></div>
+       </div>
+       <div class="card" style="flex:1;padding:12px 16px;display:flex;align-items:center;gap:10px">
+         <span style="font-size:1.1rem">📅</span>
+         <div><div style="font-weight:700;font-size:.9rem">${dueTom.length} due tomorrow</div>
+           <div style="font-size:.74rem;color:var(--gray)">${dueTom.slice(0,3).map(l=>l.company||l.contact).join(', ')}${dueTom.length>3?' +more':''}</div></div>
+       </div>
+     </div>
+     <div class="tbl-wrap"><table><thead><tr><th>Company</th><th>Contact</th><th>Stage</th><th>Next Step</th><th>Due</th><th>Value</th></tr></thead><tbody>
+     ${dueNow.concat(dueTom).concat(open.filter(l=>!dueNow.includes(l)&&!dueTom.includes(l)).sort((a,b)=>(Number(b.value)||0)-(Number(a.value)||0))).slice(0,12).map(l=>{const di=dueInfo(l.nextStepDue);return`<tr onclick="leadDetail('${l.id}')" style="cursor:pointer">
+       <td><strong>${esc(l.company||'(no company)')}</strong><div style="font-size:.74rem;color:var(--gray)">${esc(l.city||'')}</div></td>
+       <td style="font-size:.84rem">${esc(l.contact)}</td>
+       <td><span class="pill gold"><span class="dot"></span>${esc(l.stage)}</span></td>
+       <td style="font-size:.82rem">${esc(l.nextStep||defaultNextStep(l.stage))}</td>
+       <td><span class="due ${di.cls}" style="font-size:.74rem">${di.txt}</span></td>
+       <td class="mono" style="color:var(--green);font-weight:700">${money(l.value)}</td>
+     </tr>`}).join('')}
+     </tbody></table></div>`;
+   })()}
    <div class="section-title">Who's On Duty</div>
    <div class="tbl-wrap"><table><thead><tr><th>Officer</th><th>Status</th><th>Since</th><th>Today</th><th>This Week</th></tr></thead><tbody>
    ${emps.map(e=>{const ae=activeEntry(e.id);return `<tr><td><strong>${esc(e.name)}</strong><div style="font-size:.74rem;color:var(--gray)">${esc(e.title||'')}</div></td>
@@ -1462,7 +1557,7 @@ function ownerDash(v){
      <td class="mono">${fmtH(weekHours(e.id))}</td></tr>`}).join('')||'<tr><td colspan="5" class="empty">No officers yet.</td></tr>'}
    </tbody></table></div>
    <div class="section-title">Recent Activity</div>
-   <div class="card" style="padding:6px 4px">${acts.length?acts.slice(0,8).map(a=>`<div style="display:flex;gap:12px;align-items:baseline;padding:9px 14px;border-bottom:1px solid rgba(255,255,255,.05)"><span>${a.icon}</span><div style="flex:1;font-size:.86rem">${a.txt}</div><span class="mono" style="font-size:.72rem;color:var(--gray);white-space:nowrap">${fmtDate(a.when)} ${fmtTime(a.when)}</span></div>`).join(''):'<div class="empty">No activity yet.</div>'}</div>`;
+   <div class="card" style="padding:6px 4px">${acts.length?acts.slice(0,10).map(a=>`<div style="display:flex;gap:12px;align-items:baseline;padding:9px 14px;border-bottom:1px solid rgba(255,255,255,.05)"><span>${a.icon}</span><div style="flex:1;font-size:.86rem">${a.txt}</div><span class="mono" style="font-size:.72rem;color:var(--gray);white-space:nowrap">${fmtDate(a.when)} ${fmtTime(a.when)}</span></div>`).join(''):'<div class="empty">No activity yet.</div>'}</div>`;
 }
 function ownerApprovals(v){
   const {drafts,times}=ownerPending();
@@ -1511,6 +1606,78 @@ function rejectDraft(id){
   l.notes=l.notes||[];l.notes.unshift({t:'↩︎ Draft sent back for revision by '+session.name,when:Date.now()});
   queueForAgent(l);  // → actionStatus 'pending' + clears the draft so the agent re-drafts it
   save(K.leads,leads);toast('Sent back for revision');render();
+}
+
+/* ===== OWNER · PIPELINE PULSE =====
+   Read-only lead view for Kenrick: what we're working next (next step + due + latest note),
+   new leads added this week, and an approval call-out. He acts on drafts in Approvals. */
+function latestNote(l){
+  const ns=((l&&l.notes)||[]).filter(n=>n&&n.t);
+  if(!ns.length)return null;
+  return ns.slice().sort((a,b)=>(b.when||0)-(a.when||0))[0];
+}
+function ownerLeads(v){
+  const leads=load(K.leads,[]);
+  const open=leads.filter(l=>!['Won','Lost'].includes(l.stage));
+  const dcls=l=>dueInfo(l.nextStepDue).cls;
+  const rank=l=>{const c=dcls(l);return c==='overdue'?0:c==='today'?1:c==='soon'?2:(l.nextStepDue?3:4);};
+  const upNext=open.slice().sort((a,b)=>rank(a)-rank(b)
+    ||(a.nextStepDue||'￿').localeCompare(b.nextStepDue||'￿')
+    ||((scoreOf(b)||0)-(scoreOf(a)||0)));
+  const wk=Date.now()-7*86400000;
+  const fresh=leads.filter(l=>(l.created||0)>=wk).sort((a,b)=>(b.created||0)-(a.created||0));
+  const overdue=open.filter(l=>['overdue','today'].includes(dcls(l)));
+  const {drafts}=ownerPending();
+
+  const leadCard=l=>{
+    const di=dueInfo(l.nextStepDue); const ns=l.nextStep||defaultNextStep(l.stage);
+    const note=latestNote(l); const sc=scoreOf(l);
+    return `<div class="card" style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+        <div><div style="font-weight:700;font-size:.98rem">${esc(l.company)}</div>
+          <div style="font-size:.78rem;color:var(--gray)">${esc(l.contact||'—')}${l.title?' · '+esc(l.title):''}${l.city?' · '+esc(l.city):''}</div></div>
+        <div style="text-align:right;white-space:nowrap"><span class="pill gold"><span class="dot"></span>${esc(l.stage)}</span>
+          ${sc!=null?`<div style="font-size:.7rem;color:var(--gray);margin-top:4px">Score ${sc}</div>`:''}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <span style="font-size:.72rem;color:var(--gold);text-transform:uppercase;letter-spacing:.06em">Next</span>
+        <span style="font-size:.85rem;font-weight:600">${esc(ns)}</span>
+        <span class="due ${di.cls}" style="margin-left:auto">${di.txt}</span>
+      </div>
+      ${note
+        ? `<div style="margin-top:9px;font-size:.82rem;line-height:1.45;background:rgba(255,255,255,.04);border-left:2px solid var(--gold);border-radius:0 7px 7px 0;padding:7px 11px">${esc(note.t)}<span class="mono" style="color:var(--gray);font-size:.7rem"> · ${fmtDate(note.when)}</span></div>`
+        : `<div style="margin-top:9px;font-size:.78rem;color:var(--gray)">No notes logged yet.</div>`}
+    </div>`;
+  };
+
+  const freshHTML=fresh.length
+    ? `<div class="tbl-wrap"><table><thead><tr><th>Company</th><th>Contact</th><th>Segment</th><th>Score</th><th>Stage</th><th>Added</th></tr></thead><tbody>
+       ${fresh.map(l=>`<tr>
+         <td><strong>${esc(l.company)}</strong></td>
+         <td>${esc(l.contact||'—')}</td>
+         <td>${esc(segOf(l))}</td>
+         <td class="mono">${scoreOf(l)==null?'—':scoreOf(l)}</td>
+         <td><span class="pill gold"><span class="dot"></span>${esc(l.stage)}</span></td>
+         <td class="mono">${fmtDate(l.created||Date.now())}</td></tr>`).join('')}
+       </tbody></table></div>`
+    : '<div class="card empty">No new leads added this week.</div>';
+
+  v.innerHTML=`
+   <div class="grid stat-row">
+     <div class="card kpi"><div class="lbl">Working Next</div><div class="val gold">${open.length}</div><div class="sub">open lead${open.length===1?'':'s'} in play</div></div>
+     <div class="card kpi"><div class="lbl">New This Week</div><div class="val green">${fresh.length}</div><div class="sub">added in last 7 days</div></div>
+     <div class="card kpi"><div class="lbl">Needs Approval</div><div class="val" style="color:${drafts.length?'var(--gold)':'inherit'}">${drafts.length}</div><div class="sub">email draft${drafts.length===1?'':'s'} to send</div></div>
+     <div class="card kpi"><div class="lbl">Due / Overdue</div><div class="val" style="color:${overdue.length?'var(--gold)':'inherit'}">${overdue.length}</div><div class="sub">need attention today</div></div>
+   </div>
+   ${drafts.length?`<div class="card" style="border:1px solid var(--gold);background:linear-gradient(135deg,rgba(200,168,75,.14),rgba(200,168,75,.04));display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:18px">
+     <div><div style="font-weight:700;color:var(--gold)">${drafts.length} email${drafts.length>1?'s':''} waiting for your OK</div>
+       <div style="font-size:.8rem;color:var(--gray);margin-top:2px">${drafts.slice(0,3).map(l=>esc(l.company)).join(', ')}${drafts.length>3?` +${drafts.length-3} more`:''}</div></div>
+     <button class="btn gold" onclick="go('approvals')">Review drafts →</button>
+   </div>`:''}
+   <div class="section-title">📋 What we're working on next <span style="font-size:.72rem;color:var(--gray);font-weight:400">soonest &amp; overdue first</span></div>
+   ${upNext.length?upNext.slice(0,10).map(leadCard).join('')+(upNext.length>10?`<div class="card empty">+ ${upNext.length-10} more open lead${upNext.length-10===1?'':'s'} in the pipeline</div>`:''):'<div class="card empty">No open leads right now.</div>'}
+   <div class="section-title">🆕 New leads added <span style="font-size:.72rem;color:var(--gray);font-weight:400">last 7 days</span></div>
+   ${freshHTML}`;
 }
 
 /* ========================= TEAM & TIMESHEETS ========================= */
@@ -1623,7 +1790,7 @@ function crmMatch(l){
   // smart-view scoping
   if(crmS.smart==='today'){ if(['Won','Lost'].includes(l.stage))return false;
     if(!['overdue','today'].includes(dueInfo(l.nextStepDue).cls))return false; }
-  else if(crmS.smart==='calls'){ if((l.email||'').trim()&&(l.email||'').trim()!=='—')return false; }
+  else if(crmS.smart==='calls'){ if(!isCallList(l))return false; }
   else if(crmS.smart==='email'){ const e=(l.email||'').trim(); if(!e||e==='—')return false; }
   else if(crmS.smart==='linkedin'){ if(!/^https?:/i.test((l.linkedin||'').trim()))return false; }
   else if(crmS.smart==='awaiting'){
@@ -1727,7 +1894,10 @@ function crmInlineNext(id,v){const leads=load(K.leads,[]);const l=leads.find(x=>
 
 /* ===== Lead detail DRAWER (right panel) — primary row-click surface ===== */
 /* ===== Cold-call script generator (for call-list leads — no email on file) ===== */
-function isCallList(l){const e=((l&&l.email)||'').trim();return !e||e==='—';}
+function hasPhone(l){const p=((l&&l.phone)||'').trim();return !!p&&p!=='—';}
+function hasEmail(l){const e=((l&&l.email)||'').trim();return !!e&&e!=='—';}
+/* On the call list if there's a phone to call, or there's no email so phone is the only channel. */
+function isCallList(l){return hasPhone(l)||!hasEmail(l);}
 function timeOfDay(){const h=new Date().getHours();return h<12?'morning':h<17?'afternoon':'evening';}
 function firstName(l){const c=((l&&l.contact)||'').trim();if(!c||c==='—')return 'there';return c.split(/\s+/)[0];}
 function vertical(l){
@@ -1780,11 +1950,11 @@ function leadDrawer(id){
      <div class="dw-sec">Lead details</div>
      <div class="dw-row"><span class="k">Vertical</span><span>${esc(vertical(l).who)}</span></div>
      <div class="dw-row"><span class="k">Best angle</span><span>${esc(vertical(l).angle)}</span></div>
-     <div class="dw-row"><span class="k">Outreach</span><span>${isCallList(l)?'📞 Call list (no email)':'✉️ Has email'}${l.linkedin&&/^https?:/.test(l.linkedin)?' · 🔗 LinkedIn':''}</span></div>
+     <div class="dw-row"><span class="k">Channels</span><span>${[hasPhone(l)?'📞 Phone':null,hasEmail(l)?'✉️ Email':null,(l.linkedin&&/^https?:/.test(l.linkedin))?'🔗 LinkedIn':null].filter(Boolean).join(' · ')||'— none on file'}</span></div>
      ${isCallList(l)?`
      <div class="dw-sec">📞 Cold-call script <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--gray)">— this lead is on the call list</span></div>
      <pre class="callscript" id="callScriptText">${esc(callScript(l))}</pre>
-     <div class="dw-goal">🎯 Goal of the call: get them to agree to receive our material by email — then capture that email so they move off the call list.</div>
+     <div class="dw-goal">🎯 Goal of the call: get them to agree to receive our material by email — capture or confirm the best email to send it to.</div>
      <button class="btn ghost sm" style="margin-top:8px" onclick="copyCallScript()">Copy script</button>`:''}
      <div class="dw-sec">Pipeline — quick actions</div>
      <div style="display:flex;gap:8px;flex-wrap:wrap">
