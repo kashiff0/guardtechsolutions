@@ -2,10 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Staff Portal | Guard Tech Solutions</title>
 <meta name="robots" content="noindex, nofollow" />
 <link rel="icon" id="favicon-link" type="image/svg+xml" href="guard-tech-icon.svg" />
+<link rel="manifest" href="/manifest.json" />
+<meta name="theme-color" content="#0c1524" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="GTS Portal" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
@@ -230,6 +236,13 @@ tr:last-child td{border-bottom:none}
   .field input,.field select,.field textarea,
   .modal .field input,.modal .field select,.modal .field textarea{font-size:16px}
   .next-select,.next-date{font-size:15px}
+  /* dashboard pipeline stages: 2x2 grid on tablet, stack on phone */
+  .dash-stages{grid-template-columns:repeat(2,1fr)!important}
+  /* due-today / due-tomorrow cards stack */
+  .dash-due-row{flex-direction:column!important}
+  /* KPI values scale down */
+  .kpi .val{font-size:1.5rem}
+  .kpi .val.gold{font-size:1.3rem}
 }
 @media(min-width:881px){.scrim{display:none!important}}
 
@@ -238,9 +251,30 @@ tr:last-child td{border-bottom:none}
   .clock-big{font-size:2.2rem}
   .login-card{padding:32px 22px}
   .pipe{grid-auto-columns:90%}
+  /* pipeline stages single column on small phones */
+  .dash-stages{grid-template-columns:repeat(2,1fr)!important}
+  .kpi .val{font-size:1.3rem}
+  .kpi .val.gold{font-size:1.15rem}
 }
 .hamb{display:none;background:none;border:none;padding:6px}
 .hamb svg{width:24px;height:24px;stroke:var(--navy);fill:none;stroke-width:2}
+
+/* ============ GEOFENCE MAP ============ */
+#siteMap{height:260px;border-radius:10px;margin:12px 0;z-index:1}
+#siteMap .leaflet-tile-pane{filter:saturate(.7) brightness(.95)}
+
+/* ============ REPORT / FILTER CONTROLS ============ */
+.filter-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:18px;padding:14px 18px;background:#fff;border:1px solid var(--line);border-radius:var(--radius)}
+.filter-bar .field{margin:0;min-width:130px;flex:1}
+.filter-bar .field label{font-size:.68rem;margin-bottom:4px}
+.filter-bar .field input,.filter-bar .field select{padding:9px 11px;font-size:.82rem}
+.filter-bar .btn{align-self:flex-end;white-space:nowrap}
+.report-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:20px}
+.report-summary .card{text-align:center;padding:16px}
+.ot-badge{display:inline-block;background:rgba(217,83,79,.12);color:var(--red);font-size:.7rem;font-weight:700;padding:2px 7px;border-radius:5px;margin-left:6px}
+.period-toggle{display:flex;gap:6px;background:rgba(0,0,0,.04);padding:4px;border-radius:9px}
+.period-toggle button{padding:7px 14px;border:none;background:transparent;font-size:.8rem;font-weight:600;border-radius:7px;color:var(--gray);cursor:pointer;transition:all var(--t) var(--ease)}
+.period-toggle button.active{background:#fff;color:var(--navy);box-shadow:0 1px 4px rgba(0,0,0,.08)}
 
 /* ============ CRM AGENT CHAT ============ */
 #agentFab{position:fixed;right:24px;bottom:24px;z-index:60;display:none;align-items:center;gap:9px;
@@ -1134,13 +1168,15 @@ const NAV={
     ['dash','Dashboard','M3 13h8V3H3zM13 21h8V8h-8zM13 3v3h8V3z'],
     ['crm','Leads & CRM','M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75'],
     ['team','Team & Timesheets','M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75'],
+    ['payroll','Payroll Report','M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6'],
     ['schedule','Schedule','M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z'],
     ['docs','Documents','M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM14 2v6h6M16 13H8M16 17H8M10 9H8']
   ],
   owner:[
     ['dash','Overview','M3 13h8V3H3zM13 21h8V8h-8zM13 3v3h8V3z'],
     ['leads','Pipeline','M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2M9 12h6M9 16h6'],
-    ['approvals','Approvals','M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11'],
+    ['approvals','Approvals','M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11','coming-soon'],
+    ['payroll','Payroll Report','M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6'],
     ['docs','Documents','M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM14 2v6h6M16 13H8M16 17H8M10 9H8']
   ]
 };
@@ -1162,10 +1198,15 @@ function startApp(){
   document.getElementById('userRole').textContent=session.title;
   document.getElementById('userAv').textContent=session.name.split(' ').map(s=>s[0]).join('').slice(0,2);
   const nav=document.getElementById('sbNav'); nav.innerHTML='';
-  NAV[session.role].forEach(([id,label,path])=>{
+  NAV[session.role].forEach(([id,label,path,flag])=>{
     const b=document.createElement('button');
-    b.innerHTML=`<svg viewBox="0 0 24 24"><path d="${path}"/></svg>${label}`;
-    b.onclick=()=>go(id);
+    if(flag==='coming-soon'){
+      b.innerHTML=`<svg viewBox="0 0 24 24"><path d="${path}"/></svg>${label} <span style="font-size:.6rem;opacity:.5;margin-left:4px">SOON</span>`;
+      b.style.opacity='.35';b.style.filter='blur(.5px)';b.style.pointerEvents='none';
+    }else{
+      b.innerHTML=`<svg viewBox="0 0 24 24"><path d="${path}"/></svg>${label}`;
+      b.onclick=()=>go(id);
+    }
     b.dataset.id=id;
     nav.appendChild(b);
   });
@@ -1182,8 +1223,8 @@ function go(id){
   currentView=id;
   document.querySelectorAll('#sbNav button').forEach(b=>b.classList.toggle('active',b.dataset.id===id));
   toggleSidebar(false);
-  const titles={dash:'Dashboard',hours:'My Hours',schedule:session.role==='admin'?'Team Schedule':'My Schedule',crm:'Leads & CRM',leads:'Pipeline Pulse',team:'Team & Timesheets',approvals:'Approval Center',docs:'Documents'};
-  document.getElementById('pageTitle').textContent=(id==='dash'&&session.role==='owner')?'Owner Overview':(titles[id]||'Dashboard');
+  const titles={dash:'Dashboard',hours:'My Hours',schedule:session.role==='admin'?'Team Schedule':'My Schedule',crm:'Leads & CRM',leads:'Pipeline Pulse',team:'Team & Timesheets',payroll:'Payroll Report',approvals:'Approval Center',docs:'Documents'};
+  document.getElementById('pageTitle').textContent=(id==='dash'&&session.role==='owner')?'Owner Overview':(id==='dash'&&session.role==='admin')?'Today\'s Overview':(titles[id]||'Dashboard');
   updateAgentFab();
   render();
 }
@@ -1208,7 +1249,49 @@ function weekHours(empId){
   return load(K.time,[]).filter(t=>t.empId===empId&&t.in>=wk).reduce((s,t)=>s+hrs(workedMs(t)),0);
 }
 function money(n){return '$'+Number(n||0).toLocaleString();}
+function moneyDec(n){return '$'+Number(n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});}
 function toast(m){const t=document.getElementById('toast');t.innerHTML='<span class="ck">✓</span>'+m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);}
+
+/* ========================= OVERTIME & PAYROLL ========================= */
+const OT_THRESHOLD=40; // weekly hours before OT kicks in
+const OT_MULTIPLIER=1.5;
+
+/* Returns {regular, ot, total} hours for an employee in a date range */
+function calcOT(empId,startMs,endMs){
+  const entries=load(K.time,[]).filter(t=>t.empId===empId&&t.in>=startMs&&t.in<endMs);
+  const total=entries.reduce((s,t)=>s+hrs(workedMs(t)),0);
+  const regular=Math.min(total,OT_THRESHOLD);
+  const ot=Math.max(0,total-OT_THRESHOLD);
+  return {regular,ot,total};
+}
+
+/* Returns {regular, ot, gross} pay for an employee in a date range */
+function calcPay(empId,startMs,endMs){
+  const rate=empRate(empId);
+  const h=calcOT(empId,startMs,endMs);
+  return {regular:h.regular*rate, ot:h.ot*rate*OT_MULTIPLIER, gross:h.regular*rate+h.ot*rate*OT_MULTIPLIER, hours:h};
+}
+
+/* Monday of current week */
+function weekStart(refDate){
+  const d=new Date(refDate||Date.now());d.setHours(0,0,0,0);
+  const day=d.getDay(); d.setDate(d.getDate()-(day===0?6:day-1));
+  return d;
+}
+
+/* Get start of a pay period: 'weekly' or 'biweekly' */
+function periodRange(mode,refDate){
+  const ws=weekStart(refDate);
+  if(mode==='biweekly'){
+    // Biweekly: go back one extra week if current week# is odd
+    const epoch=new Date(2024,0,1); // reference Monday
+    const diff=Math.floor((ws-epoch)/(7*86400000));
+    if(diff%2!==0)ws.setDate(ws.getDate()-7);
+  }
+  const end=new Date(ws);
+  end.setDate(end.getDate()+(mode==='biweekly'?14:7));
+  return {start:ws,end};
+}
 
 /* ========================= RENDER ROUTER ========================= */
 function render(){
@@ -1221,14 +1304,91 @@ function render(){
     if(currentView==='dash')return ownerDash(v);
     if(currentView==='leads')return ownerLeads(v);
     if(currentView==='approvals')return ownerApprovals(v);
+    if(currentView==='payroll')return payrollReport(v);
     if(currentView==='docs')return docsView(v);
   }else{
     if(currentView==='dash')return adminDash(v);
     if(currentView==='crm')return crm(v);
     if(currentView==='team')return team(v);
+    if(currentView==='payroll')return payrollReport(v);
     if(currentView==='schedule')return adminSchedule(v);
     if(currentView==='docs')return docsView(v);
   }
+}
+
+/* ========================= PAYROLL REPORT ========================= */
+let _payrollMode='weekly'; // 'weekly' or 'biweekly'
+let _payrollWeekOffset=0;  // 0 = current, -1 = last week, etc
+function payrollReport(v){
+  const emps=load(K.emp,[]);
+  const mode=_payrollMode;
+
+  // Calculate period dates
+  const ref=new Date();ref.setDate(ref.getDate()+_payrollWeekOffset*7);
+  const {start,end}=periodRange(mode,ref);
+  const startMs=start.getTime(),endMs=end.getTime();
+  const periodLabel=start.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' – '
+    +new Date(endMs-1).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+
+  // Per-employee payroll
+  const rows=emps.map(e=>{
+    const pay=calcPay(e.id,startMs,endMs);
+    const entries=load(K.time,[]).filter(t=>t.empId===e.id&&t.in>=startMs&&t.in<endMs);
+    const approved=entries.filter(t=>t.status==='approved').length;
+    const pending=entries.filter(t=>t.out&&t.status==='pending').length;
+    const flagged=entries.filter(t=>t.status==='flagged').length;
+    return {emp:e,...pay,entries:entries.length,approved,pending,flagged};
+  });
+
+  // Totals
+  const totRegHrs=rows.reduce((s,r)=>s+r.hours.regular,0);
+  const totOtHrs=rows.reduce((s,r)=>s+r.hours.ot,0);
+  const totGross=rows.reduce((s,r)=>s+r.gross,0);
+  const totOtPay=rows.reduce((s,r)=>s+r.ot,0);
+
+  v.innerHTML=`
+   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+     <div class="period-toggle">
+       <button class="${mode==='weekly'?'active':''}" onclick="_payrollMode='weekly';payrollReport(document.getElementById('view'))">Weekly</button>
+       <button class="${mode==='biweekly'?'active':''}" onclick="_payrollMode='biweekly';payrollReport(document.getElementById('view'))">Biweekly</button>
+     </div>
+     <div style="display:flex;align-items:center;gap:8px">
+       <button class="btn ghost sm" onclick="_payrollWeekOffset--;payrollReport(document.getElementById('view'))">← Prev</button>
+       <span style="font-weight:600;font-size:.9rem;min-width:180px;text-align:center">${periodLabel}</span>
+       <button class="btn ghost sm" onclick="_payrollWeekOffset++;payrollReport(document.getElementById('view'))" ${_payrollWeekOffset>=0?'disabled':''}>Next →</button>
+       ${_payrollWeekOffset!==0?`<button class="btn ghost sm" onclick="_payrollWeekOffset=0;payrollReport(document.getElementById('view'))">Today</button>`:''}
+     </div>
+   </div>
+
+   <div class="report-summary">
+     <div class="card kpi"><div class="lbl">Regular Hours</div><div class="val gold">${fmtH(totRegHrs)}</div><div class="sub">${emps.length} officers</div></div>
+     <div class="card kpi"><div class="lbl">Overtime Hours</div><div class="val" style="color:${totOtHrs>0?'var(--red)':'inherit'}">${fmtH(totOtHrs)}</div><div class="sub">${totOtHrs>0?rows.filter(r=>r.hours.ot>0).length+' with OT':'No overtime'}</div></div>
+     <div class="card kpi"><div class="lbl">Total Payroll</div><div class="val green">${moneyDec(totGross)}</div><div class="sub">${totOtPay>0?moneyDec(totOtPay)+' is OT':'All regular rate'}</div></div>
+     <div class="card kpi"><div class="lbl">Avg per Officer</div><div class="val">${moneyDec(emps.length?totGross/emps.length:0)}</div><div class="sub">${fmtH(emps.length?(totRegHrs+totOtHrs)/emps.length:0)} avg hours</div></div>
+   </div>
+
+   <div class="section-title">Breakdown by Officer</div>
+   <div class="tbl-wrap"><table><thead><tr><th>Officer</th><th>Rate</th><th>Reg. Hours</th><th>OT Hours</th><th>Reg. Pay</th><th>OT Pay</th><th>Gross</th><th>Entries</th><th>Status</th></tr></thead><tbody>
+   ${rows.length?rows.sort((a,b)=>b.gross-a.gross).map(r=>`<tr>
+     <td><strong>${esc(r.emp.name)}</strong><div style="font-size:.72rem;color:var(--gray)">${esc(r.emp.title)}</div></td>
+     <td class="mono">$${r.emp.rate||18}/hr</td>
+     <td class="mono">${fmtH(r.hours.regular)}</td>
+     <td class="mono">${r.hours.ot>0?fmtH(r.hours.ot)+'<span class="ot-badge">1.5×</span>':'—'}</td>
+     <td class="mono">${moneyDec(r.regular)}</td>
+     <td class="mono" style="color:${r.ot>0?'var(--red)':'inherit'}">${r.ot>0?moneyDec(r.ot):'—'}</td>
+     <td class="mono" style="font-weight:700;color:var(--green)">${moneyDec(r.gross)}</td>
+     <td class="mono">${r.entries}</td>
+     <td>${r.pending?`<span style="color:var(--gold);font-size:.74rem">${r.pending} pending</span>`:''} ${r.flagged?`<span style="color:var(--red);font-size:.74rem">${r.flagged} flagged</span>`:''} ${!r.pending&&!r.flagged&&r.approved?'<span style="color:var(--green);font-size:.74rem">✓ all approved</span>':''} ${!r.entries?'<span style="color:var(--gray);font-size:.74rem">—</span>':''}</td>
+   </tr>`).join(''):'<tr><td colspan="9" class="empty">No officers configured.</td></tr>'}
+   <tr style="font-weight:700;background:rgba(0,0,0,.02)">
+     <td>TOTAL</td><td></td>
+     <td class="mono">${fmtH(totRegHrs)}</td><td class="mono">${totOtHrs>0?fmtH(totOtHrs):'—'}</td>
+     <td class="mono">${moneyDec(rows.reduce((s,r)=>s+r.regular,0))}</td>
+     <td class="mono">${totOtPay>0?moneyDec(totOtPay):'—'}</td>
+     <td class="mono" style="color:var(--green)">${moneyDec(totGross)}</td>
+     <td class="mono">${rows.reduce((s,r)=>s+r.entries,0)}</td><td></td>
+   </tr>
+   </tbody></table></div>`;
 }
 
 /* ========================= DOCUMENTS (shared: admin + owner) ========================= */
@@ -1324,17 +1484,35 @@ function entryStatusPill(t){
   if(t.status==='flagged')return '<span class="pill gold"><span class="dot"></span>Flagged</span>';
   return '<span class="pill gray"><span class="dot"></span>Pending</span>';
 }
+let _empFilter={from:'',to:'',status:''};
 function empHours(v){
-  const entries=load(K.time,[]).filter(t=>t.empId===session.empId).sort((a,b)=>b.in-a.in);
-  const wh=weekHours(session.empId);
-  const rate=(load(K.emp,[]).find(e=>e.id===session.empId)||{}).rate||18;
+  const allEntries=load(K.time,[]).filter(t=>t.empId===session.empId).sort((a,b)=>b.in-a.in);
+  // Apply filters
+  let entries=allEntries;
+  if(_empFilter.from){const f=new Date(_empFilter.from).getTime();entries=entries.filter(t=>t.in>=f);}
+  if(_empFilter.to){const f=new Date(_empFilter.to+'T23:59:59').getTime();entries=entries.filter(t=>t.in<=f);}
+  if(_empFilter.status)entries=entries.filter(t=>(_empFilter.status==='active'&&!t.out)||(t.status===_empFilter.status));
+
+  const ws=weekStart();
+  const wEnd=new Date(ws);wEnd.setDate(wEnd.getDate()+7);
+  const pay=calcPay(session.empId,ws.getTime(),wEnd.getTime());
+  const rate=empRate(session.empId);
   v.innerHTML=`
-   <div class="grid stat-row" style="grid-template-columns:repeat(3,1fr)">
-     <div class="card kpi"><div class="lbl">This Week</div><div class="val gold">${fmtH(wh)}</div></div>
-     <div class="card kpi"><div class="lbl">Est. Gross (@ $${rate}/hr)</div><div class="val green">${money(Math.round(wh*rate))}</div></div>
-     <div class="card kpi"><div class="lbl">Entries Logged</div><div class="val">${entries.length}</div></div>
+   <div class="grid stat-row" style="grid-template-columns:repeat(4,1fr)">
+     <div class="card kpi"><div class="lbl">Regular Hours</div><div class="val gold">${fmtH(pay.hours.regular)}</div><div class="sub">≤ ${OT_THRESHOLD}hr/wk</div></div>
+     <div class="card kpi"><div class="lbl">Overtime</div><div class="val" style="color:${pay.hours.ot>0?'var(--red)':'inherit'}">${fmtH(pay.hours.ot)}</div><div class="sub">${pay.hours.ot>0?'1.5× rate':'No OT this week'}</div></div>
+     <div class="card kpi"><div class="lbl">Est. Gross</div><div class="val green">${moneyDec(pay.gross)}</div><div class="sub">@ $${rate}/hr${pay.hours.ot>0?' + $'+(rate*OT_MULTIPLIER).toFixed(0)+'/hr OT':''}</div></div>
+     <div class="card kpi"><div class="lbl">Entries</div><div class="val">${allEntries.length}</div><div class="sub">${entries.length!==allEntries.length?entries.length+' shown':'All time'}</div></div>
    </div>
    <div class="section-title">Time Entries</div>
+   <div class="filter-bar">
+     <div class="field"><label>From</label><input type="date" id="ef_from" value="${_empFilter.from}" onchange="_empFilter.from=this.value;empHours(document.getElementById('view'))"></div>
+     <div class="field"><label>To</label><input type="date" id="ef_to" value="${_empFilter.to}" onchange="_empFilter.to=this.value;empHours(document.getElementById('view'))"></div>
+     <div class="field"><label>Status</label><select id="ef_status" onchange="_empFilter.status=this.value;empHours(document.getElementById('view'))">
+       <option value="">All</option><option value="active" ${_empFilter.status==='active'?'selected':''}>Active</option><option value="pending" ${_empFilter.status==='pending'?'selected':''}>Pending</option><option value="approved" ${_empFilter.status==='approved'?'selected':''}>Approved</option><option value="flagged" ${_empFilter.status==='flagged'?'selected':''}>Flagged</option><option value="rejected" ${_empFilter.status==='rejected'?'selected':''}>Rejected</option>
+     </select></div>
+     ${(_empFilter.from||_empFilter.to||_empFilter.status)?`<button class="btn ghost sm" onclick="_empFilter={from:'',to:'',status:''};empHours(document.getElementById('view'))">Clear</button>`:''}
+   </div>
    <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Site</th><th>In</th><th>Out</th><th>Break</th><th>Worked</th><th>Status</th></tr></thead><tbody>
    ${entries.length?entries.map(t=>`<tr><td>${fmtDate(t.in)}</td><td>${t.site||'—'}</td><td class="mono">${fmtTime(t.in)}</td><td class="mono">${t.out?fmtTime(t.out):'—'}</td><td class="mono">${breakMs(t)?fmtH(hrs(breakMs(t))):'—'}</td><td class="mono">${fmtH(hrs(workedMs(t)))}</td><td>${entryStatusPill(t)}${(t.flags||[]).length?` <span title="${esc((t.flags||[]).join('; '))}" style="color:var(--gold)">⚑</span>`:''}</td></tr>`).join(''):'<tr><td colspan="7" class="empty">No time entries yet.</td></tr>'}
    </tbody></table></div>`;
@@ -1373,13 +1551,44 @@ function adminSchedule(v){
      <td><button class="btn ghost sm" onclick="openSiteModal('${s.id}')">Set location</button></td></tr>`).join(''):'<tr><td colspan="4" class="empty">No posts yet — add a shift to create one.</td></tr>'}
    </tbody></table></div>`);
 }
+let _siteMap=null,_siteMarker=null,_siteCircle=null;
 function openSiteModal(id){
   const s=load(K.sites,[]).find(x=>x.id===id); if(!s)return;
-  modal(`<h2>${esc(s.name)}</h2><div class="sub">Enter the post's GPS coordinates + geofence radius. Punches outside the radius get auto-flagged for review.</div>
-   <div style="display:flex;gap:12px"><div class="field" style="flex:1"><label>Latitude</label><input id="s_lat" type="number" step="0.00001" value="${typeof s.lat==='number'?s.lat:''}" placeholder="29.76"></div><div class="field" style="flex:1"><label>Longitude</label><input id="s_lng" type="number" step="0.00001" value="${typeof s.lng==='number'?s.lng:''}" placeholder="-95.37"></div></div>
-   <div class="field"><label>Geofence radius (meters)</label><input id="s_rad" type="number" value="${s.radius||150}"></div>
+  const hasCoords=typeof s.lat==='number'&&typeof s.lng==='number';
+  const defLat=hasCoords?s.lat:29.7604;const defLng=hasCoords?s.lng:-95.3698;
+  modal(`<h2>${esc(s.name)}</h2><div class="sub">Drag the pin or enter coordinates. The gold circle is your geofence — punches outside it get auto-flagged.</div>
+   <div id="siteMap"></div>
+   <div style="display:flex;gap:12px"><div class="field" style="flex:1"><label>Latitude</label><input id="s_lat" type="number" step="0.00001" value="${hasCoords?s.lat:''}" placeholder="29.76" oninput="updateSiteMap()"></div><div class="field" style="flex:1"><label>Longitude</label><input id="s_lng" type="number" step="0.00001" value="${hasCoords?s.lng:''}" placeholder="-95.37" oninput="updateSiteMap()"></div></div>
+   <div class="field"><label>Geofence radius (meters)</label><input id="s_rad" type="number" value="${s.radius||150}" oninput="updateSiteCircle()"></div>
    <div class="field"><button class="btn ghost sm" type="button" onclick="useMyLocationForSite()">📍 Use my current location</button></div>
    <div class="modal-actions"><button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn gold" onclick="saveSite('${s.id}')">Save location</button></div>`);
+  setTimeout(()=>initSiteMap(defLat,defLng,s.radius||150,hasCoords),120);
+}
+function initSiteMap(lat,lng,radius,hasPin){
+  if(_siteMap){_siteMap.remove();_siteMap=null;}
+  const el=document.getElementById('siteMap'); if(!el)return;
+  _siteMap=L.map('siteMap',{scrollWheelZoom:true}).setView([lat,lng],hasPin?16:12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'© OpenStreetMap',maxZoom:19}).addTo(_siteMap);
+  const goldIcon=L.divIcon({className:'',html:'<div style="width:28px;height:28px;background:var(--gold);border:3px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,.3)"></div>',iconSize:[28,28],iconAnchor:[14,14]});
+  _siteMarker=L.marker([lat,lng],{draggable:true,icon:goldIcon}).addTo(_siteMap);
+  _siteCircle=L.circle([lat,lng],{radius,color:'#c8a84b',fillColor:'#c8a84b',fillOpacity:.13,weight:2}).addTo(_siteMap);
+  _siteMarker.on('dragend',()=>{
+    const p=_siteMarker.getLatLng();
+    document.getElementById('s_lat').value=p.lat.toFixed(6);
+    document.getElementById('s_lng').value=p.lng.toFixed(6);
+    _siteCircle.setLatLng(p);
+  });
+}
+function updateSiteMap(){
+  const lat=parseFloat(document.getElementById('s_lat').value);
+  const lng=parseFloat(document.getElementById('s_lng').value);
+  if(isNaN(lat)||isNaN(lng)||!_siteMap)return;
+  _siteMarker.setLatLng([lat,lng]);_siteCircle.setLatLng([lat,lng]);_siteMap.setView([lat,lng],16);
+}
+function updateSiteCircle(){
+  const r=Number(document.getElementById('s_rad').value)||150;
+  if(_siteCircle)_siteCircle.setRadius(r);
 }
 async function useMyLocationForSite(){
   const loc=await getLoc(); if(!loc)return toast('Could not get your location — allow location access');
@@ -1418,29 +1627,192 @@ function adminDash(v){
   const emps=load(K.emp,[]);
   const onClock=emps.filter(e=>activeEntry(e.id));
   const leads=load(K.leads,[]);
-  const pipeline=leads.filter(l=>!['Won','Lost'].includes(l.stage)).reduce((s,l)=>s+Number(l.value||0),0);
+  const open=leads.filter(l=>!['Won','Lost'].includes(l.stage));
+  const pipeline=open.reduce((s,l)=>s+Number(l.value||0),0);
   const won=leads.filter(l=>l.stage==='Won');
   const wonVal=won.reduce((s,l)=>s+Number(l.value||0),0);
   const weekTotal=emps.reduce((s,e)=>s+weekHours(e.id),0);
+  const payroll=emps.reduce((s,e)=>s+weekHours(e.id)*(e.rate||18),0);
+  const pendingTimes=load(K.time,[]).filter(t=>t.out&&(t.status==='pending'||t.status==='flagged'));
+
+  // pipeline stage counts
+  const stages=['New','Contacted','Demo Sent','Proposal'];
+  const stageCounts=stages.map(s=>{const sl=open.filter(l=>l.stage===s);return{stage:s,count:sl.length,val:sl.reduce((a,l)=>a+Number(l.value||0),0)};});
+
+  // due today / tomorrow / overdue
+  const dueNow=open.filter(l=>['overdue','today'].includes(dueInfo(l.nextStepDue).cls));
+  const dueTom=open.filter(l=>dueInfo(l.nextStepDue).cls==='soon');
+
+  // recent activity feed (same logic as owner)
+  const acts=[];
+  load(K.time,[]).forEach(t=>{
+    acts.push({when:t.in,icon:'🟢',txt:`<strong>${esc(empName(t.empId))}</strong> clocked in${t.site?' at '+esc(t.site):''}`});
+    if(t.out)acts.push({when:t.out,icon:'⚪',txt:`<strong>${esc(empName(t.empId))}</strong> clocked out · ${fmtH(hrs(workedMs(t)))}`});
+  });
+  won.forEach(l=>acts.push({when:l.created||Date.now(),icon:'🏆',txt:`Contract won - <strong>${esc(l.company)}</strong> · ${money(l.value)}`}));
+  leads.forEach(l=>{
+    if(!l.notes||!l.notes.length)return;
+    l.notes.forEach(n=>{
+      if(!n||!n.when)return;
+      const t=(n.t||'').trim();
+      if(!t)return;
+      if(/^Agent drafted|^Outreach drafted|^✉️/i.test(t))return;
+      if(/^\[Auto\]/.test(t)){
+        acts.push({when:n.when,icon:'⚡',txt:`<strong>${esc(l.company)}</strong> - ${esc(t.replace('[Auto] ',''))}`});
+      } else if(/called|left v|spoke|vm|voicemail|met with|visited|no answer/i.test(t)&&t.length<200){
+        acts.push({when:n.when,icon:'📞',txt:`<strong>${esc(l.company)}</strong> - ${esc(t)}`});
+      } else if(/interested|not intrested|overview|proposal|pricing|signed|won|lost|declined|schedule|meeting/i.test(t)&&t.length<200&&!/^Score \d/.test(t)){
+        acts.push({when:n.when,icon:'📝',txt:`<strong>${esc(l.company)}</strong> - ${esc(t)}`});
+      } else if(/↩︎ Draft sent back/i.test(t)){
+        acts.push({when:n.when,icon:'↩️',txt:`<strong>${esc(l.company)}</strong> - draft sent back for revision`});
+      }
+    });
+  });
+  acts.sort((a,b)=>b.when-a.when);
+
   v.innerHTML=`
    <div class="grid stat-row">
      <div class="card kpi"><div class="lbl">On Duty Now</div><div class="val green">${onClock.length}<small> / ${emps.length}</small></div><div class="sub">${onClock.map(e=>e.name.split(' ')[0]).join(', ')||'Nobody clocked in'}</div></div>
-     <div class="card kpi"><div class="lbl">Open Pipeline</div><div class="val gold">${money(pipeline)}</div><div class="sub">${leads.filter(l=>!['Won','Lost'].includes(l.stage)).length} active leads</div></div>
-     <div class="card kpi"><div class="lbl">Closed / Won</div><div class="val green">${money(wonVal)}</div><div class="sub">${won.length} contracts signed</div></div>
-     <div class="card kpi"><div class="lbl">Team Hours (wk)</div><div class="val">${fmtH(weekTotal)}</div><div class="sub">Across ${emps.length} officers</div></div>
+     <div class="card kpi"><div class="lbl">Open Pipeline</div><div class="val gold">${money(pipeline)}</div><div class="sub">${open.length} active leads</div></div>
+     <div class="card kpi"><div class="lbl">Closed / Won</div><div class="val green">${money(wonVal)}</div><div class="sub">${won.length} contract${won.length===1?'':'s'} signed</div></div>
+     <div class="card kpi"><div class="lbl">Payroll (wk)</div><div class="val">${money(Math.round(payroll))}</div><div class="sub">${fmtH(weekTotal)} across ${emps.length} officers</div></div>
    </div>
+
+   ${(function(){
+     const GOALS_KEY='gts_30day_goals';
+     const defaults={
+       start:'2026-07-06',deadline:'2026-08-05',
+       goals:[
+         {id:'client',title:'First client under contract',milestones:[
+           {id:'pipeline',label:'Lead pipeline built',done:false},
+           {id:'meetings',label:'First meetings/demos scheduled',done:false},
+           {id:'proposal',label:'Proposal sent',done:false},
+           {id:'negotiate',label:'Contract negotiated',done:false},
+           {id:'signed',label:'Contract signed',done:false}
+         ]},
+         {id:'migration',title:'Domain migration + employee portal',milestones:[
+           {id:'domain',label:'Domain purchased/configured',done:false},
+           {id:'deploy',label:'Portal deployed to production',done:false},
+           {id:'auth',label:'Employee login/auth working',done:false},
+           {id:'dashboard',label:'Employee dashboard functional',done:false},
+           {id:'dispatch',label:'Scheduling/dispatch working',done:false}
+         ]}
+       ]
+     };
+     let gd;
+     try{gd=JSON.parse(localStorage.getItem(GOALS_KEY))||defaults;}catch(e){gd=defaults;}
+     if(!gd.goals)gd=defaults;
+     const now=new Date();
+     const start=new Date(gd.start);
+     const end=new Date(gd.deadline);
+     const totalDays=Math.round((end-start)/(864e5));
+     const elapsed=Math.max(0,Math.round((now-start)/(864e5)));
+     const remaining=Math.max(0,totalDays-elapsed);
+     const timePct=Math.min(100,Math.round((elapsed/totalDays)*100));
+
+     return `
+     <div class="section-title">30-Day Sprint Goals <span style="font-size:.76rem;color:var(--gray);font-weight:400">Jul 6 - Aug 5, 2026</span></div>
+     <div class="card" style="padding:20px 22px;margin-bottom:18px;background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border:none;border-radius:14px">
+       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+         <div style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)">Time remaining</div>
+         <div style="font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;color:${remaining<=7?'var(--red)':'var(--gold)'}">${remaining}<small style="font-size:.8rem;color:rgba(255,255,255,.5)"> / ${totalDays} days</small></div>
+       </div>
+       <div style="background:rgba(255,255,255,.1);border-radius:6px;height:8px;overflow:hidden">
+         <div style="width:${timePct}%;height:100%;background:${timePct>80?'var(--red)':timePct>50?'var(--gold)':'var(--green)'};border-radius:6px;transition:width .4s"></div>
+       </div>
+       <div style="display:flex;justify-content:space-between;font-size:.7rem;color:rgba(255,255,255,.4);margin-top:6px"><span>Day ${elapsed}</span><span>${timePct}% elapsed</span></div>
+     </div>
+     <div class="grid" style="grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px">
+     ${gd.goals.map((g,gi)=>{
+       const done=g.milestones.filter(m=>m.done).length;
+       const total=g.milestones.length;
+       const pct=Math.round((done/total)*100);
+       return `<div class="card" style="padding:18px 20px">
+         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+           <div style="font-weight:700;font-size:.88rem">${g.title}</div>
+           <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;color:${pct===100?'var(--green)':'var(--gold)'}">${pct}%</div>
+         </div>
+         <div style="background:var(--line);border-radius:4px;height:6px;overflow:hidden;margin-bottom:14px">
+           <div style="width:${pct}%;height:100%;background:${pct===100?'var(--green)':'var(--gold)'};border-radius:4px;transition:width .3s"></div>
+         </div>
+         ${g.milestones.map((m,mi)=>`<label style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:.84rem;cursor:pointer" onclick="event.preventDefault();toggleGoalMilestone(${gi},${mi})">
+           <span style="width:20px;height:20px;border-radius:6px;border:2px solid ${m.done?'var(--green)':'var(--line)'};background:${m.done?'var(--green-dim)':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s">${m.done?'<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--green);fill:none;stroke-width:3"><path d="M20 6L9 17l-5-5"/></svg>':''}</span>
+           <span style="${m.done?'text-decoration:line-through;color:var(--gray)':''}">${m.label}</span>
+         </label>`).join('')}
+       </div>`;
+     }).join('')}
+     </div>`;
+   })()}
+
+   <div class="section-title">Pipeline <span style="display:flex;gap:8px;margin-left:auto"><button class="btn gold sm" onclick="openLeadModal()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2"><path d="M12 5v14M5 12h14"/></svg>Add Lead</button><button class="btn ghost sm" onclick="go('crm')">Open full CRM</button></span></div>
+   <div class="grid dash-stages" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">
+     ${stageCounts.map(s=>`<div class="card" style="padding:14px 16px;text-align:center">
+       <div style="font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gray);margin-bottom:6px">${s.stage}</div>
+       <div style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800">${s.count}</div>
+       <div style="font-size:.76rem;color:var(--green);font-weight:600;margin-top:2px">${money(s.val)}</div>
+     </div>`).join('')}
+   </div>
+   <div class="dash-due-row" style="display:flex;gap:10px;margin-bottom:16px">
+     <div class="card" style="flex:1;padding:12px 16px;display:flex;align-items:center;gap:10px;border-color:${dueNow.length?'var(--gold)':'var(--line)'}">
+       <span style="font-size:1.1rem">${dueNow.length?'🔥':'✅'}</span>
+       <div><div style="font-weight:700;font-size:.9rem">${dueNow.length} due today</div>
+         <div style="font-size:.74rem;color:var(--gray)">${dueNow.slice(0,3).map(l=>l.company||l.contact).join(', ')}${dueNow.length>3?' +more':''}</div></div>
+     </div>
+     <div class="card" style="flex:1;padding:12px 16px;display:flex;align-items:center;gap:10px">
+       <span style="font-size:1.1rem">📅</span>
+       <div><div style="font-weight:700;font-size:.9rem">${dueTom.length} due tomorrow</div>
+         <div style="font-size:.74rem;color:var(--gray)">${dueTom.slice(0,3).map(l=>l.company||l.contact).join(', ')}${dueTom.length>3?' +more':''}</div></div>
+     </div>
+     ${pendingTimes.length?`<div class="card" style="flex:1;padding:12px 16px;display:flex;align-items:center;gap:10px;border-color:var(--gold);cursor:pointer" onclick="go('team')">
+       <span style="font-size:1.1rem">🕑</span>
+       <div><div style="font-weight:700;font-size:.9rem">${pendingTimes.length} timesheet${pendingTimes.length===1?'':'s'}</div>
+         <div style="font-size:.74rem;color:var(--gray)">pending review</div></div>
+     </div>`:''}
+   </div>
+   <div class="tbl-wrap"><table><thead><tr><th>Company</th><th>Contact</th><th>Stage</th><th>Next Step</th><th>Due</th><th>Value</th></tr></thead><tbody>
+   ${dueNow.concat(dueTom).concat(open.filter(l=>!dueNow.includes(l)&&!dueTom.includes(l)).sort((a,b)=>(Number(b.value)||0)-(Number(a.value)||0))).slice(0,12).map(l=>{const di=dueInfo(l.nextStepDue);return`<tr onclick="leadDetail('${l.id}')" style="cursor:pointer">
+     <td><strong>${esc(l.company||'(no company)')}</strong><div style="font-size:.74rem;color:var(--gray)">${esc(l.city||'')}</div></td>
+     <td style="font-size:.84rem">${esc(l.contact)}</td>
+     <td><span class="pill gold"><span class="dot"></span>${esc(l.stage)}</span></td>
+     <td style="font-size:.82rem">${esc(l.nextStep||defaultNextStep(l.stage))}</td>
+     <td><span class="due ${di.cls}" style="font-size:.74rem">${di.txt}</span></td>
+     <td class="mono" style="color:var(--green);font-weight:700">${money(l.value)}</td>
+   </tr>`}).join('')}
+   </tbody></table></div>
+
    <div class="section-title">Who's On Duty <button class="btn ghost sm" onclick="go('team')">View timesheets</button></div>
    <div class="tbl-wrap"><table><thead><tr><th>Officer</th><th>Status</th><th>Since</th><th>Today</th><th>This Week</th></tr></thead><tbody>
-   ${emps.map(e=>{const ae=activeEntry(e.id);return `<tr><td><strong>${e.name}</strong><div style="font-size:.74rem;color:var(--gray)">${e.title}</div></td>
+   ${emps.map(e=>{const ae=activeEntry(e.id);return `<tr><td><strong>${esc(e.name)}</strong><div style="font-size:.74rem;color:var(--gray)">${esc(e.title||'')}</div></td>
      <td>${ae?'<span class="pill green"><span class="dot"></span>On duty</span>':'<span class="pill gray"><span class="dot"></span>Off</span>'}</td>
      <td class="mono">${ae?fmtTime(ae.in):'—'}</td>
      <td class="mono">${ae?fmtH(hrs(Date.now()-ae.in)):'—'}</td>
-     <td class="mono">${fmtH(weekHours(e.id))}</td></tr>`}).join('')}
+     <td class="mono">${fmtH(weekHours(e.id))}</td></tr>`}).join('')||'<tr><td colspan="5" class="empty">No officers yet.</td></tr>'}
    </tbody></table></div>
-   <div class="section-title">Hot Leads <button class="btn ghost sm" onclick="go('crm')">Open CRM</button></div>
-   <div class="tbl-wrap"><table><thead><tr><th>Company</th><th>Contact</th><th>Stage</th><th>Value</th></tr></thead><tbody>
-   ${leads.filter(l=>['Proposal','Demo Sent','Contacted'].includes(l.stage)).slice(0,5).map(l=>`<tr onclick="leadDetail('${l.id}')" style="cursor:pointer"><td><strong>${l.company}</strong><div style="font-size:.74rem;color:var(--gray)">${l.city}</div></td><td>${l.contact}</td><td><span class="pill gold"><span class="dot"></span>${l.stage}</span></td><td class="mono" style="color:var(--green);font-weight:700">${money(l.value)}</td></tr>`).join('')}
-   </tbody></table></div>`;
+
+   <div class="section-title">Recent Activity</div>
+   ${(function(){
+     if(!acts.length)return '<div class="card empty">No activity yet.</div>';
+     const grouped={};const standalone=[];
+     acts.slice(0,30).forEach(a=>{
+       const m=a.txt.match(/<strong>([^<]+)<\/strong>/);
+       const key=m?m[1]:null;
+       if(!key||/clocked in|clocked out/.test(a.txt)){standalone.push(a);return;}
+       if(!grouped[key])grouped[key]={items:[],latest:0,icons:new Set()};
+       grouped[key].items.push(a);
+       grouped[key].icons.add(a.icon);
+       if(a.when>grouped[key].latest)grouped[key].latest=a.when;
+     });
+     const entries=Object.entries(grouped).map(([k,v])=>({lead:k,...v})).sort((a,b)=>b.latest-a.latest);
+     return `<div class="card" style="padding:6px 4px">${entries.map(g=>{
+       const iconStr=[...g.icons].join('');
+       return `<details style="border-bottom:1px solid var(--line)">
+         <summary style="display:flex;gap:10px;align-items:center;padding:10px 14px;cursor:pointer;font-size:.86rem;font-weight:600">
+           <span>${iconStr}</span><span style="flex:1">${g.lead} <span style="font-weight:400;color:var(--gray);font-size:.76rem">(${g.items.length})</span></span>
+           <span class="mono" style="font-size:.72rem;color:var(--gray);white-space:nowrap">${fmtDate(g.latest)}</span>
+         </summary>
+         <div style="padding:0 14px 10px 38px">${g.items.map(a=>`<div style="display:flex;gap:8px;align-items:baseline;padding:4px 0;font-size:.82rem;color:var(--navy)"><span>${a.icon}</span><div style="flex:1">${a.txt.replace(/<strong>[^<]+<\/strong> - /,'')}</div><span class="mono" style="font-size:.68rem;color:var(--gray);white-space:nowrap">${fmtTime(a.when)}</span></div>`).join('')}</div>
+       </details>`}).join('')}${standalone.length?standalone.slice(0,5).map(a=>`<div style="display:flex;gap:12px;align-items:baseline;padding:9px 14px;border-bottom:1px solid var(--line)"><span>${a.icon}</span><div style="flex:1;font-size:.86rem">${a.txt}</div><span class="mono" style="font-size:.72rem;color:var(--gray);white-space:nowrap">${fmtDate(a.when)} ${fmtTime(a.when)}</span></div>`).join(''):''}</div>`;
+   })()}`;
 }
 
 /* ========================= OWNER (Kenrick M.) — SUMMARY + APPROVALS ========================= */
@@ -1499,18 +1871,14 @@ function ownerDash(v){
   });
   acts.sort((a,b)=>b.when-a.when);
   v.innerHTML=`
-   ${need?`<div class="card" style="border:1px solid var(--gold);background:linear-gradient(135deg,rgba(200,168,75,.14),rgba(200,168,75,.04));display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px">
-     <div><div style="font-weight:700;font-size:1.02rem;color:var(--gold)">${need} item${need>1?'s':''} need your approval</div>
-       <div style="font-size:.8rem;color:var(--gray);margin-top:3px">${drafts.length} email draft${drafts.length===1?'':'s'} to send · ${times.length} timesheet${times.length===1?'':'s'} to review</div></div>
-     <button class="btn gold" onclick="go('approvals')">Review now →</button>
-   </div>`:`<div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:20px"><span style="font-size:1.3rem">✅</span><div><div style="font-weight:700">You're all caught up</div><div style="font-size:.8rem;color:var(--gray)">No drafts or timesheets are waiting on you.</div></div></div>`}
+
    <div class="grid stat-row">
      <div class="card kpi"><div class="lbl">On Duty Now</div><div class="val green">${onClock.length}<small> / ${emps.length}</small></div><div class="sub">${onClock.map(e=>e.name.split(' ')[0]).join(', ')||'Nobody clocked in'}</div></div>
      <div class="card kpi"><div class="lbl">Open Pipeline</div><div class="val gold">${money(pipeline)}</div><div class="sub">${leads.filter(l=>!['Won','Lost'].includes(l.stage)).length} active leads</div></div>
      <div class="card kpi"><div class="lbl">Closed / Won</div><div class="val green">${money(wonVal)}</div><div class="sub">${won.length} contract${won.length===1?'':'s'} signed</div></div>
      <div class="card kpi"><div class="lbl">Payroll (wk)</div><div class="val">${money(Math.round(payroll))}</div><div class="sub">${fmtH(weekTotal)} across ${emps.length} officers</div></div>
    </div>
-   <div class="section-title">Pipeline <button class="btn ghost sm" onclick="go('crm')">Open full CRM</button></div>
+   <div class="section-title">Pipeline <span style="display:flex;gap:8px;margin-left:auto"><button class="btn gold sm" onclick="ownerAddLead()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2"><path d="M12 5v14M5 12h14"/></svg>Add Lead</button><button class="btn ghost sm" onclick="go('crm')">Open full CRM</button></span></div>
    ${(function(){
      const open=leads.filter(l=>!['Won','Lost'].includes(l.stage));
      const stages=['New','Contacted','Demo Sent','Proposal'];
@@ -1518,14 +1886,14 @@ function ownerDash(v){
      // due today / tomorrow / overdue
      const dueNow=open.filter(l=>['overdue','today'].includes(dueInfo(l.nextStepDue).cls));
      const dueTom=open.filter(l=>dueInfo(l.nextStepDue).cls==='soon');
-     return `<div class="grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">
+     return `<div class="grid dash-stages" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">
        ${stageCounts.map(s=>`<div class="card" style="padding:14px 16px;text-align:center">
          <div style="font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gray);margin-bottom:6px">${s.stage}</div>
          <div style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800">${s.count}</div>
          <div style="font-size:.76rem;color:var(--green);font-weight:600;margin-top:2px">${money(s.val)}</div>
        </div>`).join('')}
      </div>
-     <div style="display:flex;gap:10px;margin-bottom:16px">
+     <div class="dash-due-row" style="display:flex;gap:10px;margin-bottom:16px">
        <div class="card" style="flex:1;padding:12px 16px;display:flex;align-items:center;gap:10px;border-color:${dueNow.length?'var(--gold)':'var(--line)'}">
          <span style="font-size:1.1rem">${dueNow.length?'🔥':'✅'}</span>
          <div><div style="font-weight:700;font-size:.9rem">${dueNow.length} due today</div>
@@ -1557,7 +1925,35 @@ function ownerDash(v){
      <td class="mono">${fmtH(weekHours(e.id))}</td></tr>`}).join('')||'<tr><td colspan="5" class="empty">No officers yet.</td></tr>'}
    </tbody></table></div>
    <div class="section-title">Recent Activity</div>
-   <div class="card" style="padding:6px 4px">${acts.length?acts.slice(0,10).map(a=>`<div style="display:flex;gap:12px;align-items:baseline;padding:9px 14px;border-bottom:1px solid rgba(255,255,255,.05)"><span>${a.icon}</span><div style="flex:1;font-size:.86rem">${a.txt}</div><span class="mono" style="font-size:.72rem;color:var(--gray);white-space:nowrap">${fmtDate(a.when)} ${fmtTime(a.when)}</span></div>`).join(''):'<div class="empty">No activity yet.</div>'}</div>`;
+   ${(function(){
+     if(!acts.length)return '<div class="card empty">No activity yet.</div>';
+     const grouped={};const standalone=[];
+     acts.slice(0,30).forEach(a=>{
+       const m=a.txt.match(/<strong>([^<]+)<\/strong>/);
+       const key=m?m[1]:null;
+       if(!key||/clocked in|clocked out/.test(a.txt)){standalone.push(a);return;}
+       if(!grouped[key])grouped[key]={items:[],latest:0,icons:new Set()};
+       grouped[key].items.push(a);
+       grouped[key].icons.add(a.icon);
+       if(a.when>grouped[key].latest)grouped[key].latest=a.when;
+     });
+     const entries=Object.entries(grouped).map(([k,v])=>({lead:k,...v})).sort((a,b)=>b.latest-a.latest);
+     return `<div class="card" style="padding:6px 4px">${entries.map(g=>{
+       const iconStr=[...g.icons].join('');
+       return `<details style="border-bottom:1px solid var(--line)">
+         <summary style="display:flex;gap:10px;align-items:center;padding:10px 14px;cursor:pointer;font-size:.86rem;font-weight:600">
+           <span>${iconStr}</span><span style="flex:1">${g.lead} <span style="font-weight:400;color:var(--gray);font-size:.76rem">(${g.items.length})</span></span>
+           <span class="mono" style="font-size:.72rem;color:var(--gray);white-space:nowrap">${fmtDate(g.latest)}</span>
+         </summary>
+         <div style="padding:0 14px 10px 38px">${g.items.map(a=>`<div style="display:flex;gap:8px;align-items:baseline;padding:4px 0;font-size:.82rem;color:var(--navy)"><span>${a.icon}</span><div style="flex:1">${a.txt.replace(/<strong>[^<]+<\/strong> — /,'')}</div><span class="mono" style="font-size:.68rem;color:var(--gray);white-space:nowrap">${fmtTime(a.when)}</span></div>`).join('')}</div>
+       </details>`}).join('')}${standalone.length?standalone.slice(0,5).map(a=>`<div style="display:flex;gap:12px;align-items:baseline;padding:9px 14px;border-bottom:1px solid var(--line)"><span>${a.icon}</span><div style="flex:1;font-size:.86rem">${a.txt}</div><span class="mono" style="font-size:.72rem;color:var(--gray);white-space:nowrap">${fmtDate(a.when)} ${fmtTime(a.when)}</span></div>`).join(''):''}</div>`;
+   })()}`;
+}
+function ownerAddLead(){
+  const tom=new Date();tom.setDate(tom.getDate()+1);
+  const dueStr=tom.toISOString().slice(0,10);
+  openLeadModal();
+  setTimeout(()=>{const d=document.getElementById('l_due');if(d)d.value=dueStr;},50);
 }
 function ownerApprovals(v){
   const {drafts,times}=ownerPending();
@@ -1683,9 +2079,10 @@ function ownerLeads(v){
 /* ========================= TEAM & TIMESHEETS ========================= */
 const empName=id=>{const e=load(K.emp,[]).find(x=>x.id===id);return e?e.name:'?';};
 const empRate=id=>{const e=load(K.emp,[]).find(x=>x.id===id);return (e&&e.rate)||18;};
+let _teamFilter={emp:'',site:'',from:'',to:'',status:''};
 function team(v){
   const emps=load(K.emp,[]);
-  const all=load(K.time,[]);
+  let all=load(K.time,[]);
   // Stage 2 — approval queue: closed punches awaiting review (pending or auto-flagged)
   const queue=all.filter(t=>t.out&&(t.status==='pending'||t.status==='flagged'))
     .sort((a,b)=>(b.flags||[]).length-(a.flags||[]).length||b.in-a.in);
@@ -1703,22 +2100,59 @@ function team(v){
      </tr>`).join('')}
      </tbody></table></div>
    </div>`:'<div class="card empty" style="margin-bottom:20px">No timesheets awaiting review. All caught up.</div>';
-  v.innerHTML=`
-   <div class="section-title">Stage 2 — Approval Queue <span style="font-size:.72rem;color:var(--gray);font-weight:400">approve before it feeds billing</span></div>
-   ${queueHTML}
-   <div class="section-title">Officers <button class="btn ghost sm" onclick="openEmpModal()">+ Add officer</button></div>
-   <div class="tbl-wrap"><table><thead><tr><th>Officer</th><th>Role</th><th>Bill rate</th><th>Status</th><th>This Week</th><th>Est. (wk)</th><th></th></tr></thead><tbody>
-   ${emps.map(e=>{const ae=activeEntry(e.id);const wh=weekHours(e.id);return `<tr><td><div style="display:flex;align-items:center;gap:10px"><div class="avatar" style="width:30px;height:30px;font-size:.72rem">${e.name.split(' ').map(s=>s[0]).join('')}</div><strong>${e.name}</strong></div></td>
+
+  // Officers table with OT
+  const ws=weekStart();const wEnd=new Date(ws);wEnd.setDate(wEnd.getDate()+7);
+  const officerRows=emps.map(e=>{
+    const ae=activeEntry(e.id);
+    const pay=calcPay(e.id,ws.getTime(),wEnd.getTime());
+    return `<tr><td><div style="display:flex;align-items:center;gap:10px"><div class="avatar" style="width:30px;height:30px;font-size:.72rem">${e.name.split(' ').map(s=>s[0]).join('')}</div><strong>${e.name}</strong></div></td>
      <td>${e.title}</td>
      <td class="mono">$${e.rate||18}/hr</td>
      <td>${ae?(onBreak(ae)?'<span class="pill gold"><span class="dot"></span>On break</span>':'<span class="pill green"><span class="dot"></span>On duty</span>'):'<span class="pill gray"><span class="dot"></span>Off</span>'}</td>
-     <td class="mono">${fmtH(wh)}</td>
-     <td class="mono" style="color:var(--green);font-weight:700">${money(Math.round(wh*(e.rate||18)))}</td>
-     <td><button class="btn ghost sm" onclick="openEmpModal('${e.id}')">Edit</button></td></tr>`}).join('')}
+     <td class="mono">${fmtH(pay.hours.regular)}${pay.hours.ot>0?'<span class="ot-badge">+'+fmtH(pay.hours.ot)+' OT</span>':''}</td>
+     <td class="mono" style="color:var(--green);font-weight:700">${moneyDec(pay.gross)}</td>
+     <td><button class="btn ghost sm" onclick="openEmpModal('${e.id}')">Edit</button></td></tr>`;
+  }).join('');
+
+  // Filtered entries
+  let filtered=all.slice();
+  const sites=[...new Set(all.map(t=>t.site).filter(Boolean))];
+  if(_teamFilter.emp)filtered=filtered.filter(t=>t.empId===_teamFilter.emp);
+  if(_teamFilter.site)filtered=filtered.filter(t=>t.site===_teamFilter.site);
+  if(_teamFilter.from){const f=new Date(_teamFilter.from).getTime();filtered=filtered.filter(t=>t.in>=f);}
+  if(_teamFilter.to){const f=new Date(_teamFilter.to+'T23:59:59').getTime();filtered=filtered.filter(t=>t.in<=f);}
+  if(_teamFilter.status){
+    if(_teamFilter.status==='active')filtered=filtered.filter(t=>!t.out);
+    else filtered=filtered.filter(t=>t.status===_teamFilter.status);
+  }
+  filtered.sort((a,b)=>b.in-a.in);
+  const hasFilter=_teamFilter.emp||_teamFilter.site||_teamFilter.from||_teamFilter.to||_teamFilter.status;
+
+  v.innerHTML=`
+   <div class="section-title">Approval Queue <span style="font-size:.72rem;color:var(--gray);font-weight:400">approve before it feeds billing</span></div>
+   ${queueHTML}
+   <div class="section-title">Officers <button class="btn ghost sm" onclick="openEmpModal()">+ Add officer</button></div>
+   <div class="tbl-wrap"><table><thead><tr><th>Officer</th><th>Role</th><th>Rate</th><th>Status</th><th>This Week</th><th>Est. Gross</th><th></th></tr></thead><tbody>
+   ${officerRows}
    </tbody></table></div>
-   <div class="section-title">All Time Entries</div>
+   <div class="section-title">All Time Entries <span style="font-size:.78rem;color:var(--gray);font-weight:400">${filtered.length}${hasFilter?' filtered':''}${filtered.length!==all.length?' of '+all.length:''}</span></div>
+   <div class="filter-bar">
+     <div class="field"><label>Officer</label><select id="tf_emp" onchange="_teamFilter.emp=this.value;team(document.getElementById('view'))">
+       <option value="">All</option>${emps.map(e=>`<option value="${e.id}" ${_teamFilter.emp===e.id?'selected':''}>${esc(e.name)}</option>`).join('')}
+     </select></div>
+     <div class="field"><label>Site</label><select id="tf_site" onchange="_teamFilter.site=this.value;team(document.getElementById('view'))">
+       <option value="">All</option>${sites.map(s=>`<option value="${esc(s)}" ${_teamFilter.site===s?'selected':''}>${esc(s)}</option>`).join('')}
+     </select></div>
+     <div class="field"><label>From</label><input type="date" value="${_teamFilter.from}" onchange="_teamFilter.from=this.value;team(document.getElementById('view'))"></div>
+     <div class="field"><label>To</label><input type="date" value="${_teamFilter.to}" onchange="_teamFilter.to=this.value;team(document.getElementById('view'))"></div>
+     <div class="field"><label>Status</label><select onchange="_teamFilter.status=this.value;team(document.getElementById('view'))">
+       <option value="">All</option><option value="active" ${_teamFilter.status==='active'?'selected':''}>Active</option><option value="pending" ${_teamFilter.status==='pending'?'selected':''}>Pending</option><option value="approved" ${_teamFilter.status==='approved'?'selected':''}>Approved</option><option value="flagged" ${_teamFilter.status==='flagged'?'selected':''}>Flagged</option><option value="rejected" ${_teamFilter.status==='rejected'?'selected':''}>Rejected</option>
+     </select></div>
+     ${hasFilter?`<button class="btn ghost sm" onclick="_teamFilter={emp:'',site:'',from:'',to:'',status:''};team(document.getElementById('view'))">Clear</button>`:''}
+   </div>
    <div class="tbl-wrap"><table><thead><tr><th>Officer</th><th>Date</th><th>Site</th><th>In</th><th>Out</th><th>Break</th><th>Worked</th><th>Status</th></tr></thead><tbody>
-   ${all.sort((a,b)=>b.in-a.in).map(t=>`<tr><td>${empName(t.empId)}</td><td>${fmtDate(t.in)}</td><td>${t.site||'—'}</td><td class="mono">${fmtTime(t.in)}</td><td class="mono">${t.out?fmtTime(t.out):'—'}</td><td class="mono">${breakMs(t)?fmtH(hrs(breakMs(t))):'—'}</td><td class="mono">${fmtH(hrs(workedMs(t)))}</td><td>${entryStatusPill(t)}${(t.flags||[]).length?` <span title="${esc((t.flags||[]).join('; '))}" style="color:var(--gold)">⚑</span>`:''}</td></tr>`).join('')||'<tr><td colspan="8" class="empty">No entries.</td></tr>'}
+   ${filtered.length?filtered.map(t=>`<tr><td>${empName(t.empId)}</td><td>${fmtDate(t.in)}</td><td>${t.site||'—'}</td><td class="mono">${fmtTime(t.in)}</td><td class="mono">${t.out?fmtTime(t.out):'—'}</td><td class="mono">${breakMs(t)?fmtH(hrs(breakMs(t))):'—'}</td><td class="mono">${fmtH(hrs(workedMs(t)))}</td><td>${entryStatusPill(t)}${(t.flags||[]).length?` <span title="${esc((t.flags||[]).join('; '))}" style="color:var(--gold)">⚑</span>`:''}</td></tr>`).join(''):'<tr><td colspan="8" class="empty">No entries match your filters.</td></tr>'}
    </tbody></table></div>`;
 }
 /* Officer add/edit — name, role, PIN, bill rate. Syncs the roster to the cloud. */
@@ -1992,6 +2426,31 @@ function dropLead(e,stage,el){
   }
   dragId=null;render();
 }
+function toggleGoalMilestone(gi,mi){
+  const GOALS_KEY='gts_30day_goals';
+  const defaults={start:'2026-07-06',deadline:'2026-08-05',goals:[
+    {id:'client',title:'First client under contract',milestones:[
+      {id:'pipeline',label:'Lead pipeline built',done:false},
+      {id:'meetings',label:'First meetings/demos scheduled',done:false},
+      {id:'proposal',label:'Proposal sent',done:false},
+      {id:'negotiate',label:'Contract negotiated',done:false},
+      {id:'signed',label:'Contract signed',done:false}
+    ]},
+    {id:'migration',title:'Domain migration + employee portal',milestones:[
+      {id:'domain',label:'Domain purchased/configured',done:false},
+      {id:'deploy',label:'Portal deployed to production',done:false},
+      {id:'auth',label:'Employee login/auth working',done:false},
+      {id:'dashboard',label:'Employee dashboard functional',done:false},
+      {id:'dispatch',label:'Scheduling/dispatch working',done:false}
+    ]}
+  ]};
+  let gd;
+  try{gd=JSON.parse(localStorage.getItem(GOALS_KEY))||defaults;}catch(e){gd=defaults;}
+  if(!gd.goals)gd=defaults;
+  gd.goals[gi].milestones[mi].done=!gd.goals[gi].milestones[mi].done;
+  localStorage.setItem(GOALS_KEY,JSON.stringify(gd));
+  render();
+}
 function openLeadModal(){
   modal(`<h2>Add Lead</h2><div class="sub">New prospect into the pipeline.</div>
    <div class="field"><label>Company</label><input id="l_co" placeholder="Business name"></div>
@@ -2143,24 +2602,22 @@ const GTS = (function(){
     updateLead(key,patch){ const arr=getAll(),i=find(arr,key); if(i<0)return {ok:false,error:'not found'};
       applyPatch(arr[i],patch||{}); commit(arr); return {ok:true,id:arr[i].id}; },
     addNote(key,text){ if(!text)return {ok:false,error:'text required'}; const arr=getAll(),i=find(arr,key);
-      if(i<0)return {ok:false,error:'not found'}; arr[i].notes=arr[i].notes||[]; arr[i].notes.push({t:String(text),when:Date.now()});
-      commit(arr); return {ok:true,id:arr[i].id,notes:arr[i].notes.length}; },
-    setStage(key,stage){ if(!STAGES.includes(stage))return {ok:false,error:'stage must be one of '+STAGES.join(', ')};
-      const arr=getAll(),i=find(arr,key); if(i<0)return {ok:false,error:'not found'};
-      arr[i].stage=stage; if(!arr[i].nextStep||arr[i].nextStep===NO_STEP)arr[i].nextStep=defaultNextStep(stage);
-      if(typeof queueForAgent==='function')queueForAgent(arr[i]); commit(arr); return {ok:true,id:arr[i].id,stage}; },
+      if(i<0)return {ok:false,error:'not found'};
+      arr[i].notes=arr[i].notes||[]; arr[i].notes.push({t:String(text),when:Date.now()});
+      commit(arr); return {ok:true}; },
+    setStage(key,stage){ const arr=getAll(),i=find(arr,key); if(i<0)return {ok:false,error:'not found'};
+      const old=arr[i].stage; arr[i].stage=stage;
+      arr[i].notes=arr[i].notes||[]; arr[i].notes.push({t:`[Auto] Stage changed: ${old} → ${stage}`,when:Date.now()});
+      commit(arr); return {ok:true}; },
     setNextStep(key,step,due){ const arr=getAll(),i=find(arr,key); if(i<0)return {ok:false,error:'not found'};
-      if(step!=null)arr[i].nextStep=step; if(due!==undefined)arr[i].nextStepDue=due||''; commit(arr);
-      return {ok:true,id:arr[i].id,nextStep:arr[i].nextStep,nextStepDue:arr[i].nextStepDue}; },
-    bulkUpsert(list){ if(!Array.isArray(list))return {ok:false,error:'array required'};
-      const arr=getAll(); let added=0,updated=0;
-      list.forEach(obj=>{ if(!obj||(!obj.company&&!obj.contact))return;
-        const key=((obj.company||'')+'|'+(obj.contact||'')).toLowerCase().trim();
-        let i=arr.findIndex(l=>normKey(l)===key);
-        if(i>=0){applyPatch(arr[i],obj);updated++;}else{const l=blank();applyPatch(l,obj);arr.push(l);added++;} });
-      commit(arr); return {ok:true,added,updated,total:arr.length}; },
-    exportJSON(){ return JSON.stringify(getAll(),null,2); },
-    importJSON(str){ try{const list=JSON.parse(str);return this.bulkUpsert(list);}catch(e){return {ok:false,error:String(e)};} },
+      if(step)arr[i].nextStep=step; if(due)arr[i].nextStepDue=due;
+      commit(arr); return {ok:true}; },
+    bulkUpsert(leads){ if(!Array.isArray(leads))return {ok:false,error:'array required'};
+      const results=leads.map(l=>GTS.upsertLead(l));
+      return {ok:true,count:results.length,results}; },
+    exportJSON(){ return {ok:true,leads:getAll().map(shape)}; },
+    importJSON(leads){ if(!Array.isArray(leads))return {ok:false,error:'array required'};
+      save(K.leads,leads); commit(leads); return {ok:true,count:leads.length}; },
     stats(){ const arr=getAll(); const byStage={}; STAGES.forEach(s=>byStage[s]=0);
       const bySegment={}; let pipeline=0,won=0,dueToday=0;
       arr.forEach(l=>{ byStage[l.stage]=(byStage[l.stage]||0)+1; const sg=segOf(l); bySegment[sg]=(bySegment[sg]||0)+1;
@@ -2416,6 +2873,8 @@ function drawGTSLogo(canvas){
   const fc=document.createElement('canvas'); fc.width=64; fc.height=64; drawGTSLogo(fc);
   const fl=document.getElementById('favicon-link'); if(fl){fl.type='image/png'; fl.href=fc.toDataURL('image/png');}
 });
+// Register service worker for PWA / Add to Home Screen
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}
 </script>
 </body>
 </html>
