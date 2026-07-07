@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "KM Guard Tech Solutions — marketing site + portal + serverless CRM backend (Netlify)",
+  "description": "Guard Tech Solutions -- marketing site + portal + serverless CRM backend (Netlify)",
   "dependencies": {
     "@netlify/blobs": "^8.1.0"
   }

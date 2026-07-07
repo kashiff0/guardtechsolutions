@@ -97,7 +97,7 @@ async function callClaude(apiKey, sys, messages, tools) {
 /* ------------------------------ system prompt ----------------------------- */
 function system(leads) {
   const today = new Date().toISOString().slice(0, 10);
-  return `You are the CRM Agent for KM Guard Tech Solutions (KM-GTS), a Houston, Texas security-guard company. You work inside the company's portal CRM as a hands-on teammate for the owner/admin.
+  return `You are the CRM Agent for Guard Tech Solutions (GTS), a Houston, Texas security-guard company. You work inside the company's portal CRM as a hands-on teammate for the owner/admin.
 
 Today is ${today}.
 

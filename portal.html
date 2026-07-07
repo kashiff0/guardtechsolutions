@@ -1396,7 +1396,7 @@ function payrollReport(v){
    stages the whole docs folder). Add an entry here per file. */
 const DOCS=[
   {name:'GTS Capability Overview', kind:'PDF',
-   desc:'Company capability statement — services, coverage areas, and why owners choose KM Guard Tech Solutions.',
+   desc:'Company capability statement — services, coverage areas, and why owners choose Guard Tech Solutions.',
    file:'docs/gts-capability-overview.pdf'}
 ];
 function docsView(v){
@@ -1680,28 +1680,35 @@ function adminDash(v){
 
    ${(function(){
      const GOALS_KEY='gts_30day_goals';
-     const defaults={
-       start:'2026-07-06',deadline:'2026-08-05',
-       goals:[
-         {id:'client',title:'First client under contract',milestones:[
-           {id:'pipeline',label:'Lead pipeline built',done:false},
-           {id:'meetings',label:'First meetings/demos scheduled',done:false},
-           {id:'proposal',label:'Proposal sent',done:false},
-           {id:'negotiate',label:'Contract negotiated',done:false},
-           {id:'signed',label:'Contract signed',done:false}
-         ]},
-         {id:'migration',title:'Domain migration + employee portal',milestones:[
-           {id:'domain',label:'Domain purchased/configured',done:false},
-           {id:'deploy',label:'Portal deployed to production',done:false},
-           {id:'auth',label:'Employee login/auth working',done:false},
-           {id:'dashboard',label:'Employee dashboard functional',done:false},
-           {id:'dispatch',label:'Scheduling/dispatch working',done:false}
-         ]}
-       ]
-     };
+     const defaults={start:'2026-07-07',deadline:'2026-08-06',weeks:[
+       {id:'w1',title:'Week 1: Foundation & First Contact',range:'Jul 7-13',tasks:[
+         {id:'w1t1',day:'Day 1-2',label:'Send 8 outreach emails with Capability Overview attached',detail:'NOTO, Second Baptist, Property Commerce, Neon Boots, Sandcastle, Frankel, On Point, WPW',done:false},
+         {id:'w1t2',day:'Day 3',label:'Phone outreach to leads without email',detail:'Criss Cross Commercial (Dana Cangemi, 713-956-6625) + Heights Drive Inn (Richard McReavy, 832-203-7763)',done:false},
+         {id:'w1t3',day:'Day 4-5',label:'Follow-up calls to top-value email leads',detail:'NOTO Houston ($6K), Second Baptist ($5K), Property Commerce ($5K)',done:false},
+         {id:'w1t4',day:'Day 6-7',label:'Follow up Shannon PM proposal + prep meeting decks',detail:'Shannon Property Management already at Proposal stage',done:false}
+       ]},
+       {id:'w2',title:'Week 2: Follow-up & Meetings',range:'Jul 14-20',tasks:[
+         {id:'w2t1',day:'Day 8-9',label:'Second-touch emails to non-responders',detail:'Neon Boots, Sandcastle Homes, Frankel Building, On Point Custom, WPW Management',done:false},
+         {id:'w2t2',day:'Day 10-11',label:'Schedule and hold first meetings with warm leads',detail:'Any leads that replied or showed interest from Week 1 outreach',done:false},
+         {id:'w2t3',day:'Day 12-13',label:'Send tailored proposals to meeting-ready leads',detail:'Customize pricing + scope per segment (nightlife, construction, PM, faith)',done:false},
+         {id:'w2t4',day:'Day 14',label:'Pipeline review: update CRM stages, re-prioritize',detail:'Move leads forward/back based on actual responses, mark Lost if no traction',done:false}
+       ]},
+       {id:'w3',title:'Week 3: Proposals & Negotiation',range:'Jul 21-27',tasks:[
+         {id:'w3t1',day:'Day 15-16',label:'Formal proposals out to all warm leads',detail:'Include site assessment offer, pricing tiers, contract terms',done:false},
+         {id:'w3t2',day:'Day 17-18',label:'Negotiate terms + handle objections',detail:'Pricing flexibility, trial periods, scope adjustments as needed',done:false},
+         {id:'w3t3',day:'Day 19-20',label:'New lead prospecting: 5+ fresh targets researched',detail:'Research, verify contact info, add to CRM (no guessing emails)',done:false},
+         {id:'w3t4',day:'Day 21',label:'Mid-sprint review: assess close probability per lead',detail:'Score each lead, decide where to double down vs. move on',done:false}
+       ]},
+       {id:'w4',title:'Week 4: Close & Launch',range:'Jul 28 - Aug 6',tasks:[
+         {id:'w4t1',day:'Day 22-24',label:'Final negotiations + contract drafting',detail:'Legal review, finalize terms, prepare signing docs',done:false},
+         {id:'w4t2',day:'Day 25-26',label:'Domain migration + portal production deploy',detail:'guardtechsolutions.com configured, SSL, DNS, portal live on custom domain',done:false},
+         {id:'w4t3',day:'Day 27-28',label:'Employee auth + scheduling system finalized',detail:'Login working, dashboard functional, dispatch/scheduling operational',done:false},
+         {id:'w4t4',day:'Day 29-30',label:'First contract signed + operations kickoff',detail:'Guard deployment scheduled, client onboarding, recurring billing set up',done:false}
+       ]}
+     ]};
      let gd;
-     try{gd=JSON.parse(localStorage.getItem(GOALS_KEY))||defaults;}catch(e){gd=defaults;}
-     if(!gd.goals)gd=defaults;
+     try{gd=JSON.parse(localStorage.getItem(GOALS_KEY));}catch(e){gd=null;}
+     if(!gd||!gd.weeks)gd=defaults;
      const now=new Date();
      const start=new Date(gd.start);
      const end=new Date(gd.deadline);
@@ -1709,11 +1716,16 @@ function adminDash(v){
      const elapsed=Math.max(0,Math.round((now-start)/(864e5)));
      const remaining=Math.max(0,totalDays-elapsed);
      const timePct=Math.min(100,Math.round((elapsed/totalDays)*100));
+     const currentWeek=Math.min(3,Math.floor(elapsed/7));
+     const allTasks=gd.weeks.flatMap(w=>w.tasks);
+     const totalTasks=allTasks.length;
+     const doneTasks=allTasks.filter(t=>t.done).length;
+     const overallPct=Math.round((doneTasks/totalTasks)*100);
 
      return `
-     <div class="section-title">30-Day Sprint Goals <span style="font-size:.76rem;color:var(--gray);font-weight:400">Jul 6 - Aug 5, 2026</span></div>
+     <div class="section-title">30-Day Sprint Plan <span style="font-size:.76rem;color:var(--gray);font-weight:400">Jul 7 - Aug 6, 2026</span></div>
      <div class="card" style="padding:20px 22px;margin-bottom:18px;background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border:none;border-radius:14px">
-       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
          <div style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)">Time remaining</div>
          <div style="font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;color:${remaining<=7?'var(--red)':'var(--gold)'}">${remaining}<small style="font-size:.8rem;color:rgba(255,255,255,.5)"> / ${totalDays} days</small></div>
        </div>
@@ -1721,24 +1733,45 @@ function adminDash(v){
          <div style="width:${timePct}%;height:100%;background:${timePct>80?'var(--red)':timePct>50?'var(--gold)':'var(--green)'};border-radius:6px;transition:width .4s"></div>
        </div>
        <div style="display:flex;justify-content:space-between;font-size:.7rem;color:rgba(255,255,255,.4);margin-top:6px"><span>Day ${elapsed}</span><span>${timePct}% elapsed</span></div>
+       <div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:space-between">
+         <div style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)">Sprint progress</div>
+         <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;color:${overallPct===100?'var(--green)':'#fff'}">${doneTasks}<small style="font-size:.8rem;color:rgba(255,255,255,.5)"> / ${totalTasks} tasks</small></div>
+       </div>
+       <div style="background:rgba(255,255,255,.1);border-radius:6px;height:8px;overflow:hidden;margin-top:8px">
+         <div style="width:${overallPct}%;height:100%;background:${overallPct===100?'var(--green)':'var(--gold)'};border-radius:6px;transition:width .4s"></div>
+       </div>
      </div>
-     <div class="grid" style="grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px">
-     ${gd.goals.map((g,gi)=>{
-       const done=g.milestones.filter(m=>m.done).length;
-       const total=g.milestones.length;
-       const pct=Math.round((done/total)*100);
-       return `<div class="card" style="padding:18px 20px">
-         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-           <div style="font-weight:700;font-size:.88rem">${g.title}</div>
-           <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;color:${pct===100?'var(--green)':'var(--gold)'}">${pct}%</div>
+     <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:18px">
+     ${gd.weeks.map((w,wi)=>{
+       const wDone=w.tasks.filter(t=>t.done).length;
+       const wTotal=w.tasks.length;
+       const wPct=Math.round((wDone/wTotal)*100);
+       const isActive=wi===currentWeek;
+       const isPast=wi<currentWeek;
+       return `<div class="card" style="padding:0;overflow:hidden;${isActive?'border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)':''}">
+         <div style="padding:16px 20px;cursor:pointer;display:flex;align-items:center;gap:12px;${isActive?'background:rgba(212,175,55,.06)':''}" onclick="this.parentElement.querySelector('.sprint-tasks').style.display=this.parentElement.querySelector('.sprint-tasks').style.display==='none'?'block':'none'">
+           <span style="font-size:1rem">${wPct===100?'&#9989;':isActive?'&#9654;&#65039;':'&#9898;'}</span>
+           <div style="flex:1">
+             <div style="font-weight:700;font-size:.88rem">${w.title}</div>
+             <div style="font-size:.74rem;color:var(--gray)">${w.range}</div>
+           </div>
+           <div style="text-align:right">
+             <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;color:${wPct===100?'var(--green)':'var(--gold)'}">${wPct}%</div>
+             <div style="font-size:.7rem;color:var(--gray)">${wDone}/${wTotal}</div>
+           </div>
          </div>
-         <div style="background:var(--line);border-radius:4px;height:6px;overflow:hidden;margin-bottom:14px">
-           <div style="width:${pct}%;height:100%;background:${pct===100?'var(--green)':'var(--gold)'};border-radius:4px;transition:width .3s"></div>
+         <div class="sprint-tasks" style="display:${isActive||wi===0?'block':'none'};border-top:1px solid var(--line);padding:8px 20px 14px">
+           ${w.tasks.map((t,ti)=>`<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)">
+             <span style="width:22px;height:22px;border-radius:6px;border:2px solid ${t.done?'var(--green)':'var(--line)'};background:${t.done?'var(--green-dim)':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;margin-top:1px;transition:all .2s" onclick="toggleGoalMilestone(${wi},${ti})">${t.done?'<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--green);fill:none;stroke-width:3"><path d="M20 6L9 17l-5-5"/></svg>':''}</span>
+             <div style="flex:1;min-width:0">
+               <div style="display:flex;align-items:baseline;gap:8px">
+                 <span style="font-size:.72rem;font-weight:700;color:var(--gold);white-space:nowrap">${t.day}</span>
+                 <span style="font-size:.84rem;${t.done?'text-decoration:line-through;color:var(--gray)':''}">${t.label}</span>
+               </div>
+               ${t.detail?`<div style="font-size:.76rem;color:var(--gray);margin-top:3px;line-height:1.4">${t.detail}</div>`:''}
+             </div>
+           </div>`).join('')}
          </div>
-         ${g.milestones.map((m,mi)=>`<label style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:.84rem;cursor:pointer" onclick="event.preventDefault();toggleGoalMilestone(${gi},${mi})">
-           <span style="width:20px;height:20px;border-radius:6px;border:2px solid ${m.done?'var(--green)':'var(--line)'};background:${m.done?'var(--green-dim)':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s">${m.done?'<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--green);fill:none;stroke-width:3"><path d="M20 6L9 17l-5-5"/></svg>':''}</span>
-           <span style="${m.done?'text-decoration:line-through;color:var(--gray)':''}">${m.label}</span>
-         </label>`).join('')}
        </div>`;
      }).join('')}
      </div>`;
@@ -1958,7 +1991,7 @@ function ownerAddLead(){
 function ownerApprovals(v){
   const {drafts,times}=ownerPending();
   const draftsHTML=drafts.length?drafts.map(l=>{
-    const mail=l.email?`mailto:${encodeURIComponent(l.email)}?subject=${encodeURIComponent('KM Guard Tech Solutions')}&body=${encodeURIComponent(l.draft||'')}`:'';
+    const mail=l.email?`mailto:${encodeURIComponent(l.email)}?subject=${encodeURIComponent('Guard Tech Solutions')}&body=${encodeURIComponent(l.draft||'')}`:'';
     return `<div class="card" style="margin-bottom:14px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
         <div><div style="font-weight:700;font-size:1rem">${esc(l.company)}</div>
@@ -2426,28 +2459,38 @@ function dropLead(e,stage,el){
   }
   dragId=null;render();
 }
-function toggleGoalMilestone(gi,mi){
+function toggleGoalMilestone(wi,ti){
   const GOALS_KEY='gts_30day_goals';
-  const defaults={start:'2026-07-06',deadline:'2026-08-05',goals:[
-    {id:'client',title:'First client under contract',milestones:[
-      {id:'pipeline',label:'Lead pipeline built',done:false},
-      {id:'meetings',label:'First meetings/demos scheduled',done:false},
-      {id:'proposal',label:'Proposal sent',done:false},
-      {id:'negotiate',label:'Contract negotiated',done:false},
-      {id:'signed',label:'Contract signed',done:false}
+  const defaults={start:'2026-07-07',deadline:'2026-08-06',weeks:[
+    {id:'w1',title:'Week 1: Foundation & First Contact',range:'Jul 7-13',tasks:[
+      {id:'w1t1',day:'Day 1-2',label:'Send 8 outreach emails with Capability Overview attached',detail:'NOTO, Second Baptist, Property Commerce, Neon Boots, Sandcastle, Frankel, On Point, WPW',done:false},
+      {id:'w1t2',day:'Day 3',label:'Phone outreach to leads without email',detail:'Criss Cross Commercial (Dana Cangemi, 713-956-6625) + Heights Drive Inn (Richard McReavy, 832-203-7763)',done:false},
+      {id:'w1t3',day:'Day 4-5',label:'Follow-up calls to top-value email leads',detail:'NOTO Houston ($6K), Second Baptist ($5K), Property Commerce ($5K)',done:false},
+      {id:'w1t4',day:'Day 6-7',label:'Follow up Shannon PM proposal + prep meeting decks',detail:'Shannon Property Management already at Proposal stage',done:false}
     ]},
-    {id:'migration',title:'Domain migration + employee portal',milestones:[
-      {id:'domain',label:'Domain purchased/configured',done:false},
-      {id:'deploy',label:'Portal deployed to production',done:false},
-      {id:'auth',label:'Employee login/auth working',done:false},
-      {id:'dashboard',label:'Employee dashboard functional',done:false},
-      {id:'dispatch',label:'Scheduling/dispatch working',done:false}
+    {id:'w2',title:'Week 2: Follow-up & Meetings',range:'Jul 14-20',tasks:[
+      {id:'w2t1',day:'Day 8-9',label:'Second-touch emails to non-responders',detail:'Neon Boots, Sandcastle Homes, Frankel Building, On Point Custom, WPW Management',done:false},
+      {id:'w2t2',day:'Day 10-11',label:'Schedule and hold first meetings with warm leads',detail:'Any leads that replied or showed interest from Week 1 outreach',done:false},
+      {id:'w2t3',day:'Day 12-13',label:'Send tailored proposals to meeting-ready leads',detail:'Customize pricing + scope per segment (nightlife, construction, PM, faith)',done:false},
+      {id:'w2t4',day:'Day 14',label:'Pipeline review: update CRM stages, re-prioritize',detail:'Move leads forward/back based on actual responses, mark Lost if no traction',done:false}
+    ]},
+    {id:'w3',title:'Week 3: Proposals & Negotiation',range:'Jul 21-27',tasks:[
+      {id:'w3t1',day:'Day 15-16',label:'Formal proposals out to all warm leads',detail:'Include site assessment offer, pricing tiers, contract terms',done:false},
+      {id:'w3t2',day:'Day 17-18',label:'Negotiate terms + handle objections',detail:'Pricing flexibility, trial periods, scope adjustments as needed',done:false},
+      {id:'w3t3',day:'Day 19-20',label:'New lead prospecting: 5+ fresh targets researched',detail:'Research, verify contact info, add to CRM (no guessing emails)',done:false},
+      {id:'w3t4',day:'Day 21',label:'Mid-sprint review: assess close probability per lead',detail:'Score each lead, decide where to double down vs. move on',done:false}
+    ]},
+    {id:'w4',title:'Week 4: Close & Launch',range:'Jul 28 - Aug 6',tasks:[
+      {id:'w4t1',day:'Day 22-24',label:'Final negotiations + contract drafting',detail:'Legal review, finalize terms, prepare signing docs',done:false},
+      {id:'w4t2',day:'Day 25-26',label:'Domain migration + portal production deploy',detail:'guardtechsolutions.com configured, SSL, DNS, portal live on custom domain',done:false},
+      {id:'w4t3',day:'Day 27-28',label:'Employee auth + scheduling system finalized',detail:'Login working, dashboard functional, dispatch/scheduling operational',done:false},
+      {id:'w4t4',day:'Day 29-30',label:'First contract signed + operations kickoff',detail:'Guard deployment scheduled, client onboarding, recurring billing set up',done:false}
     ]}
   ]};
   let gd;
-  try{gd=JSON.parse(localStorage.getItem(GOALS_KEY))||defaults;}catch(e){gd=defaults;}
-  if(!gd.goals)gd=defaults;
-  gd.goals[gi].milestones[mi].done=!gd.goals[gi].milestones[mi].done;
+  try{gd=JSON.parse(localStorage.getItem(GOALS_KEY));}catch(e){gd=null;}
+  if(!gd||!gd.weeks)gd=defaults;
+  gd.weeks[wi].tasks[ti].done=!gd.weeks[wi].tasks[ti].done;
   localStorage.setItem(GOALS_KEY,JSON.stringify(gd));
   render();
 }
@@ -2625,7 +2668,7 @@ const GTS = (function(){
         if(l.stage==='Won')won+=Number(l.value||0); });
       return {ok:true,total:arr.length,byStage,bySegment,pipeline,wonValue:won,dueTodayOrOverdue:dueToday}; },
     help(asHtml){
-      const h=`<b>window.GTS — KM-GTS CRM agent API</b> (all writes dedupe by company|contact and cloud-sync)
+      const h=`<b>window.GTS — GTS CRM agent API</b> (all writes dedupe by company|contact and cloud-sync)
 <h4>Read</h4>
 <code>GTS.listLeads({stage,segment,minScore,noEmail,search})</code> -> {ok,count,leads[]}
 <code>GTS.getLead(idOrCompanyContactOrCompany)</code> -> {ok,lead}
