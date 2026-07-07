@@ -13,7 +13,7 @@
 // outreach — it never sends LinkedIn messages or email on the user's behalf.
 
 const MODEL = 'claude-sonnet-4-6'; // chat agent: fast + cheap for frequent tool loops. Swap to 'claude-opus-4-8' for max reasoning.
-const STAGES = ['New', 'Contacted', 'Demo Sent', 'Proposal', 'Won', 'Lost'];
+const STAGES = ['New', 'Outreach', 'Engaged', 'Proposal', 'Negotiation', 'Won', 'Lost'];
 const MAX_TURNS = 6;
 
 export default async (req) => {

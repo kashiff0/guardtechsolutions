@@ -603,7 +603,7 @@ function punchLocal(type){
   return {ok:true};
 }
 
-const STAGES=['New','Contacted','Demo Sent','Proposal','Won','Lost'];
+const STAGES=['New','Outreach','Engaged','Proposal','Negotiation','Won','Lost'];
 
 /* Sales-cadence next steps (security guard B2B field sales) */
 const NEXT_STEPS=[
@@ -628,10 +628,11 @@ const NO_STEP='— No next step —';
    it drafts the right artifact for that stage and sets actionStatus='ready' for the user
    to review + send. Statuses: pending (agent to do) → ready (review/send) → done. */
 const STAGE_ACTIONS={
-  'New':'LinkedIn intro — connection note + first message',
-  'Contacted':'Follow-up message',
-  'Demo Sent':'Coverage-plan / demo follow-up',
+  'New':'LinkedIn intro -- connection note + first message',
+  'Outreach':'Follow-up message',
+  'Engaged':'Coverage-plan / vendor form follow-up',
   'Proposal':'Proposal & pricing',
+  'Negotiation':'Final terms & site walk',
   'Won':'Onboarding kickoff (see close-and-deliver)',
   'Lost':'Log reason + nurture later'
 };
@@ -648,10 +649,11 @@ function markActionDone(id){const leads=load(K.leads,[]);const l=leads.find(x=>x
 /* sensible default next action for a given pipeline stage */
 function defaultNextStep(stage){
   return ({
-    'New':'First call',
-    'Contacted':'Follow-up call',
-    'Demo Sent':'Follow-up call',
+    'New':'Send intro email',
+    'Outreach':'Follow-up call',
+    'Engaged':'Send proposal',
     'Proposal':'Follow-up call',
+    'Negotiation':'Schedule meeting',
     'Won':NO_STEP,
     'Lost':NO_STEP
   })[stage]||'First call';
@@ -1636,7 +1638,7 @@ function adminDash(v){
   const pendingTimes=load(K.time,[]).filter(t=>t.out&&(t.status==='pending'||t.status==='flagged'));
 
   // pipeline stage counts
-  const stages=['New','Contacted','Demo Sent','Proposal'];
+  const stages=['New','Outreach','Engaged','Proposal','Negotiation'];
   const stageCounts=stages.map(s=>{const sl=open.filter(l=>l.stage===s);return{stage:s,count:sl.length,val:sl.reduce((a,l)=>a+Number(l.value||0),0)};});
 
   // due today / tomorrow / overdue
@@ -1778,7 +1780,7 @@ function adminDash(v){
    })()}
 
    <div class="section-title">Pipeline <span style="display:flex;gap:8px;margin-left:auto"><button class="btn gold sm" onclick="openLeadModal()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2"><path d="M12 5v14M5 12h14"/></svg>Add Lead</button><button class="btn ghost sm" onclick="go('crm')">Open full CRM</button></span></div>
-   <div class="grid dash-stages" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">
+   <div class="grid dash-stages" style="grid-template-columns:repeat(5,1fr);margin-bottom:16px">
      ${stageCounts.map(s=>`<div class="card" style="padding:14px 16px;text-align:center">
        <div style="font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gray);margin-bottom:6px">${s.stage}</div>
        <div style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800">${s.count}</div>
@@ -1914,12 +1916,12 @@ function ownerDash(v){
    <div class="section-title">Pipeline <span style="display:flex;gap:8px;margin-left:auto"><button class="btn gold sm" onclick="ownerAddLead()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2"><path d="M12 5v14M5 12h14"/></svg>Add Lead</button><button class="btn ghost sm" onclick="go('crm')">Open full CRM</button></span></div>
    ${(function(){
      const open=leads.filter(l=>!['Won','Lost'].includes(l.stage));
-     const stages=['New','Contacted','Demo Sent','Proposal'];
+     const stages=['New','Outreach','Engaged','Proposal','Negotiation'];
      const stageCounts=stages.map(s=>{const sl=open.filter(l=>l.stage===s);return{stage:s,count:sl.length,val:sl.reduce((a,l)=>a+Number(l.value||0),0)};});
      // due today / tomorrow / overdue
      const dueNow=open.filter(l=>['overdue','today'].includes(dueInfo(l.nextStepDue).cls));
      const dueTom=open.filter(l=>dueInfo(l.nextStepDue).cls==='soon');
-     return `<div class="grid dash-stages" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">
+     return `<div class="grid dash-stages" style="grid-template-columns:repeat(5,1fr);margin-bottom:16px">
        ${stageCounts.map(s=>`<div class="card" style="padding:14px 16px;text-align:center">
          <div style="font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gray);margin-bottom:6px">${s.stage}</div>
          <div style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800">${s.count}</div>
@@ -2595,7 +2597,7 @@ const val=id=>{const e=document.getElementById(id);return e?e.value:'';};
      email       string   "" or "—" = none (-> Call List)
      linkedin    string   profile URL
      specialty   string   segment / vertical (shown as "Segment")
-     stage       enum     one of STAGES: New, Contacted, Demo Sent, Proposal, Won, Lost
+     stage       enum     one of STAGES: New, Outreach, Engaged, Proposal, Negotiation, Won, Lost
      value       number   est. monthly contract $ (open pipeline = sum where stage not in {Won,Lost})
      nextStep    string   one of NEXT_STEPS
      nextStepDue string   ISO date "YYYY-MM-DD" or ""
